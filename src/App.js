@@ -175,8 +175,7 @@ export default function App() {
         </>
       )}
       />
-    </Router>
+    </Router>deneme
   );
 }
 
-/*my code my repo */
