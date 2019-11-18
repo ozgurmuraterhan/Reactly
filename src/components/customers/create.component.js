@@ -60,45 +60,45 @@ export default function CustomerCreate() {
 
   const [gropBoxOpen, seTgropBoxOpen] = useState(false);
   const [changeNewGroupNameJust, seTchangeNewGroupNameJust] = useState('');
+  const [dataPayments,seTdataPayments] = useState([]);
+  const [findCustomersGroup,seTfindCustomersGroup] = useState([]);
+  const [dataCountry,seTdataCountry ] = useState([]);
 
-  
-  
-  const [findCustomersGroup, seTfindCustomersGroup] = useState([]);
-  const [selectedDefaultStateArray, seTselectedDefaultStateArray] = useState([]);
-  const [selectedbillingAddressStateArray, seTselectedbillingAddressStateArray] = useState([]);
-  const [selectedshippingAddressState2Array, seTselectedshippingAddressState2Array] = useState([]);
-  
-  const [selectedDefaultState, seTselectedDefaultState] = useState([{ label: 'Not Selected', value: 'Not Selected' }]);
-  const [selectedDefaultCountry, seTselectedDefaultCountry] = useState([{ label: 'Not Selected', value: 'Not Selected' }]);
-  const [selectedbillingAddressCountry, seTselectedbillingAddressCountry] = useState([{ label: 'Not Selected', value: 'Not Selected' }]);
-  const [selectedbillingAddressState, seTselectedbillingAddressState] = useState([{ label: 'Not Selected', value: 'Not Selected' }]);
-  const [selectedshippingAddressCountry2, seTselectedshippingAddressCountry2] = useState([{ label: 'Not Selected', value: 'Not Selected' }]);
-  const [selectedshippingAddressState2, seTselectedshippingAddressState2] = useState([{ label: 'Not Selected', value: 'Not Selected' }]);
-  const [selectedGroupItems, seTselectedGroupItems] = useState([]);
-  const [selected1Zipcode, seTselected1Zipcode] = useState('');
-  const [selected2Zipcode, seTselected2Zipcode] = useState('');
-  const [selected3Zipcode, seTselected3Zipcode] = useState('');
-  const [selected1Town, seTselected1Town] = useState('');
-  const [selected2Town, seTselected2Town] = useState('');
-  const [selected3Town, seTselected3Town] = useState('');
-
-  const [company, seTcompany] = useState('');
-  const [email, seTemail] = useState('');
-  const [password, seTpassword] = useState(getRandomPass(8));
-  const [taxoffice, seTtaxoffice] = useState('');
-  const [taxnumber, seTtaxnumber] = useState('');
-  const [ssn, seTssn] = useState('');
-  const [executive, seTexecutive] = useState('');
-  const [phone, seTphone] = useState('');
-  const [fax, seTfax] = useState('');
-  const [web, seTweb] = useState('');
-  const [default_payment_method, seTdefault_payment_method] = useState('');
-  const [risk, seTrisk] = useState(80);
-  const [dataPayments, seTdataPayments] = useState([]);
-  const [selected2Address, seTselected2Address] = useState('');
-  const [selected1Address, seTselected1Address] = useState('');
-  const [selected3Address, seTselected3Address] = useState('');
-  const [dataCountry, seTdataCountry] = useState('');
+ 
+  const [state, seTstate] = useState({
+    selectedDefaultStateArray:[],
+    selectedbillingAddressStateArray:[],
+    selectedshippingAddressState2Array:[],
+    selectedDefaultState:[{ label: 'Not Selected', value: 'Not Selected' }],
+    selectedDefaultCountry:[{ label: 'Not Selected', value: 'Not Selected' }],
+    selectedbillingAddressCountry:[{ label: 'Not Selected', value: 'Not Selected' }],
+    selectedbillingAddressState:[{ label: 'Not Selected', value: 'Not Selected' }],
+    selectedshippingAddressCountry2:[{ label: 'Not Selected', value: 'Not Selected' }],
+    selectedshippingAddressState2:[{ label: 'Not Selected', value: 'Not Selected' }],
+    selectedGroupItems:[],
+    selected1Zipcode:'',
+    selected2Zipcode:'',
+    selected3Zipcode:'',
+    selected1Town:'',
+    selected2Town:'',
+    selected3Town:'',
+    company:'',
+    email:'',
+    password:getRandomPass(8),
+    taxoffice:'',
+    taxnumber:'',
+    ssn:'',
+    executive:'',
+    phone:'',
+    fax:'',
+    default_payment_method:'',
+    risk:80,
+    selected2Address:'',
+    selected1Address:'',
+    selected3Address:'',
+    fax:'',
+    fax:'',
+  });
 
 
 
@@ -113,8 +113,11 @@ export default function CustomerCreate() {
       });
     }
 
-      seTselectedDefaultStateArray( details)
-      seTselectedDefaultCountry( [{ label: selectedOption.label, value: selectedOption.label }])
+      seTstate({
+        ...state,
+        selectedDefaultStateArray: details,
+        selectedDefaultCountry: [{ label: selectedOption.label, value: selectedOption.label }]
+      })
   };
   // default adress func end
 
@@ -130,8 +133,11 @@ const onChangeFbillingAddressCountry = (selectedOption) => {
     });
   }
 
-    seTselectedbillingAddressStateArray( details)
-    seTselectedbillingAddressCountry( [{ label: selectedOption.label, value: selectedOption.label }])
+    seTstate({
+      ...state,
+      selectedbillingAddressStateArray: details,
+      selectedbillingAddressCountry: [{ label: selectedOption.label, value: selectedOption.label }]
+    })
  };
 
 // Billing adress func end
@@ -146,8 +152,11 @@ const onChangeFshippingAddressCountry = (selectedOption) => {
       value: selectedOption.value[1][i].name,
     });
   }
-    seTselectedshippingAddressState2Array( details)
-    seTselectedshippingAddressCountry2( [{ label: selectedOption.label, value: selectedOption.label }])
+    seTstate({
+      ...state,
+      selectedshippingAddressState2Array: details,
+      selectedshippingAddressCountry2: [{ label: selectedOption.label, value: selectedOption.label }]
+    })
 };
 // Shipping adress func end
 
@@ -239,56 +248,63 @@ function getCountryF() {
 
   const onCopyDefaultAdressTObillingAdress = (e) => {
     e.preventDefault();
-      seTselectedbillingAddressCountry(selectedDefaultCountry)
-      seTselectedbillingAddressState(selectedDefaultState)
-      seTselected2Address(selected1Address)
-      seTselected2Town(selected1Town)
-      seTselected2Zipcode(selected1Zipcode)
+      seTstate({
+      ...state,
+      selectedbillingAddressCountry:state.selectedDefaultCountry,
+      selectedbillingAddressState:state.selectedDefaultState,
+      selected2Address:state.selected1Address,
+      selected2Town:state.selected1Town,
+      selected2Zipcode:state.selected1Zipcode,
+      })
   }
 
-  const onCopyBillingAdressTOshippingAdress = () => {
-      seTselectedshippingAddressCountry2(selectedbillingAddressCountry)
-      seTselectedshippingAddressState2(selectedbillingAddressState)
-      seTselected3Address(selected2Address)
-      seTselected3Town(selected2Town)
-      seTselected3Zipcode(selected2Zipcode)
+  const onCopyBillingAdressTOshippingAdress = (e) => {
+      e.preventDefault();
+      seTstate({
+      ...state,
+      selectedshippingAddressCountry2:state.selectedbillingAddressCountry,
+      selectedshippingAddressState2:state.selectedbillingAddressState,
+      selected3Address:state.selected2Address,
+      selected3Town:state.selected2Town,
+      selected3Zipcode:state.selected2Zipcode,
+      })
   }
 
 
      const onSubmit = (e) => {
         e.preventDefault();
         const Customers = {
-          company: company,
-          email: email,
-          password: password,
-          group_id: selectedGroupItems,
-          taxoffice: taxoffice,
-          taxnumber: taxnumber,
-          ssn: ssn,
-          executive: executive,
-          phone: phone,
-          fax: fax,
-          web: web,
-          default_payment_method: default_payment_method,
-          risk: risk,
+          company: state.company,
+          email: state.email,
+          password: state.password,
+          group_id: state.selectedGroupItems,
+          taxoffice: state.taxoffice,
+          taxnumber: state.taxnumber,
+          ssn: state.ssn,
+          executive: state.executive,
+          phone: state.phone,
+          fax: state.fax,
+          web: state.web,
+          default_payment_method: state.default_payment_method,
+          risk: state.risk,
 
-          defaultAddress_country_id: selectedDefaultCountry[0].label,
-          defaultAddress_state_id: selectedDefaultState.label,
-          defaultAddress_town: selected1Town,
-          defaultAddress_zipcode: selected1Zipcode,
-          defaultAddress_address: selected1Address,
+          defaultAddress_country_id: state.selectedDefaultCountry[0].label,
+          defaultAddress_state_id: state.selectedDefaultState.label,
+          defaultAddress_town: state.selected1Town,
+          defaultAddress_zipcode: state.selected1Zipcode,
+          defaultAddress_address: state.selected1Address,
 
-          billingAddress_country_id: selectedbillingAddressCountry[0].label,
-          billingAddress_state_id: selectedbillingAddressState.label,
-          billingAddress_town: selected2Town,
-          billingAddress_zipcode: selected2Zipcode,
-          billingAddress_address: selected2Address,
+          billingAddress_country_id: state.selectedbillingAddressCountry[0].label,
+          billingAddress_state_id: state.selectedbillingAddressState.label,
+          billingAddress_town: state.selected2Town,
+          billingAddress_zipcode: state.selected2Zipcode,
+          billingAddress_address: state.selected2Address,
 
-          shippingAddress_country_id: selectedshippingAddressCountry2[0].label,
-          shippingAddress_state_id: selectedshippingAddressState2.label,
-          shippingAddress_town: selected3Town,
-          shippingAddress_zipcode: selected3Zipcode,
-          shippingAddress_address: selected3Address,
+          shippingAddress_country_id: state.selectedshippingAddressCountry2[0].label,
+          shippingAddress_state_id: state.selectedshippingAddressState2.label,
+          shippingAddress_town: state.selected3Town,
+          shippingAddress_zipcode: state.selected3Zipcode,
+          shippingAddress_address: state.selected3Address,
 
 
         };
@@ -324,8 +340,8 @@ function getCountryF() {
                           <FormControl>
                             <TextValidator
                               label={t('company')}
-                              value={company}
-                              onChange={(e) => { seTcompany (e.target.value) }}
+                              value={state.company}
+                              onChange={(e) => { seTstate({...state, company:e.target.value}) }}
                               required
 
                             />
@@ -340,8 +356,8 @@ function getCountryF() {
                             <TextValidator
                               required
                               label={t('email')}
-                              value={email}
-                              onChange={(e) => {  seTemail( e.target.value) }}
+                              value={state.email}
+                              onChange={(e) => {  seTstate({...state, email: e.target.value }) }}
                               validators={['isEmail']}
                               errorMessages={[t('emailIsNotValid')]}
                             />
@@ -355,8 +371,8 @@ function getCountryF() {
                             <TextValidator
                               required
                               label={t('password')}
-                              value={password}
-                              onChange={(e) => { seTpassword( e.target.value) }}
+                              value={state.password}
+                              onChange={(e) => { seTstate({...state, password: e.target.value }) }}
                             />
                             <FormHelperText>{t('youNeedaPassword')}</FormHelperText>
                           </FormControl>
@@ -388,9 +404,9 @@ function getCountryF() {
                                   }),
                                 }}
                                 placeholder={t('selectGropName')}
-                                value={selectedGroupItems}
+                                value={state.selectedGroupItems}
                                 options={findCustomersGroup}
-                                onChange={(selectedOption) => { seTselectedGroupItems( selectedOption) }}
+                                onChange={(selectedOption) => { seTstate({...state, selectedGroupItems:selectedOption }) }}
                               />
 
                             </FormControl>
@@ -403,8 +419,8 @@ function getCountryF() {
                           <FormControl>
                             <TextValidator
                               label={t('taxNumber')}
-                              value={taxnumber}
-                              onChange={(e) => { seTtaxnumber( e.target.value) }}
+                              value={state.taxnumber}
+                              onChange={(e) => { seTstate({...state, taxnumber: e.target.value }) }}
                               validators={['isNumber']}
                               errorMessages={[t('thisIsNotNumber')]}
                             />
@@ -418,8 +434,8 @@ function getCountryF() {
                             <InputLabel htmlFor="taxoffice" className="InputLabel">{t('taxOffice')}</InputLabel>
                             <Input
                               id="taxoffice"
-                              value={taxoffice}
-                              onChange={(e) => {  seTtaxoffice( e.target.value) }}
+                              value={state.taxoffice}
+                              onChange={(e) => {seTstate({...state, taxoffice: e.target.value }) }}
                             />
                             <FormHelperText>{t('youNeedaTaxOfficeName')}</FormHelperText>
                           </FormControl>
@@ -430,8 +446,8 @@ function getCountryF() {
                           <FormControl>
                             <TextValidator
                               label={t('SSN')}
-                              value={ssn}
-                              onChange={(e) => { seTssn(e.target.value) }}
+                              value={state.ssn}
+                              onChange={(e) => { seTstate({...state, ssn:e.target.value }) }}
                               validators={['isNumber']}
                               errorMessages={[t('thisIsNotNumber')]}
                             />
@@ -446,8 +462,8 @@ function getCountryF() {
                             <Input
                               id="executive"
 
-                              value={executive}
-                              onChange={(e) => { seTexecutive( e.target.value) }}
+                              value={state.executive}
+                              onChange={(e) => { seTstate({...state, executive:e.target.value }) }}
                             />
                             <FormHelperText>{t('youNeedaExecutiveName')}</FormHelperText>
                           </FormControl>
@@ -459,8 +475,8 @@ function getCountryF() {
                             <TextValidator
                               required
                               label={t('phone')}
-                              value={phone}
-                              onChange={(e) => { seTphone( e.target.value) }}
+                              value={state.phone}
+                              onChange={(e) => {seTstate({...state, phone: e.target.value }) }}
                               validators={['isNumber']}
                               errorMessages={[t('thisIsNotNumber')]}
                             />
@@ -473,8 +489,8 @@ function getCountryF() {
                           <FormControl>
                             <TextValidator
                               label={t('fax')}
-                              value={fax}
-                              onChange={(e) => {  seTfax( e.target.value) }}
+                              value={state.fax}
+                              onChange={(e) => {seTstate({...state, fax: e.target.value }) }}
                               validators={['isNumber']}
                               errorMessages={[t('thisIsNotNumber')]}
                             />
@@ -488,8 +504,8 @@ function getCountryF() {
                             <InputLabel htmlFor="web" className="InputLabel">{t('webSite')}</InputLabel>
                             <Input
                               id="web"
-                              value={web}
-                              onChange={(e) => { seTweb( e.target.value) }}
+                              value={state.web}
+                              onChange={(e) => { seTstate({...state, web:e.target.value}) }}
                             />
                             <FormHelperText>{t('youNeedaWebSiteUrl')}</FormHelperText>
                           </FormControl>
@@ -502,7 +518,7 @@ function getCountryF() {
                           <FormControl>
                             <Select
                               label={t('defaultPaymentMethod')}
-                              value={default_payment_method}
+                              value={state.default_payment_method}
                               styles={{
                                 control: (base) => ({
                                   ...base,
@@ -514,7 +530,7 @@ function getCountryF() {
                                 }),
                               }}
                               options={dataPayments}
-                              onChange={(selectedOption) => { seTdefault_payment_method( selectedOption) }}
+                              onChange={(selectedOption) => { seTstate({...state, default_payment_method: selectedOption}) }}
                             />
                             <FormHelperText>{t('youNeedaDefaultPaymentMethod')}</FormHelperText>
                           </FormControl>
@@ -526,8 +542,8 @@ function getCountryF() {
                           <FormControl>
                             <Slider
                               color="secondary"
-                              defaultValue={risk}
-                              onChangeCommitted={(e, val) => { e.preventDefault(); seTrisk(val) }}
+                              defaultValue={state.risk}
+                              onChangeCommitted={(e, val) => { e.preventDefault(); seTstate({...state, risk:val }) }}
                               passive={0}
                               valueLabelDisplay="on"
                               step={5}
@@ -570,8 +586,8 @@ function getCountryF() {
                             margin="normal"
                             variant="outlined"
                             style={{ width: '100%', float: 'left' }}
-                            value={selected1Address}
-                            onChange={(e) => { seTselected1Address(e.target.value) }}
+                            value={state.selected1Address}
+                            onChange={(e) => { seTstate({...state, selected1Address:e.target.value}) }}
                           />
                           <FormHelperText>{t('youNeedaAddress')}</FormHelperText>
                           <FormGroup className="FormGroupAddress">
@@ -580,7 +596,7 @@ function getCountryF() {
                               <Select
 
                                 placeholder={t('selectCountry')}
-                                value={selectedDefaultCountry}
+                                value={state.selectedDefaultCountry}
                                 options={dataCountry}
                                 onChange={handleChangeCountry}
                               />
@@ -592,9 +608,9 @@ function getCountryF() {
                               <label className="selectLabel">{t('state')}</label>
                               <Select
                                 placeholder={t('selectState')}
-                                value={selectedDefaultState}
-                                options={selectedDefaultStateArray}
-                                onChange={(selectedOption) => { seTselectedDefaultState( selectedOption) }}
+                                value={state.selectedDefaultState}
+                                options={state.selectedDefaultStateArray}
+                                onChange={(selectedOption) => { seTstate({...state, selectedDefaultState: selectedOption}) }}
                               />
                               <FormHelperText>{t('youNeedaStateName')}</FormHelperText>
                             </FormControl>
@@ -608,8 +624,8 @@ function getCountryF() {
                                 }}
                                 margin="dense"
                                 variant="outlined"
-                                value={selected1Zipcode}
-                                onChange={(e) => { seTselected1Zipcode(e.target.value) }}
+                                value={state.selected1Zipcode}
+                                onChange={(e) => { seTstate({...state, selected1Zipcode:e.target.value}) }}
                                 validators={['isNumber']}
                                 errorMessages={[t('thisIsNotNumber')]}
                               />
@@ -626,8 +642,8 @@ function getCountryF() {
                                 InputLabelProps={{
                                   shrink: true,
                                 }}
-                                value={selected1Town}
-                                onChange={(e) => {  seTselected1Town(e.target.value) }}
+                                value={state.selected1Town}
+                                onChange={(e) => {  seTstate({...state, selected1Town:e.target.value}) }}
                               />
                               <FormHelperText>{t('youNeedaTownName')}</FormHelperText>
                             </FormControl>
@@ -663,8 +679,8 @@ function getCountryF() {
                               margin="normal"
                               variant="outlined"
                               style={{ width: '100%', float: 'left' }}
-                              value={selected2Address}
-                              onChange={(e) => { seTselected2Address( e.target.value) }}
+                              value={state.selected2Address}
+                              onChange={(e) => { seTstate({...state, selected2Address:e.target.value}) }}
                             />
                             <FormHelperText>{t('youNeedaBillingAddress')}</FormHelperText>
                             <FormGroup className="FormGroupAddress">
@@ -672,7 +688,7 @@ function getCountryF() {
                                 <label className="selectLabel">{t('country')}</label>
                                 <Select
                                   placeholder={t('selectCountry')}
-                                  value={selectedbillingAddressCountry}
+                                  value={state.selectedbillingAddressCountry}
                                   options={dataCountry}
                                   onChange={onChangeFbillingAddressCountry}
                                 />
@@ -684,9 +700,9 @@ function getCountryF() {
                                 <label className="selectLabel">{t('state')}</label>
                                 <Select
                                   placeholder={t('selectState')}
-                                  value={selectedbillingAddressState}
-                                  options={selectedbillingAddressStateArray}
-                                  onChange={(selectedOption) => { seTselectedbillingAddressState( selectedOption) }}
+                                  value={state.selectedbillingAddressState}
+                                  options={state.selectedbillingAddressStateArray}
+                                  onChange={(selectedOption) => { seTstate({...state, selectedbillingAddressState: selectedOption}) }}
                                 />
                                 <FormHelperText>{t('youNeedaStateName')}</FormHelperText>
                               </FormControl>
@@ -700,8 +716,8 @@ function getCountryF() {
                                   }}
                                   margin="dense"
                                   variant="outlined"
-                                  value={selected2Zipcode}
-                                  onChange={(e) => { seTselected2Zipcode( e.target.value) }}
+                                  value={state.selected2Zipcode}
+                                  onChange={(e) => { seTstate({...state, selected2Zipcode:e.target.value}) }}
                                   validators={['isNumber']}
                                   errorMessages={[t('thisIsNotNumber')]}
                                 />
@@ -718,8 +734,8 @@ function getCountryF() {
                                   }}
                                   label={t('town')}
                                   id="town"
-                                  value={selected2Town}
-                                  onChange={(e) => { seTselected2Town( e.target.value) }}
+                                  value={state.selected2Town}
+                                  onChange={(e) => { seTstate({...state, selected2Town:e.target.value}) }}
                                 />
                                 <FormHelperText>{t('youNeedaTownName')}</FormHelperText>
                               </FormControl>
@@ -754,8 +770,8 @@ function getCountryF() {
                               margin="normal"
                               variant="outlined"
                               style={{ width: '100%', float: 'left' }}
-                              value={selected3Address}
-                              onChange={(e) => { seTselected3Address( e.target.value) }}
+                              value={state.selected3Address}
+                              onChange={(e) => { seTstate({...state, selected3Address: e.target.value}) }}
                             />
                             <FormHelperText>{t('youNeedaShippingAddress')}</FormHelperText>
                             <FormGroup className="FormGroupAddress">
@@ -763,7 +779,7 @@ function getCountryF() {
                                 <label className="selectLabel">{t('country')}</label>
                                 <Select
                                   placeholder={t('selectCountry')}
-                                  value={selectedshippingAddressCountry2}
+                                  value={state.selectedshippingAddressCountry2}
                                   options={dataCountry}
                                   onChange={onChangeFshippingAddressCountry}
                                 />
@@ -776,9 +792,9 @@ function getCountryF() {
                                 <Select
                                   placeholder={t('selectState')}
                                   style={{ width: '100%' }}
-                                  value={selectedshippingAddressState2}
-                                  options={selectedshippingAddressState2Array}
-                                  onChange={(selectedOption) => { seTselectedshippingAddressState2( selectedOption) }}
+                                  value={state.selectedshippingAddressState2}
+                                  options={state.selectedshippingAddressState2Array}
+                                  onChange={(selectedOption) => { seTstate({...state, selectedshippingAddressState2: selectedOption}) }}
                                 />
                                 <FormHelperText>{t('youNeedaStateName')}</FormHelperText>
                               </FormControl>
@@ -792,8 +808,8 @@ function getCountryF() {
                                   InputLabelProps={{
                                     shrink: true,
                                   }}
-                                  value={selected3Zipcode}
-                                  onChange={(e) => { seTselected3Zipcode( e.target.value) }}
+                                  value={state.selected3Zipcode}
+                                  onChange={(e) => { seTstate({...state, selected3Zipcode:e.target.value}) }}
                                   validators={['isNumber']}
                                   errorMessages={[t('thisIsNotNumber')]}
                                 />
@@ -810,8 +826,8 @@ function getCountryF() {
                                   InputLabelProps={{
                                     shrink: true,
                                   }}
-                                  value={selected3Town}
-                                  onChange={(e) => { seTselected3Town( e.target.value) }}
+                                  value={state.selected3Town}
+                                  onChange={(e) => { seTstate({...state, selected3Town:e.target.value}) }}
                                 />
                                 <FormHelperText>{t('youNeedaTownName')}</FormHelperText>
                               </FormControl>

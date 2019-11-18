@@ -256,7 +256,8 @@ const saveHandleNewGroup = () => {
 
   }
 
-      const onCopyDefaultAdressTObillingAdress = () => {
+      const onCopyDefaultAdressTObillingAdress = (e) => {
+        e.preventDefault();
         seTstate({ 
           ...state,
           selectedBillingAddressCountryEdit2: state.selectedDefaultAddressCountryEdit,
@@ -267,7 +268,8 @@ const saveHandleNewGroup = () => {
         })
       }
 
-     const onCopyBillingAdressTOshippingAdress = () => {
+     const onCopyBillingAdressTOshippingAdress = (e) => {
+       e.preventDefault();
         seTstate({ 
           ...state,
           selectedShippingAddressCountryEdit2:state.selectedBillingAddressCountryEdit2,
