@@ -889,12 +889,8 @@ const saveHandleNewGroup = () => {
               </FormControl>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => { seTgropBoxOpen (false )}} color="primary">
-                {t('cancel')}
-              </Button>
-              <Button onClick={saveHandleNewGroup} color="primary">
-                {t('save')}
-              </Button>
+              <Button onClick={() => { seTgropBoxOpen (false )}} color="primary"> {t('cancel')} </Button>
+              <Button onClick={saveHandleNewGroup} color="primary"> {t('save')} </Button>
             </DialogActions>
           </Dialog>
 
