@@ -24,18 +24,24 @@ import UsersList from './components/users/list.component';
 import UserCreate from './components/users/create.component';
 
 
-import InvoicesList from './components/invoices/list.component';
 */
 
 import CustomersEdit from './components/customers/edit.component';
-
 import CustomersCreate from './components/customers/create.component';
-
 import CustomersList from './components/customers/list.component';
 
+import InvoicesList from './components/invoices/list.component';
 import InvoicesCreate from './components/invoices/create.component';
+
+
 /*
 import InvoicesEdit from './components/invoices/edit.component';
+<Route path="/invoices/edit/:id" component={InvoicesEdit} />
+
+
+<Route path="/productcreate" component={ProductsCreate} />
+<Route path="/productslist" component={ProductsList} />
+<Route path="/products/edit/:id" component={ProductsEdit} />
 
 import ProductsList from './components/products/list.component';
 import ProductsCreate from './components/products/create.component';
@@ -87,7 +93,7 @@ export default function App() {
 
             <SideNav.Nav defaultSelected="customerslist">
 
-              <NavItem eventKey="invoicecreate">
+              <NavItem eventKey="invoiceslist">
                 <NavIcon>
                   <Receipt fontSize="large" style={{ marginTop: '7px' }} />
                 </NavIcon>
@@ -163,11 +169,14 @@ export default function App() {
             </div>
             <div>
 
-
+            <Route path="/CustomersList" component={CustomersList} />
             <Route path="/CustomerCreate" component={CustomersCreate} />
             <Route path="/Customers/edit/:id" component={CustomersEdit} />
+
             <Route path="/invoicecreate" component={InvoicesCreate} />
-            <Route path="/CustomersList" component={CustomersList} />
+            <Route path="/invoiceslist" component={InvoicesList} />
+
+            
 
 
             </div>

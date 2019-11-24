@@ -840,14 +840,12 @@ function getCountryF() {
                 </Grid>
               </Grid>
             </ValidatorForm>
-
             <Dialog
               disableBackdropClick
               disableEscapeKeyDown
               open={gropBoxOpen}
               onClose={() => { seTgropBoxOpen(false)  }}
             >
-
               <DialogTitle>{t('addNewCustomerGroupName')}</DialogTitle>
               <DialogContent>
                 <FormControl className="FormControl" style={{ width: '100%' }}>
@@ -860,12 +858,8 @@ function getCountryF() {
                 </FormControl>
               </DialogContent>
               <DialogActions>
-                <Button onClick={() => {seTgropBoxOpen(false) }} color="primary">
-                  {t('cancel')}
-                </Button>
-                <Button onClick={saveHandleNewGroup} color="primary">
-                  {t('save')}
-                </Button>
+                <Button onClick={() => {seTgropBoxOpen(false) }} color="primary">  {t('cancel')} </Button>
+                <Button onClick={saveHandleNewGroup} color="primary"> {t('save')} </Button>
               </DialogActions>
             </Dialog>
 
