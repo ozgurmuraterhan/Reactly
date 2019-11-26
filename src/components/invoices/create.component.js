@@ -605,7 +605,12 @@ export default function InvoiceCreate(props) {
                 style={{ float: 'right' }}
 
                 control={
-                  <Switch checked={paid} onChange={() => { seTpaid(!paid); }} color="primary" />
+                  <Switch checked={paid} onChange={
+                
+                    () => { seTpaid(!paid); }
+                  
+                  
+                  } color="primary" />
                         }
                 label={t('paid')}
               />
@@ -679,7 +684,8 @@ export default function InvoiceCreate(props) {
                           </FormControl>
                   </FormGroup>
                 </Grid>
-                <Grid container item sm={6} spacing={0} style={{ display: paid ? 'none' : 'flex' }}>
+
+       <Grid container item sm={6} spacing={0} style={{ display: paid ? 'none' : 'flex' }}>
                   <FormGroup className="FormGroup">
                     <FormControl>
                             <TextValidator

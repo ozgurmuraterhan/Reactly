@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import axios from 'axios';
-import { withSnackbar } from 'notistack';
+import { withSnackbar, useSnackbar } from 'notistack';
+import { useHistory} from 'react-router-dom'
 import Select from 'react-select';
 import { ValidatorForm, TextValidator, SelectValidator } from 'react-material-ui-form-validator';
-import { withNamespaces } from 'react-i18next';
+import { withNamespaces, useTranslation } from 'react-i18next';
 
 import {
   FormControl,
@@ -32,124 +33,99 @@ import {
 import '../../assets/css/style.css';
 
 
-class ProductCreate extends Component {
-  constructor(props) {
-    super(props);
+export default function ProductCreate() {
 
-    this.state = {
-      selectedOption: null,
-      dataState: [],
-      newDataState: [],
-      gropBoxOpen: false,
-      changeNewGroupName: [],
-      selectedCategoryItems: [],
-      changeNewCategoryNameJust: '',
+  const [t] = useTranslation();
+  const history = useHistory();
+  const { enqueueSnackbar } = useSnackbar();
+  const [gropBoxOpen, seTgropBoxOpen] = useState(false);
 
-      //
-      product_name: '',
-      category_id: [],
-      product_code: '',
-      product_description: '',
-      purchase_price: 0,
-      sale_price: 0,
-      product_vat: 0,
-      product_stock: 0,
-      spesific_id: '',
+  const [state,seTstate] = useState({
+    selectedCategoryItems:[],
+    changeNewCategoryNameJust:[],
+    product_name:'',
+    product_code:'',
+    product_description:'',
+    purchase_price:0,
+    sale_price:0,
+    product_vat:0,
+    product_stock:0,
+    product_stock:0,
+    findProductsCategories:[]
+  })
 
 
-    };
+
+  const onChangeFproduct_name = (e) => {
+      seTstate({...state, product_name:e.target.value})
+  }
+
+  const onChangeFproduct_description = (e) => {
+    seTstate({...state, product_description: e.target.value})
+  }
+
+  const onChangeFproduct_stock = (e) => {
+    seTstate({...state, product_stock:e.target.value})
+  }
+
+  const onChangeFproduct_vat = (e) => {
+    seTstate({...state, product_vat:e.target.value})
+  }
+
+  const onChangeFsale_price = (e) => {
+    seTstate({...state, sale_price:e.target.value})
+  }
+
+  const onChangeFpurchase_price = (e) => {
+    seTstate({...state, purchase_price: e.target.value})
   }
 
 
-  onChangeFproduct_name = (e) => {
-    this.setState({
-      product_name: e.target.value,
-    });
-  }
-
-  onChangeFproduct_description = (e) => {
-    this.setState({
-      product_description: e.target.value,
-    });
-  }
-
-  onChangeFproduct_stock = (e) => {
-    this.setState({
-      product_stock: e.target.value,
-    });
-  }
-
-  onChangeFproduct_vat = (e) => {
-    this.setState({
-      product_vat: e.target.value,
-    });
-  }
-
-  onChangeFsale_price = (e) => {
-    this.setState({
-      sale_price: e.target.value,
-    });
-  }
-
-  onChangeFpurchase_price = (e) => {
-    this.setState({
-      purchase_price: e.target.value,
-    });
-  }
-
-
-    onChangeFnewCategory = (e) => {
-      this.setState({
-        changeNewCategoryNameJust: e.target.value,
-      });
+   const onChangeFnewCategory = (e) => {
+    seTstate({...state, changeNewCategoryNameJust: e.target.value})
     }
 
-    onChangeFproduct_code = (e) => {
-      this.setState({
-        product_code: e.target.value,
-      });
+   const onChangeFproduct_code = (e) => {
+    seTstate({...state, product_code: e.target.value})
     }
 
-    onChangeFcategory_id = (selectedOption) => {
-      this.setState({
-        selectedCategoryItems: selectedOption,
-      });
+   const onChangeFcategory_id = (selectedOption) => {
+    seTstate({...state, selectedCategoryItems: selectedOption})
     }
 
 
 // open new category dialog
-saveHandleNewCategory = () => {
+const saveHandleNewCategory = () => {
   const data = {
-    name: this.state.changeNewCategoryNameJust,
+    name: state.changeNewCategoryNameJust,
   };
-  const { t } = this.props;
 
   axios.post('http://localhost:5000/productcategories/add', data)
     .then((res) => {
       if (res.data.variant == 'error') {
-        this.key = this.props.enqueueSnackbar(t('productCategoryNotAdded') + res.data.messagge, { variant: res.data.variant });
+        enqueueSnackbar(t('productCategoryNotAdded') + res.data.messagge, { variant: res.data.variant });
       } else {
-        this.key = this.props.enqueueSnackbar(t('productCategoryAdded'), { variant: res.data.variant });
+        enqueueSnackbar(t('productCategoryAdded'), { variant: res.data.variant });
       }
 
       this.getProductCategories();
     })
     .catch((err) => console.log(err));
 
-  this.setState({ gropBoxOpen: false });
+  seTgropBoxOpen( false)
 };
 
-  handleClickOpenGroup = () => {
-    this.setState({ gropBoxOpen: true });
+const  handleClickOpenGroup = () => {
+    seTgropBoxOpen(true );
   };
 
-  handleCategoryBoxClose = () => {
-    this.setState({ gropBoxOpen: false });
+const  handleCategoryBoxClose = () => {
+    seTgropBoxOpen(false );
   };
   // end/ open  dialog
 
 
-  getProductCategories() {
+ function getProductCategories() {
     axios.get('http://localhost:5000/productcategories/')
       .then((res) => {
         if (res.data.length > 0) {
@@ -160,56 +136,46 @@ saveHandleNewCategory = () => {
               value: res.data[i]._id,
             });
           }
-
-          this.setState({
-            findProductsCategories: details,
-          });
+          seTstate({...state, findProductsCategories:details })
         }
       })
       .catch((err) => console.log(err));
   }
 
+// componentDidMount = useEffect
+useEffect(() => {
+  getProductCategories();
+}, []);
 
-  componentDidMount() {
-    this.getProductCategories();
-  }
-
-
-  onSubmit = (e) => {
+ const onSubmit = (e) => {
     e.preventDefault();
-    const { t } = this.props;
     const Product = {
-
-      product_name: this.state.product_name,
-      category_id: this.state.selectedCategoryItems,
-      product_code: this.state.product_code,
-      product_description: this.state.product_description,
-      purchase_price: this.state.purchase_price,
-      sale_price: this.state.sale_price,
-      product_vat: this.state.product_vat,
-      product_stock: this.state.product_stock,
-
+      product_name: state.product_name,
+      category_id: state.selectedCategoryItems,
+      product_code: state.product_code,
+      product_description: state.product_description,
+      purchase_price: state.purchase_price,
+      sale_price: state.sale_price,
+      product_vat: state.product_vat,
+      product_stock: state.product_stock,
     };
 
     axios.post('http://localhost:5000/products/add', Product)
       .then((res) => {
         if (res.data.variant == 'error') {
-          this.key = this.props.enqueueSnackbar(t('productNotAdded') + res.data.messagge, { variant: res.data.variant });
+          enqueueSnackbar(t('productNotAdded') + res.data.messagge, { variant: res.data.variant });
         } else {
-          this.key = this.props.enqueueSnackbar(t('productAdded'), { variant: res.data.variant });
+          enqueueSnackbar(t('productAdded'), { variant: res.data.variant });
+          // navigate
+          history.push('/productslist');
         }
-
-        // navigate
-        this.props.history.push('/productslist');
       });
   }
 
-  render() {
-    const { t } = this.props;
     return (
 
       <div className="containerP">
-        <ValidatorForm autoComplete="off" onSubmit={this.onSubmit}>
+        <ValidatorForm autoComplete="off" onSubmit={onSubmit}>
           <Grid item container spacing={3}>
             <Grid item container md={9} className="panelGridRelative">
               <Card className="panelLargeIcon">
@@ -227,8 +193,8 @@ saveHandleNewCategory = () => {
                               variant="outlined"
                               margin="dense"
                               label={t('productName')}
-                              value={this.state.product_name}
-                              onChange={this.onChangeFproduct_name}
+                              value={state.product_name}
+                              onChange={onChangeFproduct_name}
                               required
                             />
                             <FormHelperText>{t('youNeedaProductName')}</FormHelperText>
@@ -243,8 +209,8 @@ saveHandleNewCategory = () => {
                               variant="outlined"
                               margin="dense"
                               label={t('productCode')}
-                              value={this.state.product_code}
-                              onChange={this.onChangeFproduct_code}
+                              value={state.product_code}
+                              onChange={onChangeFproduct_code}
                               required
 
                             />
@@ -257,7 +223,7 @@ saveHandleNewCategory = () => {
                     <Grid container item sm={1} spacing={0}>
 
                       <Tooltip title={t('addNewCategory')}>
-                            <AddBox onClick={this.handleClickOpenGroup} fontSize="large" style={{ margin: '20px 10px 0 5px' }} />
+                            <AddBox onClick={handleClickOpenGroup} fontSize="large" style={{ margin: '20px 10px 0 5px' }} />
                           </Tooltip>
                     </Grid>
                     <Grid container item sm={11} spacing={0}>
@@ -268,9 +234,9 @@ saveHandleNewCategory = () => {
                               <Select
                                 isMulti
                                 placeholder={t('selectCategory')}
-                                value={this.state.selectedCategoryItems}
-                                options={this.state.findProductsCategories}
-                                onChange={this.onChangeFcategory_id}
+                                value={state.selectedCategoryItems}
+                                options={state.findProductsCategories}
+                                onChange={onChangeFcategory_id}
                               />
                               <FormHelperText>{t('youNeedSelectCategories')}</FormHelperText>
 
@@ -286,8 +252,8 @@ saveHandleNewCategory = () => {
                               variant="outlined"
                               margin="dense"
                               label={t('purchasePrice')}
-                              value={this.state.purchase_price}
-                              onChange={this.onChangeFpurchase_price}
+                              value={state.purchase_price}
+                              onChange={onChangeFpurchase_price}
                               required
                               type="number"
                               validators={['isNumber']}
@@ -306,8 +272,8 @@ saveHandleNewCategory = () => {
                               variant="outlined"
                               margin="dense"
                               label={t('salePrice')}
-                              value={this.state.sale_price}
-                              onChange={this.onChangeFsale_price}
+                              value={state.sale_price}
+                              onChange={onChangeFsale_price}
                               required
                               type="number"
                               validators={['isNumber']}
@@ -326,8 +292,8 @@ saveHandleNewCategory = () => {
                               variant="outlined"
                               margin="dense"
                               label={t('productStock')}
-                              value={this.state.product_stock}
-                              onChange={this.onChangeFproduct_stock}
+                              value={state.product_stock}
+                              onChange={onChangeFproduct_stock}
                               required
                               type="number"
                               validators={['isNumber']}
@@ -347,8 +313,8 @@ saveHandleNewCategory = () => {
                               variant="outlined"
                               margin="dense"
                               label={t('productVat')}
-                              value={this.state.product_vat}
-                              onChange={this.onChangeFproduct_vat}
+                              value={state.product_vat}
+                              onChange={onChangeFproduct_vat}
                               required
                               type="number"
                               validators={['isNumber']}
@@ -369,8 +335,8 @@ saveHandleNewCategory = () => {
                               label={t('productDescription')}
                               multiline
                               margin="normal"
-                              value={this.state.product_description}
-                              onChange={this.onChangeFproduct_description}
+                              value={state.product_description}
+                              onChange={onChangeFproduct_description}
                             />
                             <FormHelperText>{t('youNeedaProductDescription')}</FormHelperText>
                           </FormControl>
@@ -390,7 +356,7 @@ saveHandleNewCategory = () => {
             <Grid container item md={3} className="panelGridRelative">
 
               <div className="listViewPaper">
-                    ds
+                    Selected Images coming soon
               </div>
 
             </Grid>
@@ -400,8 +366,8 @@ saveHandleNewCategory = () => {
         <Dialog
           disableBackdropClick
           disableEscapeKeyDown
-          open={this.state.gropBoxOpen}
-          onClose={this.handleCategoryBoxClose}
+          open={gropBoxOpen}
+          onClose={handleCategoryBoxClose}
         >
 
           <DialogTitle>{t('addNewProductCategoryName')}</DialogTitle>
@@ -410,17 +376,17 @@ saveHandleNewCategory = () => {
               <InputLabel htmlFor="group">{t('addCategoryName')}</InputLabel>
               <Input
                 id="group"
-                value={this.state.changeNewCategoryNameJust}
-                onChange={this.onChangeFnewCategory}
+                value={state.changeNewCategoryNameJust}
+                onChange={onChangeFnewCategory}
               />
               <FormHelperText>{t('addCategoryName')}</FormHelperText>
             </FormControl>
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.handleCategoryBoxClose} color="primary">
+            <Button onClick={handleCategoryBoxClose} color="primary">
               {t('cancel')}
             </Button>
-            <Button onClick={this.saveHandleNewCategory} color="primary">
+            <Button onClick={saveHandleNewCategory} color="primary">
               {t('save')}
             </Button>
           </DialogActions>
@@ -432,6 +398,3 @@ saveHandleNewCategory = () => {
 
     );
   }
-}
-
-export default withNamespaces()(withSnackbar(ProductCreate));

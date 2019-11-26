@@ -1,7 +1,5 @@
 const router = require("express").Router();
 let Customer = require('../models/customer.model')
-    
-
 
 const title = "Customer"
 
@@ -79,6 +77,7 @@ router.route('/:id').get((req,res,next)=>{
 
 // delete data by id
 router.route('/:id').delete((req,res)=>{
+   
     Customer.findByIdAndDelete(req.params.id)
         .then(data=> 
             res.json(

@@ -146,9 +146,7 @@ export default function  CustomersList() {
     axios.get('http://localhost:5000/customersgroups')
       .then((response) => {
         if (response.data.length > 0) {
-          
             seTcustomergroups(response.data)
-          
         }
       });
   }
@@ -255,6 +253,7 @@ export default function  CustomersList() {
                  <GroupAdd fontSize="large" />
                </Card>
                <Card className="listViewPaper">
+
                  <MaterialTable
                    title=""
                    icons={tableIcons}
@@ -296,6 +295,8 @@ export default function  CustomersList() {
                    </Tooltip>
                  </Typography>
                  <div style={{ marginTop: '55px', textAlign: 'center' }}>
+                   
+                   
                    <Doughnut
                      height={350}
                      data={{
@@ -306,6 +307,8 @@ export default function  CustomersList() {
                        }],
                      }}
                    />
+
+                   
                  </div>
                </Card>
              </Grid>

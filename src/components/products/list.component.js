@@ -1,9 +1,9 @@
-import React, { Component, forwardRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { Component, forwardRef, useState, useEffect } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
 
 import MaterialTable, { MTableToolbar } from 'material-table';
-import { withNamespaces } from 'react-i18next';
+import { withNamespaces, useTranslation } from 'react-i18next';
 
 
 import { Doughnut } from 'react-chartjs-2';
@@ -42,108 +42,99 @@ import {
 import '../../assets/css/style.css';
 
 
-class ProductsList extends Component {
-  constructor(props) {
-    super(props);
-    const { t } = this.props;
-    this.state = {
-      productcategories: [],
-      open: false,
-      details_label: '',
-      details_value: '',
-      pieColors: ['#FF6384', '#36A2EB', '#FFCE56', '#cc65fe', '#445ce2', '#e244b1', '#0c3836', '#51e4b5', '#ff0000', '#6eff00', '#00ffe7', '#28a743', '#ff00c8', '#063361', '#1f77b4', '#e377c2', '#ff7f0e', '#2ca02c', '#bcbd22', '#d62728', '#17becf', '#9467bd', '#7f7f7f', '#8c564b', '#3366cc'],
-
-      data: [],
-      productcategories_label: [{ title: t('categoryName'), field: 'name' }],
-
-      columns: [
-        {
-          title: t('productName'),
-          field: 'product_name',
-
-        },
+export default function ProductsList() {
 
 
-        {
-          title: t('category'),
-          render: (rowData) => {
-            const group_label = [];
-            for (const i in rowData.category_id) {
-              group_label.push(
-                <button key={i}>
-                  {rowData.category_id[i].label}
-                </button>,
-              );
-            }
-            return group_label;
-          },
-        },
+  const [t] = useTranslation();
+  const history = useHistory();
 
-        {
-          title: t('productcode'),
-          field: 'product_code',
+  const [productcategories, seTproductcategories] = useState([]);  
+  const [details_label, seTdetails_label] = useState('');  
+  const [details_value, seTdetails_value] = useState('');  
+  const [data, seTdata] = useState([]);  
+  const [open, seTopen] = useState(false);  
+ 
+  const pieColors = ['#FF6384', '#36A2EB', '#FFCE56', '#cc65fe', '#445ce2', '#e244b1', '#0c3836', '#51e4b5', '#ff0000', '#6eff00', '#00ffe7', '#28a743', '#ff00c8', '#063361', '#1f77b4', '#e377c2', '#ff7f0e', '#2ca02c', '#bcbd22', '#d62728', '#17becf', '#9467bd', '#7f7f7f', '#8c564b', '#3366cc']
+  const productcategories_label = [{ title: t('categoryName'), field: 'name' }]
+  const columns = [
+    {
+      title: t('productName'),
+      field: 'product_name',
 
-        },
+    },
 
-        {
-          title: t('actions'),
-          field: '_id',
-          render: (rowData) => (
-            <div>
-              <Link to={`/products/edit/${rowData._id}`}><Edit /></Link>
-            </div>
-          ),
-        },
-      ],
 
-      tableIcons: {
-        Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
-        Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
-        Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-        Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
-        DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-        Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
-        Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
-        Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
-        FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
-        LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
-        NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-        PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
-        ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-        Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
-        SortArrow: forwardRef((props, ref) => <ArrowUpward {...props} ref={ref} />),
-        ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
-        ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
+    {
+      title: t('category'),
+      render: (rowData) => {
+        const group_label = [];
+        for (const i in rowData.category_id) {
+          group_label.push(
+            <button key={i}>
+              {rowData.category_id[i].label}
+            </button>,
+          );
+        }
+        return group_label;
       },
+    },
 
-    };
+    {
+      title: t('productcode'),
+      field: 'product_code',
+
+    },
+
+    {
+      title: t('actions'),
+      field: '_id',
+      render: (rowData) => (
+        <div>
+          <Link to={`/products/edit/${rowData._id}`}><Edit /></Link>
+        </div>
+      ),
+    },
+  ]
+
+  const tableIcons = {
+    Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
+    Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
+    Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
+    DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+    Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
+    Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
+    FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
+    LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
+    NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
+    ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
+    SortArrow: forwardRef((props, ref) => <ArrowUpward {...props} ref={ref} />),
+    ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
+    ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
   }
 
-  getProductsData = () => {
+  const getProductsData = () => {
     axios.get('http://localhost:5000/products')
       .then((response) => {
         if (response.data.length > 0) {
-          this.setState({
-            data: response.data,
-          });
-          // console.log(this.state.data)
-          // console.log(this.state.columns)
+          seTdata(response.data)
         }
       });
   }
 
-  getProductsCatagoriesData= () => {
+  const getProductsCatagoriesData= () => {
     axios.get('http://localhost:5000/productcategories')
       .then((response) => {
         if (response.data.length > 0) {
-          this.setState({
-            productcategories: response.data,
-          });
+            seTproductcategories(response.data)
         }
       });
   }
 
-  getProductsCategoriesStatistic= () => {
+  const getProductsCategoriesStatistic= () => {
     // products catagories statistic data
     axios.get('http://localhost:5000/products/statistic')
       .then((response) => {
@@ -154,49 +145,50 @@ class ProductsList extends Component {
             details_label.push(response.data[i]._id);
             details_value.push(response.data[i].count);
           }
-          this.setState({
-            details_label,
-            details_value,
-          });
+            seTdetails_label(details_label)
+            seTdetails_value(details_value)
         }
       });
   }
 
-  componentWillMount() {
-    this.getProductsData();
-    this.getProductsCatagoriesData();
-    this.getProductsCategoriesStatistic();
-  }
 
-   handleClickOpen = () => {
-     this.setState({ open: true });
+  useEffect(() => {
+
+    getProductsData();
+    getProductsCatagoriesData();
+    getProductsCategoriesStatistic();
+
+  }, []);
+
+
+   const handleClickOpen = () => {
+     seTopen(true) 
    };
 
-   handleClose = () => {
-     this.getProductsData();
-     this.getProductsCategoriesStatistic();
+  const handleClose = () => {
+     getProductsData();
+     getProductsCategoriesStatistic();
 
-     this.setState({ open: false });
+     seTopen(false) 
    };
 
-   render() {
-     const { t } = this.props;
+
      return (
        <>
 
          <div className="containerP">
            <Dialog
-             open={this.state.open}
-             onClose={this.handleClose}
+             open={open}
+             onClose={handleClose}
              fullWidth
              maxWidth="md"
            >
              <DialogContent style={{ padding: '0' }}>
                <MaterialTable
                  title={t('productCatagories')}
-                 icons={this.state.tableIcons}
-                 columns={this.state.productcategories_label}
-                 data={this.state.productcategories}
+                 icons={tableIcons}
+                 columns={productcategories_label}
+                 data={productcategories}
                  options={{
                    exportButton: true,
                  }}
@@ -204,34 +196,37 @@ class ProductsList extends Component {
                    onRowAdd: (newData) => new Promise((resolve, reject) => {
                      axios.post('http://localhost:5000/productcategories/add', { name: newData.name })
                        .then((response) => {
-                         const { productcategories } = this.state;
                          productcategories.push(newData);
-                         this.setState({ productcategories }, () => resolve());
+                         seTproductcategories(productcategories)
+                         getProductsCatagoriesData();
                        });
+                       resolve()
                    }),
                    onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
                      axios.post(`http://localhost:5000/productcategories/${newData._id}`, { name: newData.name })
                        .then((response) => {
-                         const { productcategories } = this.state;
                          const index = productcategories.indexOf(oldData);
                          productcategories[index] = newData;
-                         this.setState({ productcategories }, () => resolve());
-                       });
+                         seTproductcategories(productcategories)
+                         getProductsCatagoriesData();
+                      });
+                      resolve()
                    }),
                    onRowDelete: (oldData) => new Promise((resolve, reject) => {
                      axios.delete(`http://localhost:5000/productcategories/${oldData._id}`)
                        .then((response) => {
-                         const { productcategories } = this.state;
                          const index = productcategories.indexOf(oldData);
                          productcategories.splice(index, 1);
-                         this.setState({ productcategories }, () => resolve());
+                         seTproductcategories(productcategories)
+                         getProductsCatagoriesData();
                        });
+                       resolve()
                    }),
                  }}
                />
              </DialogContent>
              <DialogActions>
-               <Button onClick={this.handleClose} color="primary">
+               <Button onClick={handleClose} color="primary">
                  {t('okey')}
                </Button>
              </DialogActions>
@@ -244,9 +239,9 @@ class ProductsList extends Component {
                <Card className="listViewPaper">
                  <MaterialTable
                    title=""
-                   icons={this.state.tableIcons}
-                   columns={this.state.columns}
-                   data={this.state.data}
+                   icons={tableIcons}
+                   columns={columns}
+                   data={data}
                    options={{
                      exportButton: true,
                      pageSize: 10,
@@ -277,7 +272,7 @@ class ProductsList extends Component {
                  <Typography component="h1" variant="h6" color="inherit" noWrap style={{ width: '100%', paddingLeft: '10px' }} className="typography">
                    {t('productCatagories')}
                    <Tooltip title={t('manageCatagories')}>
-                     <Button variant="outlined" style={{ float: 'right', marginRight: '15px' }} color="primary" onClick={this.handleClickOpen}>
+                     <Button variant="outlined" style={{ float: 'right', marginRight: '15px' }} color="primary" onClick={handleClickOpen}>
                        <Settings />
                      </Button>
                    </Tooltip>
@@ -286,10 +281,10 @@ class ProductsList extends Component {
                    <Doughnut
                      height={350}
                      data={{
-                       labels: this.state.details_label,
+                       labels: details_label,
                        datasets: [{
-                         data: this.state.details_value,
-                         backgroundColor: this.state.pieColors,
+                         data: details_value,
+                         backgroundColor: pieColors,
                        }],
                      }}
                    />
@@ -301,6 +296,5 @@ class ProductsList extends Component {
        </>
      );
    }
-}
 
-export default withNamespaces()(ProductsList);
+

@@ -34,17 +34,17 @@ import InvoicesList from './components/invoices/list.component';
 import InvoicesCreate from './components/invoices/create.component';
 
 
+import ProductsList from './components/products/list.component';
+import ProductsCreate from './components/products/create.component';
+
+
 /*
 import InvoicesEdit from './components/invoices/edit.component';
 <Route path="/invoices/edit/:id" component={InvoicesEdit} />
 
 
-<Route path="/productcreate" component={ProductsCreate} />
-<Route path="/productslist" component={ProductsList} />
 <Route path="/products/edit/:id" component={ProductsEdit} />
 
-import ProductsList from './components/products/list.component';
-import ProductsCreate from './components/products/create.component';
 import ProductsEdit from './components/products/edit.component';
 
 
@@ -175,6 +175,11 @@ export default function App() {
 
             <Route path="/invoicecreate" component={InvoicesCreate} />
             <Route path="/invoiceslist" component={InvoicesList} />
+
+
+            <Route path="/productslist" component={ProductsList} />
+            <Route path="/productcreate" component={ProductsCreate} />
+
 
             
 
