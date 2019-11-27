@@ -599,19 +599,12 @@ export default function InvoiceCreate(props) {
             <Card className="listViewPaper">
               <Typography component="h1" variant="h6" color="inherit" noWrap className="typography">
                 {t('invoiceCreate')}
-
               </Typography>
               <FormControlLabel
                 style={{ float: 'right' }}
-
                 control={
-                  <Switch checked={paid} onChange={
-                
-                    () => { seTpaid(!paid); }
-                  
-                  
-                  } color="primary" />
-                        }
+                    <Switch checked={paid} onChange={ () => { seTpaid(!paid); }} color="primary" />
+                      }
                 label={t('paid')}
               />
               <Grid item container sm={12}>
