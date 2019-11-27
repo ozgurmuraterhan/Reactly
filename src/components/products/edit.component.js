@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import axios from 'axios';
-import { withSnackbar } from 'notistack';
+import { withSnackbar, useSnackbar } from 'notistack';
+import { useHistory} from 'react-router-dom'
 import Select from 'react-select';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { withNamespaces } from 'react-i18next';
+import { withNamespaces, useTranslation } from 'react-i18next';
 
 import {
   FormControl,
@@ -34,125 +35,49 @@ import {
 import '../../assets/css/style.css';
 
 
-class ProductEdit extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      openalert: false,
-      selectedOption: null,
-      dataState: [],
-      newDataState: [],
-      gropBoxOpen: false,
-      changeNewGroupName: [],
-      selectedCategoryItems: [],
-      changeNewCategoryNameJust: '',
+export default function ProductEdit(props) {
 
-      //
-      product_name: '',
-      category_id: [],
-      product_code: '',
-      product_description: '',
-      purchase_price: 0,
-      sale_price: 0,
-      product_vat: 0,
-      product_stock: 0,
-      spesific_id: '',
+  const [t] = useTranslation();
+  const history = useHistory();
+  const { enqueueSnackbar } = useSnackbar();
+  const [gropBoxOpen, seTgropBoxOpen] = useState(false);
+  const [openalert, seTopenalert] = useState(false);
+  const [findProductsCategories, seTfindProductsCategories] = useState([]);
 
+  const [state,seTstate] = useState({
+    selectedCategoryItems:[],
+    changeNewCategoryNameJust:[],
+    product_name:'',
+    product_code:'',
+    product_description:'',
+    purchase_price:0,
+    sale_price:0,
+    product_vat:0,
+    product_stock:0,
+  })
 
-    };
-  }
-
-
-  onChangeFproduct_name = (e) => {
-    this.setState({
-      product_name: e.target.value,
-    });
-  }
-
-  onChangeFproduct_description = (e) => {
-    this.setState({
-      product_description: e.target.value,
-    });
-  }
-
-  onChangeFproduct_stock = (e) => {
-    this.setState({
-      product_stock: e.target.value,
-    });
-  }
-
-  onChangeFproduct_vat = (e) => {
-    this.setState({
-      product_vat: e.target.value,
-    });
-  }
-
-  onChangeFsale_price = (e) => {
-    this.setState({
-      sale_price: e.target.value,
-    });
-  }
-
-  onChangeFpurchase_price = (e) => {
-    this.setState({
-      purchase_price: e.target.value,
-    });
-  }
-
-
-    onChangeFnewCategory = (e) => {
-      this.setState({
-        changeNewCategoryNameJust: e.target.value,
-      });
-    }
-
-    onChangeFproduct_code = (e) => {
-      this.setState({
-        product_code: e.target.value,
-      });
-    }
-
-    onChangeFcategory_id = (selectedOption) => {
-      this.setState({
-        selectedCategoryItems: selectedOption,
-      });
-    }
-
-
-// open dialog
-saveHandleNewGroup = () => {
+  
+const saveHandleNewGroup = () => {
   const data = {
-    name: this.state.changeNewCategoryNameJust,
+    name: state.changeNewCategoryNameJust,
   };
-  const { t } = this.props;
-
   axios.post('http://localhost:5000/productcategories/add', data)
     .then((res) => {
       if (res.data.variant == 'error') {
-        this.key = this.props.enqueueSnackbar(t('customersGroupNotAdded') + res.data.messagge, { variant: res.data.variant });
+        enqueueSnackbar(t('customersGroupNotAdded') + res.data.messagge, { variant: res.data.variant });
       } else {
-        this.key = this.props.enqueueSnackbar(t('customersGroupAdded'), { variant: res.data.variant });
+        enqueueSnackbar(t('customersGroupAdded'), { variant: res.data.variant });
       }
-
-
       this.getProductsGroup();
     })
     .catch((err) => console.log(err));
 
-  this.setState({ gropBoxOpen: false });
+  seTgropBoxOpen(false);
 };
-
-  handleClickOpenGroup = () => {
-    this.setState({ gropBoxOpen: true });
-  };
-
-  handleGroupBoxClose = () => {
-    this.setState({ gropBoxOpen: false });
-  };
   // end/ open new group dialog
 
 
-  getProductsGroup() {
+  function getProductsGroup() {
     axios.get('http://localhost:5000/productcategories/')
       .then((res) => {
         if (res.data.length > 0) {
@@ -163,17 +88,14 @@ saveHandleNewGroup = () => {
               value: res.data[i]._id,
             });
           }
-
-          this.setState({
-            findProductsCategories: details,
-          });
+          seTfindProductsCategories(details)
         }
       })
       .catch((err) => console.log(err));
   }
 
-  getProductData() {
-    axios.get(`http://localhost:5000/products/${this.props.match.params.id}`)
+  function getProductData() {
+    axios.get(`http://localhost:5000/products/${props.match.params.id}`)
       .then((response) => {
         const details = [];
         for (const i in response.data.category_id) {
@@ -182,81 +104,67 @@ saveHandleNewGroup = () => {
             value: (response.data.category_id[i].value),
           });
         }
-
-        this.setState({
-          ...response.data,
-
-        });
-
-        this.setState({
+        
+        seTstate({
+          ...state, 
           selectedCategoryItems: details,
-        });
+          _id:response.data._id,
+          product_name:response.data.product_name,
+          product_code:response.data.product_code,
+          product_description:response.data.product_description,
+          purchase_price:response.data.purchase_price,
+          sale_price:response.data.sale_price,
+          product_vat:response.data.product_vat,
+          product_stock:response.data.product_stock,        
+        })       
       });
   }
 
+// componentDidMount = useEffect
+useEffect(() => {
+  getProductsGroup();
+  getProductData();
+}, []);
+  
 
-  componentDidMount() {
-    this.getProductData();
-    this.getProductsGroup();
-  }
 
-
-      onSubmit = (e) => {
+    const  onSubmit = (e) => {
         e.preventDefault();
-        const { t } = this.props;
         const Product = {
-
-          product_name: this.state.product_name,
-          category_id: this.state.selectedCategoryItems,
-          product_code: this.state.product_code,
-          product_description: this.state.product_description,
-          purchase_price: this.state.purchase_price,
-          sale_price: this.state.sale_price,
-          product_vat: this.state.product_vat,
-          product_stock: this.state.product_stock,
+          product_name: state.product_name,
+          category_id: state.selectedCategoryItems,
+          product_code: state.product_code,
+          product_description: state.product_description,
+          purchase_price: state.purchase_price,
+          sale_price: state.sale_price,
+          product_vat: state.product_vat,
+          product_stock: state.product_stock,
 
         };
-
-
-        axios.post(`http://localhost:5000/products/${this.props.match.params.id}`, Product)
+        axios.post(`http://localhost:5000/products/${props.match.params.id}`, Product)
           .then((res) => {
             if (res.data.variant == 'error') {
-              this.key = this.props.enqueueSnackbar(t('customerNotUpdated') + res.data.messagge, { variant: res.data.variant });
+              enqueueSnackbar(t('customerNotUpdated') + res.data.messagge, { variant: res.data.variant });
             } else {
-              this.key = this.props.enqueueSnackbar(t('customerUpdated'), { variant: res.data.variant });
+              enqueueSnackbar(t('customerUpdated'), { variant: res.data.variant });
+              history.push('/productslist');
             }
-            this.props.history.push('/productslist');
           })
           .catch((err) => console.log(err));
       }
 
-    deleteData = (id) => {
-      const { t } = this.props;
+   const deleteData = (id) => {
 
       axios.delete(`http://localhost:5000/products/${id}`)
         .then((res) => {
-          this.props.history.push('/productslist');
-          this.key = this.props.enqueueSnackbar(t('customerDeleted'), { variant: res.data.variant });
+          enqueueSnackbar(t('customerDeleted'), { variant: res.data.variant });
+          history.push('/productslist');
         });
     }
 
-    handleClickOpenAlert = () => {
-      this.setState({
-        openalert: true,
-      });
-    };
-
-    handleCloseAlert = () => {
-      this.setState({
-        openalert: false,
-      });
-    };
-
-    render() {
-      const { t } = this.props;
       return (
         <div className="containerP">
-          <ValidatorForm autoComplete="off" onSubmit={this.onSubmit}>
+          <ValidatorForm autoComplete="off" onSubmit={onSubmit}>
             <Grid item container spacing={3}>
               <Grid item container md={9} className="panelGridRelative">
                 <Card className="panelLargeIcon">
@@ -266,11 +174,11 @@ saveHandleNewGroup = () => {
                   <Typography component="h1" variant="h6" color="inherit" noWrap style={{ width: '100%' }} className="typography">
                     {t('editProduct')}
                     <Tooltip title={t('deleteProduct')}>
-                      <Button variant="outlined" color="primary" style={{ float: 'right', marginRight: '115px' }} onClick={this.handleClickOpenAlert}>
+                      <Button variant="outlined" color="primary" style={{ float: 'right', marginRight: '115px' }} onClick={() => {seTopenalert(true)  }}>
                         <Delete />
                       </Button>
                     </Tooltip>
-                    <Dialog open={this.state.openalert} onClose={this.handleCloseAlert}>
+                    <Dialog open={openalert} onClose={() => { seTopenalert(false) }}>
                       <DialogTitle>{t('deleteProduct')}</DialogTitle>
                       <DialogContent>
                         <DialogContentText>
@@ -280,12 +188,10 @@ saveHandleNewGroup = () => {
                         </DialogContentText>
                       </DialogContent>
                       <DialogActions>
-                        <Button onClick={this.handleCloseAlert} color="primary">
-                          {' '}
+                        <Button onClick={() => {  seTopenalert(false) }} color="primary">
                           {t('cancel')}
-                          {' '}
                         </Button>
-                        <Button onClick={() => { this.deleteData(this.state._id); }} color="primary" autoFocus>
+                        <Button onClick={() => { deleteData(state._id); }} color="primary" autoFocus>
                           {t('delete')}
                         </Button>
                       </DialogActions>
@@ -300,8 +206,8 @@ saveHandleNewGroup = () => {
                             variant="outlined"
                             margin="dense"
                             label={t('productName')}
-                            value={this.state.product_name}
-                            onChange={this.onChangeFproduct_name}
+                            value={state.product_name}
+                            onChange={(e) => {  seTstate({...state, product_name: e.target.value})  }}
                             required
                           />
                           <FormHelperText>{t('youNeedaProductName')}</FormHelperText>
@@ -317,8 +223,8 @@ saveHandleNewGroup = () => {
                             variant="outlined"
                             margin="dense"
                             label={t('productCode')}
-                            value={this.state.product_code}
-                            onChange={this.onChangeFproduct_code}
+                            value={state.product_code}
+                            onChange={(e) => {  seTstate({...state, product_code: e.target.value})  }}
                             required
                           />
                           <FormHelperText>{t('youNeedaProductCode')}</FormHelperText>
@@ -330,7 +236,7 @@ saveHandleNewGroup = () => {
                       <Grid container item sm={1} spacing={0}>
 
                         <Tooltip title={t('addNewCategory')}>
-                          <AddBox onClick={this.handleClickOpenGroup} fontSize="large" style={{ margin: '20px 10px 0 5px' }} />
+                          <AddBox onClick={() => { seTgropBoxOpen(true) }} fontSize="large" style={{ margin: '20px 10px 0 5px' }} />
                         </Tooltip>
                       </Grid>
                       <Grid container item sm={11} spacing={0}>
@@ -342,9 +248,9 @@ saveHandleNewGroup = () => {
                             <Select
                             isMulti
                             placeholder={t('selectCategory')}
-                            value={this.state.selectedCategoryItems}
-                            options={this.state.findProductsCategories}
-                            onChange={this.onChangeFcategory_id}
+                            value={state.selectedCategoryItems}
+                            options={findProductsCategories}
+                            onChange={(selectedOption) => { seTstate({...state, selectedCategoryItems: selectedOption}) }}
                           />
                             <FormHelperText>{t('youNeedSelectCategories')}</FormHelperText>
 
@@ -361,8 +267,8 @@ saveHandleNewGroup = () => {
                             variant="outlined"
                             margin="dense"
                             label={t('purchasePrice')}
-                            value={this.state.purchase_price}
-                            onChange={this.onChangeFpurchase_price}
+                            value={state.purchase_price}
+                            onChange={(e) => { seTstate({...state, purchase_price: e.target.value}) }}
                             required
                             type="number"
                             validators={['isNumber']}
@@ -381,8 +287,8 @@ saveHandleNewGroup = () => {
                             variant="outlined"
                             margin="dense"
                             label={t('salePrice')}
-                            value={this.state.sale_price}
-                            onChange={this.onChangeFsale_price}
+                            value={state.sale_price}
+                            onChange={(e) => { seTstate({...state, sale_price: e.target.value})  }}
                             required
                             type="number"
                             validators={['isNumber']}
@@ -401,8 +307,8 @@ saveHandleNewGroup = () => {
                             variant="outlined"
                             margin="dense"
                             label={t('productStock')}
-                            value={this.state.product_stock}
-                            onChange={this.onChangeFproduct_stock}
+                            value={state.product_stock}
+                            onChange={(e) => { seTstate({...state, product_stock: e.target.value}) }}
                             required
                             type="number"
                             validators={['isNumber']}
@@ -422,8 +328,8 @@ saveHandleNewGroup = () => {
                             variant="outlined"
                             margin="dense"
                             label={t('productVat')}
-                            value={this.state.product_vat}
-                            onChange={this.onChangeFproduct_vat}
+                            value={state.product_vat}
+                            onChange={(e) => { seTstate({...state, product_vat: e.target.value}) }}
                             required
                             type="number"
                             validators={['isNumber']}
@@ -444,38 +350,34 @@ saveHandleNewGroup = () => {
                             label={t('productDescription')}
                             multiline
                             margin="normal"
-                            value={this.state.product_description}
-                            onChange={this.onChangeFproduct_description}
+                            value={state.product_description}
+                            onChange={(e) => { seTstate({...state, product_description: e.target.value}) }}
                           />
                           <FormHelperText>{t('youNeedaProductDescription')}</FormHelperText>
                         </FormControl>
                       </FormGroup>
                     </Grid>
-
                   </Grid>
                 </div>
                 <div className="saveButtonPlace">
-                  <Button type="submit" className="glow-on-hover">
+                  <Button type="submit" onClick={onSubmit} className="glow-on-hover">
                     <Save fontSize="small" style={{ marginRight: '15px' }} />
-                    {' '}
                     {t('save')}
                   </Button>
                 </div>
               </Grid>
               <Grid container item md={3} className="panelGridRelative">
-
                 <div className="listViewPaper">
-                    ds
+                    Update Images coming soon :)
                 </div>
-
               </Grid>
             </Grid>
           </ValidatorForm>
           <Dialog
             disableBackdropClick
             disableEscapeKeyDown
-            open={this.state.gropBoxOpen}
-            onClose={this.handleGroupBoxClose}
+            open={gropBoxOpen}
+            onClose={() => { seTgropBoxOpen(false) }}
           >
             <DialogTitle>{t('addNewCustomerGroupName')}</DialogTitle>
             <DialogContent>
@@ -483,17 +385,17 @@ saveHandleNewGroup = () => {
                 <InputLabel htmlFor="group">{t('addGroupName')}</InputLabel>
                 <Input
                   id="group"
-                  value={this.state.changeNewCategoryNameJust}
-                  onChange={this.onChangeFnewCategory}
+                  value={state.changeNewCategoryNameJust}
+                  onChange={(e) => {  seTstate({...state, changeNewCategoryNameJust: e.target.value}) }}
                 />
                 <FormHelperText>{t('addNewGroupName')}</FormHelperText>
               </FormControl>
             </DialogContent>
             <DialogActions>
-              <Button onClick={this.handleGroupBoxClose} color="primary">
+              <Button onClick={() => {  seTgropBoxOpen(false)  }} color="primary">
                 {t('cancel')}
               </Button>
-              <Button onClick={this.saveHandleNewGroup} color="primary">
+              <Button onClick={saveHandleNewGroup} color="primary">
                 {t('save')}
               </Button>
             </DialogActions>
@@ -502,7 +404,4 @@ saveHandleNewGroup = () => {
         </div>
       );
     }
-}
 
-
-export default withNamespaces()(withSnackbar(ProductEdit));

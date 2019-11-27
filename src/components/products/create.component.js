@@ -50,48 +50,8 @@ export default function ProductCreate() {
     sale_price:0,
     product_vat:0,
     product_stock:0,
-    product_stock:0,
     findProductsCategories:[]
   })
-
-
-
-  const onChangeFproduct_name = (e) => {
-      seTstate({...state, product_name:e.target.value})
-  }
-
-  const onChangeFproduct_description = (e) => {
-    seTstate({...state, product_description: e.target.value})
-  }
-
-  const onChangeFproduct_stock = (e) => {
-    seTstate({...state, product_stock:e.target.value})
-  }
-
-  const onChangeFproduct_vat = (e) => {
-    seTstate({...state, product_vat:e.target.value})
-  }
-
-  const onChangeFsale_price = (e) => {
-    seTstate({...state, sale_price:e.target.value})
-  }
-
-  const onChangeFpurchase_price = (e) => {
-    seTstate({...state, purchase_price: e.target.value})
-  }
-
-
-   const onChangeFnewCategory = (e) => {
-    seTstate({...state, changeNewCategoryNameJust: e.target.value})
-    }
-
-   const onChangeFproduct_code = (e) => {
-    seTstate({...state, product_code: e.target.value})
-    }
-
-   const onChangeFcategory_id = (selectedOption) => {
-    seTstate({...state, selectedCategoryItems: selectedOption})
-    }
 
 
 // open new category dialog
@@ -194,7 +154,7 @@ useEffect(() => {
                               margin="dense"
                               label={t('productName')}
                               value={state.product_name}
-                              onChange={onChangeFproduct_name}
+                              onChange={(e) => { seTstate({...state, product_name:e.target.value}) }}
                               required
                             />
                             <FormHelperText>{t('youNeedaProductName')}</FormHelperText>
@@ -210,7 +170,7 @@ useEffect(() => {
                               margin="dense"
                               label={t('productCode')}
                               value={state.product_code}
-                              onChange={onChangeFproduct_code}
+                              onChange={(e) => { seTstate({...state, product_code: e.target.value}) }}
                               required
 
                             />
@@ -236,7 +196,7 @@ useEffect(() => {
                                 placeholder={t('selectCategory')}
                                 value={state.selectedCategoryItems}
                                 options={state.findProductsCategories}
-                                onChange={onChangeFcategory_id}
+                                onChange={(selectedOption) => {  seTstate({...state, selectedCategoryItems: selectedOption}) }}
                               />
                               <FormHelperText>{t('youNeedSelectCategories')}</FormHelperText>
 
@@ -253,7 +213,7 @@ useEffect(() => {
                               margin="dense"
                               label={t('purchasePrice')}
                               value={state.purchase_price}
-                              onChange={onChangeFpurchase_price}
+                              onChange={(e) => { seTstate({...state, purchase_price: e.target.value}) }}
                               required
                               type="number"
                               validators={['isNumber']}
@@ -273,7 +233,7 @@ useEffect(() => {
                               margin="dense"
                               label={t('salePrice')}
                               value={state.sale_price}
-                              onChange={onChangeFsale_price}
+                              onChange={(e) => {  seTstate({...state, sale_price:e.target.value}) }}
                               required
                               type="number"
                               validators={['isNumber']}
@@ -293,7 +253,7 @@ useEffect(() => {
                               margin="dense"
                               label={t('productStock')}
                               value={state.product_stock}
-                              onChange={onChangeFproduct_stock}
+                              onChange={(e) => { seTstate({...state, product_stock:e.target.value}) }}
                               required
                               type="number"
                               validators={['isNumber']}
@@ -314,7 +274,7 @@ useEffect(() => {
                               margin="dense"
                               label={t('productVat')}
                               value={state.product_vat}
-                              onChange={onChangeFproduct_vat}
+                              onChange={(e) => { seTstate({...state, product_vat:e.target.value}) }}
                               required
                               type="number"
                               validators={['isNumber']}
@@ -336,7 +296,7 @@ useEffect(() => {
                               multiline
                               margin="normal"
                               value={state.product_description}
-                              onChange={onChangeFproduct_description}
+                              onChange={(e) => {  seTstate({...state, product_description: e.target.value}) }}
                             />
                             <FormHelperText>{t('youNeedaProductDescription')}</FormHelperText>
                           </FormControl>
@@ -356,7 +316,7 @@ useEffect(() => {
             <Grid container item md={3} className="panelGridRelative">
 
               <div className="listViewPaper">
-                    Selected Images coming soon
+                    Update Images coming soon :)
               </div>
 
             </Grid>
@@ -377,7 +337,7 @@ useEffect(() => {
               <Input
                 id="group"
                 value={state.changeNewCategoryNameJust}
-                onChange={onChangeFnewCategory}
+                onChange={(e) => { seTstate({...state, changeNewCategoryNameJust: e.target.value}) }}
               />
               <FormHelperText>{t('addCategoryName')}</FormHelperText>
             </FormControl>
