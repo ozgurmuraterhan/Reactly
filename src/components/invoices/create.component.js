@@ -3,31 +3,24 @@ import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import { useHistory} from 'react-router-dom'
 import Select from 'react-select';
-import { ValidatorForm, TextValidator, SelectValidator } from 'react-material-ui-form-validator';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { useTranslation } from 'react-i18next';
 
-import MaterialTable, { MTableToolbar } from 'material-table';
+import Moment from 'moment';
+
+
+import MaterialTable from 'material-table';
 import Select2 from '@material-ui/core/Select';
 
 import {
   FormControl,
   FormGroup,
-  InputLabel,
-  Input,
   FormHelperText,
   Card,
   Button,
   Typography,
   TextField,
-  Slider,
   Tooltip,
-  ExpansionPanel,
-  ExpansionPanelSummary,
-  ExpansionPanelDetails,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   FormLabel,
   Switch,
   FormControlLabel,
@@ -44,12 +37,8 @@ import {
 
 import {
   AddBox,
-  ExpandMore,
-  FileCopy,
-  GroupAdd,
   PlaylistAddCheck,
   ContactMail,
-  Settings,
   Edit,
   ArrowUpward,
   Check,
@@ -71,14 +60,11 @@ import {
 
 import {
   MuiPickersUtilsProvider,
-  KeyboardTimePicker,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-
 import '../../assets/css/style.css';
-
 
 export default function InvoiceCreate(props) {
   const [t] = useTranslation();
@@ -90,31 +76,31 @@ export default function InvoiceCreate(props) {
   const [dataCountry, seTdataCountry] = useState([]);
   const [selectedbillingAddressStateArray, seTselectedbillingAddressStateArray] = useState([]);
   const [selectedshippingAddressStateArray, seTselectedshippingAddressStateArray] = useState([]);
-
+  const [dataBankAccount, seTdataBankAccount] = useState('');
+  const [paid, seTpaid] = useState(false);
+  const [selectedDefaultProduct, seTselectedDefaultProduct] = useState([]);
   const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState([]);
+
   const [serie, seTserie] = useState('A');
   const [no, seTno] = useState('');
-  const [default_payment_method, seTdefault_payment_method] = useState('');
   const [created, seTcreated] = useState(Date.now());
   const [dataPayments, seTdataPayments] = useState('');
+  const [payments, seTpayments] = useState([]);
   const [bank_account, seTbank_account] = useState('');
-
-
-  const [dataBankAccount, seTdataBankAccount] = useState('');
-  const [selectedBankAccount, seTselectedBankAccount] = useState('');
-  const [dua_note, seTdua_note] = useState('');
-  const [paid, seTpaid] = useState(false);
   const [due_note, seTdue_note] = useState('');
   const [due_date, seTdue_date] = useState(Date.now());
   const [paid_date, seTpaid_date] = useState(Date.now());
-  const [selectedDefaultProduct, seTselectedDefaultProduct] = useState([]);
-  const [product_description, seTproduct_description] = useState('');
-  const [product_name, seTproduct_name] = useState('');
+
+  const [product,seTproduct] = useState({
+    product_description:'',
+    product_name:'',
+    sale_price:0,
+    product_vat:0,
+    amount:0
+  })
+
   const [quantity, seTquantity] = useState(1);
   const [unit, seTunit] = useState('');
-  const [sale_price, seTsale_price] = useState(0);
-  const [product_vat, seTproduct_vat] = useState(0);
-  const [amount, seTamount] = useState(0);
   const [quantity_name, seTquantity_name] = useState(t('Qty'));
   const [items, seTitems] = useState([]);
   const [total, seTtotal] = useState(0);
@@ -125,18 +111,26 @@ export default function InvoiceCreate(props) {
   const [discount, seTdiscount] = useState(0);
   const [discountValue, seTdiscountValue] = useState(0);
 
-  const [selectedbillingAddressState, seTselectedbillingAddressState] = useState([{ label: '', value: '' }]);
-  const [selectedbillingAddressCountry, seTselectedbillingAddressCountry] = useState([{ label: '', value: '' }]);
-  const [selectedshippingAddressState, seTselectedshippingAddressState] = useState([{ label: '', value: '' }]);
-  const [selectedshippingAddressCountry, seTselectedshippingAddressCountry] = useState([{ label: '', value: '' }]);
-  const [selected2Address, seTselected2Address] = useState('');
-  const [selected2Town, seTselected2Town] = useState('');
-  const [selected2Zipcode, seTselected2Zipcode] = useState('');
-  const [selected3Address, seTselected3Address] = useState('');
-  const [selected3Town, seTselected3Town] = useState('');
-  const [selected3Zipcode, seTselected3Zipcode] = useState('');
+
+  const [state,seTstate] = useState({
+    selectedbillingAddressState:   [{ label: '', value: '' }],
+    selectedbillingAddressCountry: [{ label: '', value: '' }],
+    selectedshippingAddressState:  [{ label: '', value: '' }],
+    selectedshippingAddressCountry:[{ label: '', value: '' }],
+    selected2Address:'',
+    selected2Town:'',
+    selected2Zipcode:'',
+    selected3Address:'',
+    selected3Town:'',
+    selected3Zipcode:'',
+    default_payment_method:''
+  })
+
   const [edit1Address, seTedit1Address] = useState(true);
   const [edit2Address, seTedit2Address] = useState(true);
+
+
+
 
   const columns = [
     {
@@ -277,7 +271,6 @@ export default function InvoiceCreate(props) {
               value: response.data[i]._id,
             });
           }
-
           seTdataCustomers(details);
         }
       })
@@ -287,29 +280,31 @@ export default function InvoiceCreate(props) {
   const handleChangeCustomer = (selectedOption) => {
     axios.get(`http://localhost:5000/customers/${selectedOption.value}`)
       .then((response) => {
-       
-        seTselectedbillingAddressState([{ label: response.data.billingAddress_state_id || '', value: response.data.billingAddress_state_id || '' }]);
-        seTselectedbillingAddressCountry([{ label: response.data.billingAddress_country_id || '', value: response.data.billingAddress_country_id || '' }]);
-        seTselected2Address(response.data.billingAddress_address || '');
-        seTselected2Town(response.data.billingAddress_town || '');
-        seTselected2Zipcode(response.data.billingAddress_zipcode || 0);
-        seTselectedshippingAddressState([{ label: response.data.shippingAddress_state_id, value: response.data.shippingAddress_state_id }]);
-        seTselectedshippingAddressCountry([{ label: response.data.shippingAddress_country_id, value: response.data.shippingAddress_country_id }]);
-        seTselected3Address(response.data.shippingAddress_address || '');
-        seTselected3Town(response.data.shippingAddress_town || '');
-        seTselected3Zipcode(response.data.shippingAddress_zipcode || 0);
-        seTdefault_payment_method(response.data.default_payment_method);
+
+        seTstate({
+          ...state,
+          selectedbillingAddressState:[{ label: response.data.billingAddress_state_id || '', value: response.data.billingAddress_state_id || '' }],
+          selectedbillingAddressCountry:[{ label: response.data.billingAddress_country_id || '', value: response.data.billingAddress_country_id || '' }],
+          selected2Address:response.data.billingAddress_address || '',
+          selected2Town:response.data.billingAddress_town || '',
+          selected2Zipcode:response.data.billingAddress_zipcode || 0,
+          selectedshippingAddressState:[{ label: response.data.shippingAddress_state_id, value: response.data.shippingAddress_state_id }],
+          selectedshippingAddressCountry:[{ label: response.data.shippingAddress_country_id, value: response.data.shippingAddress_country_id }],
+          selected3Address:response.data.shippingAddress_address || '',
+          selected3Town:response.data.shippingAddress_town || '',
+          selected3Zipcode:response.data.shippingAddress_zipcode || 0,
+          default_payment_method:response.data.default_payment_method,
+        })
 
         getStatesF1(response.data.billingAddress_country_id);
         getStatesF2(response.data.shippingAddress_country_id);
-        
       })
       .catch((err) => console.log(err));
     seTselectedDefaultCustomer({ label: selectedOption.label, value: selectedOption.value });
   };
 
   const handleChangeDiscountType = (selectedOption) => {
-    if (selectedOption.target.value == '%') {
+    if (selectedOption.target.value === '%') {
       seTdiscountValue(((taxtotal + subtotal) * (1 + (discount / 100))) - (taxtotal + subtotal));
       seTtotal((taxtotal + subtotal) - (((taxtotal + subtotal) * (1 + (discount / 100))) - (taxtotal + subtotal)));
       seTdiscountType(selectedOption.target.value);
@@ -321,27 +316,25 @@ export default function InvoiceCreate(props) {
   };
 
   const onChangeFquantity = (e) => {
-    const amount = (sale_price * e.target.value * (1 + (product_vat / 100))).toFixed(0);
+    const amount = (product.sale_price * e.target.value * (1 + (product.product_vat / 100))).toFixed(0);
     seTquantity(e.target.value);
-    seTamount(amount);
+    seTproduct({...product,amount:amount});
   };
 
   const onChangeFprice = (e) => {
-    const amount = (e.target.value * quantity * (1 + (product_vat / 100))).toFixed(0);
-    seTsale_price(e.target.value);
-    seTamount(amount);
+    const amount = (e.target.value * quantity * (1 + (product.product_vat / 100))).toFixed(0);
+    seTproduct({...product,sale_price:e.target.value,amount:amount});
   };
 
   const onChangeFproduct_vat = (e) => {
-    const amount = (sale_price * quantity * (1 + (e.target.value / 100))).toFixed(0);
-    seTproduct_vat(e.target.value);
-    seTamount(amount);
+    const amount = (product.sale_price * quantity * (1 + (e.target.value / 100))).toFixed(0);
+    seTproduct({...product,product_vat:e.target.value,amount:amount});
   };
 
   const onChangeFdiscount = (e) => {
     totalCebirItems();
 
-    if (discountType == '%') {
+    if (discountType === '%') {
       seTdiscountValue(((taxtotal + subtotal) * (1 + (e.target.value / 100))) - (taxtotal + subtotal));
       seTtotal((taxtotal + subtotal) - (((taxtotal + subtotal) * (1 + (e.target.value / 100))) - (taxtotal + subtotal)));
       seTdiscount(e.target.value);
@@ -391,11 +384,14 @@ export default function InvoiceCreate(props) {
       .then((response) => {
         const productData = response.data;
         const amount = productData.sale_price * quantity * (1 + (productData.product_vat / 100));
-        seTproduct_description(productData.product_description);
-        seTproduct_name(productData.product_name);
-        seTsale_price(productData.sale_price);
-        seTproduct_vat(productData.product_vat);
-        seTamount(amount);
+        seTproduct({
+          ...product,
+          product_description:productData.product_description,
+          product_name:productData.product_name,
+          sale_price:productData.sale_price,
+          product_vat:productData.product_vat,
+          amount:amount
+        })
       })
       .catch((err) => console.log(err));
     seTselectedDefaultProduct({ label: selectedOption.label, value: selectedOption.value });
@@ -412,7 +408,6 @@ export default function InvoiceCreate(props) {
               value: response.data[i]._id,
             });
           }
-
           seTdataProducts(details);
         }
       })
@@ -422,14 +417,14 @@ export default function InvoiceCreate(props) {
   const onClickAddItem = (e) => {
     e.preventDefault();
     items.push({
-      product_name,
-      product_description,
+      product_name:product.product_name,
+      product_description:product.product_description,
       quantity_name,
       quantity,
       unit,
-      price: sale_price,
-      tax: product_vat,
-      amount,
+      price: product.sale_price,
+      tax: product.product_vat,
+      amount:product.amount,
     });
 
     seTitems(items);
@@ -470,7 +465,7 @@ export default function InvoiceCreate(props) {
     seTsubtotal(subtotal2);
     seTitems(items2);
 
-    if (discountType == '%') {
+    if (discountType === '%') {
       seTdiscountValue(((taxtotal2 + subtotal2) * (1 + (discount / 100))) - (taxtotal2 + subtotal2));
       seTtotal((taxtotal2 + subtotal2) - (((taxtotal2 + subtotal2) * (1 + (discount / 100))) - (taxtotal2 + subtotal2)));
       seTdiscount(discount);
@@ -541,7 +536,7 @@ export default function InvoiceCreate(props) {
       });
     }
     seTselectedbillingAddressStateArray(details);
-    seTselectedbillingAddressCountry([{ label: selectedOption.label, value: selectedOption.label }]);
+    seTstate({...state,selectedbillingAddressCountry:[{ label: selectedOption.label, value: selectedOption.label }]});
   };
 
   const onChangeFshippingAddressCountry = (selectedOption) => {
@@ -553,7 +548,7 @@ export default function InvoiceCreate(props) {
       });
     }
     seTselectedshippingAddressStateArray(details);
-    seTselectedshippingAddressCountry([{ label: selectedOption.label, value: selectedOption.label }]);
+    seTstate({...state, selectedshippingAddressCountry:[{ label: selectedOption.label, value: selectedOption.label }] });
   };
 
 
@@ -568,17 +563,55 @@ export default function InvoiceCreate(props) {
 
   const onSubmit = (e) => {
     e.preventDefault();
+
+    if (paid === true) {
+      var  paymentsArray = [{
+            amount: total.toFixed(2),
+            paid_date:  Moment(paid_date)._d,
+            bank_account
+        }]
+    }
+
+
+
     const Invoices = {
-      customer_id: selectedDefaultCustomer.value,
-      serie,
-      no,
-      created,
+      draft:0 ,
+      no ,
+      serie ,
+      created :Moment(created)._d,
+      due_date :Moment(due_date)._d,
+      date_send:0,
+      customer_id:selectedDefaultCustomer ,
+      due_note ,
+      subtotal: subtotal.toFixed(2),
+      taxtotal:taxtotal.toFixed(2) ,
+      total:total.toFixed(2) ,
+      discount ,
+      discountType, 
+      discountValue: discountValue.toFixed(2),
+      items,
+      default_payment_method: state.default_payment_method,
+      quantity,  
+      quantity_name, 
+      payments:paymentsArray,
+
+      billingAddress_country_id: state.selectedbillingAddressCountry[0].label ,
+      billingAddress_state_id: state.selectedbillingAddressState[0].label,
+      billingAddress_town: state.selected2Town,
+      billingAddress_zipcode: state.selected2Zipcode,
+      billingAddress_address: state.selected2Address,
+
+      shippingAddress_country_id: state.selectedshippingAddressCountry[0].label,
+      shippingAddress_state_id: state.selectedshippingAddressState[0].label,
+      shippingAddress_town: state.selected3Town,
+      shippingAddress_zipcode: state.selected3Zipcode,
+      shippingAddress_address: state.selected3Address,
+
+
     };
-    
-    
     axios.post('http://localhost:5000/invoices/add', Invoices)
       .then((res) => {
-        if (res.data.variant == 'error') {
+        if (res.data.variant === 'error') {
           enqueueSnackbar(t('invoiceNotAdded') + res.data.messagge, { variant: res.data.variant });
         } else {
           enqueueSnackbar(t('invoiceAdded') + res.data.messagge, { variant: res.data.variant });
@@ -691,7 +724,7 @@ export default function InvoiceCreate(props) {
                               onChange={(e) => {seTdue_note(e.target.value) }}
                             />
                             <FormHelperText>{t('youNeedaDueNote')}</FormHelperText>
-                          </FormControl>
+                    </FormControl>
                   </FormGroup>
                 </Grid>
                 <Grid container item sm={3} spacing={0} style={{ display: paid ? 'none' : 'flex' }}>
@@ -700,9 +733,9 @@ export default function InvoiceCreate(props) {
                             <label className="selectLabel">{t('defaultPaymentMethod')}</label>
                             <Select
                               placeholder={t('defaultPaymentMethod')}
-                              value={default_payment_method}
+                              value={state.default_payment_method}
                               options={dataPayments}
-                              onChange={(selectedOption) => { seTdefault_payment_method(selectedOption); }}
+                              onChange={(selectedOption) => { seTstate({...state,default_payment_method:selectedOption }); }}
                             />
                             <FormHelperText>{t('youNeedaDefaultPaymentMethod')}</FormHelperText>
                           </FormControl>
@@ -812,8 +845,8 @@ export default function InvoiceCreate(props) {
                               <TextValidator
                                 multiline
                                 label={t('productName')}
-                                value={product_name}
-
+                                value={product.product_name}
+                                onChange={(e) => { seTproduct({...product,product_name:e.target.value}); }}
                                 InputLabelProps={{
                                   shrink: true,
                                 }}
@@ -827,8 +860,8 @@ export default function InvoiceCreate(props) {
                               <TextValidator
                                 multiline
                                 label={t('description')}
-                                value={product_description}
-                                onChange={(e) => { seTproduct_description(e.target.value); }}
+                                value={product.product_description}
+                                onChange={(e) => { seTproduct({...product,product_description:e.target.value}); }}
                                 InputLabelProps={{
                                   shrink: true,
                                 }}
@@ -873,7 +906,7 @@ export default function InvoiceCreate(props) {
                               <TextValidator
                                 type="number"
                                 label={t('price')}
-                                value={sale_price}
+                                value={product.sale_price}
                                 onChange={onChangeFprice}
                                 InputLabelProps={{
                                   shrink: true,
@@ -888,7 +921,7 @@ export default function InvoiceCreate(props) {
                               <TextValidator
                                 type="number"
                                 label={t('tax')}
-                                value={product_vat}
+                                value={product.product_vat}
                                 onChange={onChangeFproduct_vat}
                                 InputProps={{
                                   endAdornment: <InputAdornment position="end">%</InputAdornment>,
@@ -907,7 +940,7 @@ export default function InvoiceCreate(props) {
                             disabled
                             type="number"
                             label={t('amount')}
-                            value={amount}
+                            value={product.amount}
                             InputLabelProps={{
                               shrink: true,
                             }}
@@ -918,7 +951,7 @@ export default function InvoiceCreate(props) {
                   <Grid container item sm={1} spacing={0}>
                     <FormGroup className="FormGroup">
                       <FormControl>
-                        <Button color="primary" onClick={onClickAddItem} disabled={!amount}>
+                        <Button color="primary" onClick={onClickAddItem} disabled={!product.amount}>
                           <Tooltip title={t('Add Product')}>
                             <PlaylistAddCheck fontSize="large" />
                           </Tooltip>
@@ -972,11 +1005,11 @@ export default function InvoiceCreate(props) {
                       <TableRow>
                         <TableCell rowSpan={4} />
                         <TableCell colSpan={2}>Subtotal</TableCell>
-                        <TableCell align="right">{(subtotal).toFixed(2)}</TableCell>
+                        <TableCell align="right" className="textRight">{(subtotal).toFixed(2)}</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell colSpan={2}>Tax</TableCell>
-                        <TableCell align="right">{(taxtotal).toFixed(2)}</TableCell>
+                        <TableCell align="right" className="textRight"> {(taxtotal).toFixed(2)} </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>Discont</TableCell>
@@ -1004,11 +1037,11 @@ export default function InvoiceCreate(props) {
                             }}
                           />
                         </TableCell>
-                        <TableCell align="right">{ Number(discountValue).toFixed(2)}</TableCell>
+                        <TableCell align="right" className="textRight"> {Number(discountValue).toFixed(2)}</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell colSpan={2}>{t('Total')}</TableCell>
-                        <TableCell align="right">{Number(total).toFixed(2) }</TableCell>
+                        <TableCell align="right" className="textRight"> {Number(total).toFixed(2) }</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
@@ -1039,11 +1072,11 @@ export default function InvoiceCreate(props) {
                     </Button>
                   </FormLabel>
                   <div style={{ fontSize: '9pt', marginTop: '15px' }}>
-                    {selected2Address || ' ------------------------------------------------------------------------ '}
-                    {` ${selected2Zipcode} ` || ' ------------ '}
-                    {selected2Town || ' ------------ '}
+                    {state.selected2Address || ' ------------------------------------------------------------------------ '}
+                    {` ${state.selected2Zipcode} ` || ' ------------ '}
+                    {state.selected2Town || ' ------------ '}
                     <br />
-                    {selectedbillingAddressState[0].label || ' ------------ ' } / {selectedbillingAddressCountry[0].label || ' ------------ '}
+                    {state.selectedbillingAddressState[0].label || ' ------------ ' } / {state.selectedbillingAddressCountry[0].label || ' ------------ '}
                   </div>
                   <div style={{ display: edit1Address ? 'none' : 'flex' }}>
                     <FormLabel component="legend" />
@@ -1058,8 +1091,8 @@ export default function InvoiceCreate(props) {
                         margin="normal"
                         variant="outlined"
                         style={{ width: '100%', float: 'left' }}
-                        value={selected2Address}
-                        onChange={(e) => { seTselected2Address(e.target.value); }}
+                        value={state.selected2Address}
+                        onChange={(e) => { seTstate({...state,selected2Address:e.target.value }); }}
                       />
                       <FormHelperText>{t('youNeedaBillingAddress')}</FormHelperText>
                       <FormGroup className="FormGroupAddress">
@@ -1067,7 +1100,7 @@ export default function InvoiceCreate(props) {
                           <label className="selectLabel">{t('country')}</label>
                           <Select
                             placeholder={t('selectCountry')}
-                            value={selectedbillingAddressCountry}
+                            value={state.selectedbillingAddressCountry}
                             options={dataCountry}
                             onChange={onChangeFbillingAddressCountry}
                           />
@@ -1079,9 +1112,9 @@ export default function InvoiceCreate(props) {
                           <label className="selectLabel">{t('state')}</label>
                           <Select
                             placeholder={t('selectState')}
-                            value={selectedbillingAddressState}
+                            value={state.selectedbillingAddressState}
                             options={selectedbillingAddressStateArray}
-                            onChange={(selectedOption) => { seTselectedbillingAddressState([selectedOption]); }}
+                            onChange={(selectedOption) => { seTstate({...state,selectedbillingAddressState:[selectedOption]}) }}
                           />
                           <FormHelperText>{t('youNeedaStateName')}</FormHelperText>
                         </FormControl>
@@ -1095,8 +1128,8 @@ export default function InvoiceCreate(props) {
                             }}
                             margin="dense"
                             variant="outlined"
-                            value={selected2Zipcode}
-                            onChange={(e) => { seTselected2Zipcode(e.target.value); }}
+                            value={state.selected2Zipcode}
+                            onChange={(e) => { seTstate({...state,selected2Zipcode:e.target.value }); }}
                             validators={['isNumber']}
                             errorMessages={[t('thisIsNotNumber')]}
                           />
@@ -1113,8 +1146,8 @@ export default function InvoiceCreate(props) {
                             }}
                             label={t('town')}
                             id="town"
-                            value={selected2Town}
-                            onChange={(e) => { seTselected2Town(e.target.value); }}
+                            value={state.selected2Town}
+                            onChange={(e) => { seTstate({...state,selected2Town:e.target.value }); }}
                           />
                           <FormHelperText>{t('youNeedaTownName')}</FormHelperText>
                         </FormControl>
@@ -1130,10 +1163,10 @@ export default function InvoiceCreate(props) {
                     </Button>
                   </FormLabel>
                   <div style={{ fontSize: '9pt', marginTop: '15px' }}>
-                    {selected3Address || ' ------------------------------------------------------------------------ ' } 
-                    {` ${selected3Zipcode} ` || ' ------------ '} {selected3Town || ' ------------ '}
+                    {state.selected3Address || ' ------------------------------------------------------------------------ ' } 
+                    {` ${state.selected3Zipcode} ` || ' ------------ '} {state.selected3Town || ' ------------ '}
                     <br />
-                    {selectedshippingAddressState[0].label || ' ------------ ' } / {selectedshippingAddressCountry[0].label || ' ------------ '}
+                    {state.selectedshippingAddressState[0].label || ' ------------ ' } / {state.selectedshippingAddressCountry[0].label || ' ------------ '}
                   </div>
                   <div style={{ display: edit2Address ? 'none' : 'flex' }}>
                     <FormGroup>
@@ -1147,8 +1180,8 @@ export default function InvoiceCreate(props) {
                         margin="normal"
                         variant="outlined"
                         style={{ width: '100%', float: 'left' }}
-                        value={selected3Address}
-                        onChange={(e) => { seTselected3Address(e.target.value); }}
+                        value={state.selected3Address}
+                        onChange={(e) => { seTstate({...state,selected3Address:e.target.value }); }}
                       />
                       <FormHelperText>{t('youNeedaShippingAddress')}</FormHelperText>
                       <FormGroup className="FormGroupAddress">
@@ -1156,7 +1189,7 @@ export default function InvoiceCreate(props) {
                           <label className="selectLabel">{t('country')}</label>
                           <Select
                             placeholder={t('selectCountry')}
-                            value={selectedshippingAddressCountry}
+                            value={state.selectedshippingAddressCountry}
                             options={dataCountry}
                             onChange={onChangeFshippingAddressCountry}
                           />
@@ -1169,9 +1202,9 @@ export default function InvoiceCreate(props) {
                           <Select
                             placeholder={t('selectState')}
                             style={{ width: '100%' }}
-                            value={selectedshippingAddressState}
+                            value={state.selectedshippingAddressState}
                             options={selectedshippingAddressStateArray}
-                            onChange={(selectedOption) => { seTselectedshippingAddressState([selectedOption]); }}
+                            onChange={(selectedOption) => { seTstate({...state, selectedshippingAddressState:[selectedOption]}); }}
                           />
                           <FormHelperText>{t('youNeedaStateName')}</FormHelperText>
                         </FormControl>
@@ -1185,8 +1218,8 @@ export default function InvoiceCreate(props) {
                             InputLabelProps={{
                               shrink: true,
                             }}
-                            value={selected3Zipcode}
-                            onChange={(e) => { seTselected3Zipcode(e.target.value); }}
+                            value={state.selected3Zipcode}
+                            onChange={(e) => { seTstate({...state,selected3Zipcode:e.target.value }); }}
                             validators={['isNumber']}
                             errorMessages={[t('thisIsNotNumber')]}
                           />
@@ -1203,8 +1236,8 @@ export default function InvoiceCreate(props) {
                             InputLabelProps={{
                               shrink: true,
                             }}
-                            value={selected3Town}
-                            onChange={(e) => { seTselected3Town(e.target.value); }}
+                            value={state.selected3Town}
+                            onChange={(e) => { seTstate({...state,selected3Town:e.target.value }); }}
                           />
                           <FormHelperText>{t('youNeedaTownName')}</FormHelperText>
                         </FormControl>

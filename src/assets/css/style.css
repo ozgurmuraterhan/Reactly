@@ -11,7 +11,7 @@ body{font-family: 'Roboto'}
 .listViewPaper{  width: 100%; min-height:350px; margin-bottom:55px;     box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 2px 1px -1px rgba(0,0,0,0.12);}
 .MuiFormHelperText-root {    margin-top: 2px!important}
 .MuiFormControl-marginNormal{margin-bottom: 0px!important}
-.css-26l3qy-menu {   z-index: 10!important; }
+.css-26l3qy-menu {   z-index: 11!important; }
 .copyAddressPlace{float:left; margin-bottom:-50px;margin-top:5px;position:relative;z-index:100}
 .saveButtonPlace{float:right; margin-top:80px; position: fixed; bottom:20px; z-index: 99999; margin-top: 25px}
 .gridRightPlace{float: left; padding:10px; margin-top: 25px }
@@ -180,3 +180,5 @@ body{font-family: 'Roboto'}
     padding: 5px!important;
  
 }
+
+.textRight{text-align:right!important}

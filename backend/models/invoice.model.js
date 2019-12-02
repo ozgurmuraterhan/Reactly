@@ -35,10 +35,19 @@ const InvoiceSchema = new Schema({
     payments:{
         type:Array
     },
-    sub_total:{
+    subtotal:{
         type:Number
     },
-    total_discount:{
+    taxtotal:{
+        type:Number
+    },
+    discount:{
+        type:Number
+    },
+    discountType:{
+        type:String
+    }, 
+    discountValue:{
         type:Number
     },
     total:{
@@ -83,6 +92,12 @@ const InvoiceSchema = new Schema({
         type:String,
         trim:true
     },
+    quantity:{
+        type:String
+    },  
+    quantity_name:{
+        type:String
+    }, 
     spesific_id:{
         type:String
     },
