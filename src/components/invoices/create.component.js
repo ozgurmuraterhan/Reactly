@@ -80,22 +80,14 @@ export default function InvoiceCreate(props) {
   const [paid, seTpaid] = useState(false);
   const [selectedDefaultProduct, seTselectedDefaultProduct] = useState([]);
   const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState([]);
-
-  const [serie, seTserie] = useState('A');
-  const [no, seTno] = useState('');
-  const [created, seTcreated] = useState(Date.now());
   const [dataPayments, seTdataPayments] = useState('');
-  const [payments, seTpayments] = useState([]);
-  const [bank_account, seTbank_account] = useState('');
-  const [due_note, seTdue_note] = useState('');
-  const [due_date, seTdue_date] = useState(Date.now());
-  const [paid_date, seTpaid_date] = useState(Date.now());
-
+  
   const [product,seTproduct] = useState({
     product_description:'',
     product_name:'',
     sale_price:0,
     product_vat:0,
+    product_discount:0,
     amount:0
   })
 
@@ -110,9 +102,18 @@ export default function InvoiceCreate(props) {
   const [discountType, seTdiscountType] = useState('%');
   const [discount, seTdiscount] = useState(0);
   const [discountValue, seTdiscountValue] = useState(0);
-
+  
 
   const [state,seTstate] = useState({
+
+    serie:'A',
+    no :'',
+    created: Date.now(),
+    bank_account:'',
+    due_note:'',
+    due_date:Date.now(),
+    paid_date : Date.now(),
+
     selectedbillingAddressState:   [{ label: '', value: '' }],
     selectedbillingAddressCountry: [{ label: '', value: '' }],
     selectedshippingAddressState:  [{ label: '', value: '' }],
@@ -193,13 +194,36 @@ export default function InvoiceCreate(props) {
           onChange={(e) => {
             props.onChange(e.target.value);
 
-            seTanyAmount(e.target.value * props.rowData.quantity * (1 + (props.rowData.tax / 100)));
+            seTanyAmount(((e.target.value * props.rowData.quantity ) * ( 1 + props.rowData.tax /100 ) ) - (((e.target.value * props.rowData.quantity) * (0 + (props.rowData.discount/ 100))) * (1 + (props.rowData.tax / 100))))
           }}
           validators={['isNumber']}
           errorMessages={[t('thisIsNotNumber')]}
         />
       ),
     }, {
+      title: t('Discount'),
+      field: 'discount',
+      type: 'numeric',
+      render: (rowData) => (
+        <div>
+          {`${rowData.discount} %`}
+        </div>
+      ),
+      editComponent: (props) => (
+        <TextValidator
+          margin="dense"
+          type="number"
+          value={props.value}
+          onChange={(e) => {
+            props.onChange(e.target.value);
+            seTanyAmount(((props.rowData.price * props.rowData.quantity ) * ( 1 + props.rowData.tax /100 ) ) - (((props.rowData.price * props.rowData.quantity) * (0 + (e.target.value/ 100))) * (1 + (props.rowData.tax / 100))))
+          }}
+          validators={['isNumber']}
+          errorMessages={[t('thisIsNotNumber')]}
+        />
+      ),
+    },
+    {
       title: t('productVat'),
       field: 'tax',
       type: 'numeric',
@@ -215,8 +239,7 @@ export default function InvoiceCreate(props) {
           value={props.value}
           onChange={(e) => {
             props.onChange(e.target.value);
-
-            seTanyAmount(props.rowData.price * props.rowData.quantity * (1 + (e.target.value / 100)));
+            seTanyAmount(((props.rowData.price * props.rowData.quantity ) * ( 1 + e.target.value /100 ) ) - (((props.rowData.price * props.rowData.quantity) * (0 + (props.rowData.discount/ 100))) * (1 + (e.target.value / 100))))
           }}
           validators={['isNumber']}
           errorMessages={[t('thisIsNotNumber')]}
@@ -316,35 +339,27 @@ export default function InvoiceCreate(props) {
   };
 
   const onChangeFquantity = (e) => {
-    const amount = (product.sale_price * e.target.value * (1 + (product.product_vat / 100))).toFixed(0);
+    const amount = (((product.sale_price  * e.target.value) - (product.sale_price * e.target.value * (0 + (product.product_discount / 100))))* (1 + (product.product_vat / 100))).toFixed(0);
     seTquantity(e.target.value);
     seTproduct({...product,amount:amount});
   };
 
   const onChangeFprice = (e) => {
-    const amount = (e.target.value * quantity * (1 + (product.product_vat / 100))).toFixed(0);
+    const amount = (((e.target.value  * quantity) - (e.target.value  * quantity * (0 + (product.product_discount / 100))))* (1 + (product.product_vat / 100))).toFixed(0);
     seTproduct({...product,sale_price:e.target.value,amount:amount});
   };
 
   const onChangeFproduct_vat = (e) => {
-    const amount = (product.sale_price * quantity * (1 + (e.target.value / 100))).toFixed(0);
+    const amount = (((product.sale_price * quantity) - (product.sale_price * quantity * (0 + (product.product_discount / 100))))* (1 + (e.target.value / 100))).toFixed(0);
     seTproduct({...product,product_vat:e.target.value,amount:amount});
   };
-
-  const onChangeFdiscount = (e) => {
-    totalCebirItems();
-
-    if (discountType === '%') {
-      seTdiscountValue(((taxtotal + subtotal) * (1 + (e.target.value / 100))) - (taxtotal + subtotal));
-      seTtotal((taxtotal + subtotal) - (((taxtotal + subtotal) * (1 + (e.target.value / 100))) - (taxtotal + subtotal)));
-      seTdiscount(e.target.value);
-    } else {
-      seTdiscountValue(e.target.value);
-      seTtotal((taxtotal + subtotal) - (e.target.value));
-      seTdiscount(e.target.value);
-    }
+  
+  const onChangeFproduct_discount = (e) => {
+    const amount = (((product.sale_price * quantity) - (product.sale_price * quantity * (0 + (e.target.value / 100))))* (1 + (product.product_vat / 100))).toFixed(0);
+    seTproduct({...product,product_discount:e.target.value,amount:amount});
   };
 
+  
   function getPaymentsF() {
     axios.get('http://localhost:5000/payments')
       .then((response) => {
@@ -424,17 +439,34 @@ export default function InvoiceCreate(props) {
       unit,
       price: product.sale_price,
       tax: product.product_vat,
+      discount: product.product_discount,
       amount:product.amount,
     });
 
     seTitems(items);
 
     items.map((item) => (
-      seTtotal(Number(total) + Number(item.amount)),
-      seTsubtotal(Number(subtotal) + (Number(item.price) * Number(item.quantity))),
-      seTtaxtotal(((Number(total) + Number(item.amount)) - (Number(subtotal) + (Number(item.price) * Number(item.quantity)))))
+      seTtotal(total +  item.amount),
+      seTsubtotal( subtotal + (( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) )) ),
+      seTtaxtotal( ((( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) )) * ( 1 + item.tax /100 ) ) - ((( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) ))  )  )
     ));
     totalCebirItems();
+  };
+
+
+  const onChangeFdiscount = (e) => {
+
+    totalCebirItems();
+    
+    if (discountType === '%') {
+      seTdiscountValue(((taxtotal + subtotal) * (1 + (e.target.value / 100))) - (taxtotal + subtotal));
+      seTtotal((taxtotal + subtotal) - (((taxtotal + subtotal) * (1 + (e.target.value / 100))) - (taxtotal + subtotal)));
+      seTdiscount(e.target.value);
+    } else {
+      seTdiscountValue(e.target.value);
+      seTtotal((taxtotal + subtotal) - (e.target.value));
+      seTdiscount(e.target.value);
+    }
   };
 
   function totalCebirItems() {
@@ -445,10 +477,11 @@ export default function InvoiceCreate(props) {
     seTtaxtotal(0);
 
     items.map((item) => {
-      total2 = (Number(total2) + item.price * item.quantity * (1 + (item.tax / 100))).toFixed(0);
-      subtotal2 = Number(subtotal2) + (Number(item.price) * Number(item.quantity));
-      taxtotal2 = (total2 - subtotal2);
 
+      total2 = (total2 +  item.amount)
+      subtotal2 =( subtotal2 + (( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) )))
+      taxtotal2 = taxtotal2 + ( ((( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) )) * ( 1 + item.tax /100 ) ) - ((( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) ))  )  )
+    
       items2.push({
         product_name: item.product_name,
         product_description: item.product_description,
@@ -456,8 +489,9 @@ export default function InvoiceCreate(props) {
         quantity: item.quantity,
         unit: item.unit,
         price: item.price,
+        discount: item.discount,
         tax: item.tax,
-        amount: (item.price * item.quantity * (1 + (item.tax / 100))).toFixed(0),
+        amount: ((item.price * item.quantity ) * ( 1 + item.tax /100 ) ) - (((item.price * item.quantity) * (0 + (item.discount / 100))) * (1 + (item.tax / 100))).toFixed(0),
       });
     });
 
@@ -474,6 +508,7 @@ export default function InvoiceCreate(props) {
       seTtotal((taxtotal2 + subtotal2) - (discountValue));
       seTdiscount(discount);
     }
+    
   }
 
   function getCountryF() {
@@ -567,8 +602,8 @@ export default function InvoiceCreate(props) {
     if (paid === true) {
       var  paymentsArray = [{
             amount: total.toFixed(2),
-            paid_date:  Moment(paid_date)._d,
-            bank_account
+            paid_date:  Moment(state.paid_date)._d,
+            bank_account:state.bank_account
         }]
     }
 
@@ -576,13 +611,13 @@ export default function InvoiceCreate(props) {
 
     const Invoices = {
       draft:0 ,
-      no ,
-      serie ,
-      created :Moment(created)._d,
-      due_date :Moment(due_date)._d,
+      no: state.no ,
+      serie: state.serie ,
+      created :Moment(state.created)._d,
+      due_date :Moment(state.due_date)._d,
       date_send:0,
       customer_id:selectedDefaultCustomer ,
-      due_note ,
+      due_note: state.due_note,
       subtotal: subtotal.toFixed(2),
       taxtotal:taxtotal.toFixed(2) ,
       total:total.toFixed(2) ,
@@ -593,7 +628,6 @@ export default function InvoiceCreate(props) {
       default_payment_method: state.default_payment_method,
       quantity,  
       quantity_name, 
-      payments:paymentsArray,
 
       billingAddress_country_id: state.selectedbillingAddressCountry[0].label ,
       billingAddress_state_id: state.selectedbillingAddressState[0].label,
@@ -640,6 +674,7 @@ export default function InvoiceCreate(props) {
                       }
                 label={t('paid')}
               />
+
               <Grid item container sm={12}>
                 <Grid container item sm={4} spacing={0}>
                   <FormGroup className="FormGroup">
@@ -663,9 +698,9 @@ export default function InvoiceCreate(props) {
                             label={t('serie')}
                             variant="outlined"
                             margin="dense"
-                            value={serie}
+                            value={state.serie}
                             onChange={(e) => {
-                              seTserie(e.target.value);
+                              seTstate({...state,serie:e.target.value});
                             }}
                           />
                           <FormHelperText>{t('youNeedaSerieName')}</FormHelperText>
@@ -680,8 +715,8 @@ export default function InvoiceCreate(props) {
                               label={t('invoiceNumber')}
                               variant="outlined"
                               margin="dense"
-                              value={no}
-                              onChange={(e) => { seTno(e.target.value); }}
+                              value={state.no}
+                              onChange={(e) => { seTstate({...state,no:e.target.value}); }}
                               validators={['isNumber']}
                               errorMessages={[t('thisIsNotNumber')]}
                             />
@@ -699,8 +734,8 @@ export default function InvoiceCreate(props) {
                                 id="date-picker-dialog"
                                 label={t('createdDate')}
                                 format="dd/MM/yyyy"
-                                value={created}
-                                onChange={(date) => seTcreated(date)}
+                                value={state.created}
+                                onChange={(date) => seTstate({...state, created:date})}
                                 KeyboardButtonProps={{
                                   'aria-label': 'change date',
                                 }}
@@ -715,13 +750,12 @@ export default function InvoiceCreate(props) {
                   <FormGroup className="FormGroup">
                     <FormControl>
                             <TextValidator
-                              required
                               multiline
                               label={t('duenote')}
                               variant="outlined"
                               margin="dense"
-                              value={due_note}
-                              onChange={(e) => {seTdue_note(e.target.value) }}
+                              value={state.due_note}
+                              onChange={(e) => {seTstate({...state,due_note:e.target.value}) }}
                             />
                             <FormHelperText>{t('youNeedaDueNote')}</FormHelperText>
                     </FormControl>
@@ -735,7 +769,7 @@ export default function InvoiceCreate(props) {
                               placeholder={t('defaultPaymentMethod')}
                               value={state.default_payment_method}
                               options={dataPayments}
-                              onChange={(selectedOption) => { seTstate({...state,default_payment_method:selectedOption }); }}
+                              onChange={(selectedOption) => { seTstate({...state,default_payment_method:selectedOption })  }}
                             />
                             <FormHelperText>{t('youNeedaDefaultPaymentMethod')}</FormHelperText>
                           </FormControl>
@@ -751,9 +785,9 @@ export default function InvoiceCreate(props) {
                                 id="date-picker-dialog"
                                 label={t('dueDate')}
                                 format="dd/MM/yyyy"
-                                value={due_date}
+                                value={state.due_date}
                                 onChange={(date) => {
-                                  seTdue_date(date);
+                                  seTstate({...state,due_date:date});
                                 }}
                                 KeyboardButtonProps={{
                                   'aria-label': 'change date',
@@ -770,10 +804,10 @@ export default function InvoiceCreate(props) {
                             <label className="selectLabel">{t('selectBankAccount')}</label>
                             <Select
                               placeholder={t('selectBankAccount')}
-                              value={bank_account}
+                              value={state.bank_account}
                               style={{ width: '100%', marginTop: '-6px' }}
                               options={dataBankAccount}
-                              onChange={(selectedOption) => { seTbank_account(selectedOption); }}
+                              onChange={(selectedOption) => { seTstate({...state,bank_account:selectedOption}); }}
                             />
                             <FormHelperText>{t('youNeedaselectBankAccount')}</FormHelperText>
                           </FormControl>
@@ -789,9 +823,9 @@ export default function InvoiceCreate(props) {
                                 id="date-picker-dialog"
                                 label={t('paidDate')}
                                 format="dd/MM/yyyy"
-                                value={paid_date}
+                                value={state.paid_date}
                                 onChange={(date) => {
-                                  seTpaid_date(date);
+                                  seTstate({...state,paid_date:date});
                                 }}
                                 KeyboardButtonProps={{
                                   'aria-label': 'change date',
@@ -830,94 +864,95 @@ export default function InvoiceCreate(props) {
                             </FormControl>
                           </FormGroup>
                   </Grid>
-                  <Grid item container sm={4} spacing={0} />
+                  <Grid item container sm={4} spacing={0}/>
+
                   <Grid item container sm={5} spacing={0}>
-                    <RadioGroup value={quantity_name} onChange={(event) => { seTquantity_name(event.target.value); }} row>
-                            <label style={{ marginTop: '31px', marginRight: '10px' }}> {t('showQuantityAs')} : </label>
+                          <RadioGroup value={quantity_name} onChange={(event) => { seTquantity_name(event.target.value); }} row>
+                            <label style={{ marginTop: '31px', marginRight: '10px'}}> {t('showQuantityAs')} : </label>
                             <FormControlLabel value="Qty" control={<Radio />} label="Qty" />
                             <FormControlLabel value="Hours" control={<Radio />} label="Hours" />
                             <FormControlLabel value="Qty/Hours" control={<Radio />} label="Qty/Hours" />
                           </RadioGroup>
                   </Grid>
+                  <Grid container item sm={12} spacing={0} style={{ borderTop: '1px solid #ddd', marginBottom: '25px' }} /> 
                   <Grid container item sm={3} spacing={0}>
-                    <FormGroup className="FormGroup">
-                            <FormControl>
+                            <FormControl style={{width:'90%', paddingLeft:'25px'}}>
                               <TextValidator
                                 multiline
                                 label={t('productName')}
                                 value={product.product_name}
                                 onChange={(e) => { seTproduct({...product,product_name:e.target.value}); }}
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
+                                
                               />
                             </FormControl>
-                          </FormGroup>
-                  </Grid>
-                  <Grid container item sm={3} spacing={0}>
-                    <FormGroup className="FormGroup">
-                            <FormControl>
+                   </Grid>
+                  <Grid container item sm={2} spacing={0}>
+                            <FormControl style={{width:'90%'}}>
                               <TextValidator
                                 multiline
                                 label={t('description')}
                                 value={product.product_description}
                                 onChange={(e) => { seTproduct({...product,product_description:e.target.value}); }}
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
+                                
                               />
                             </FormControl>
-                          </FormGroup>
-                  </Grid>
+                   </Grid>
                   <Grid container item sm={1} spacing={0}>
-                    <FormGroup className="FormGroup">
-                            <FormControl>
+                            <FormControl style={{width:'90%'}}>
                               <TextValidator
                                 type="number"
                                 label={t(quantity_name)}
 
                                 value={quantity}
                                 onChange={onChangeFquantity}
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
+                                 
                               />
                             </FormControl>
-                          </FormGroup>
                   </Grid>
                   <Grid container item sm={1} spacing={0}>
-                    <FormGroup className="FormGroup">
-                            <FormControl>
+                            <FormControl style={{width:'90%'}}>
                               <TextValidator
                                 label={t('unit')}
                                 value={unit}
                                 onChange={(e) => { seTunit(e.target.value); }}
-                                InputLabelProps={{
+                                /*InputLabelProps={{
                                   shrink: true,
-                                }}
+                                }}*/
                               />
                               <FormHelperText>{t('youNeedaProductUnit')}</FormHelperText>
                             </FormControl>
-                          </FormGroup>
                   </Grid>
                   <Grid container item sm={1} spacing={0}>
-                    <FormGroup className="FormGroup">
-                            <FormControl>
+                            <FormControl style={{width:'90%'}}>
                               <TextValidator
                                 type="number"
                                 label={t('price')}
                                 value={product.sale_price}
                                 onChange={onChangeFprice}
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
+                                 
                               />
                             </FormControl>
-                          </FormGroup>
                   </Grid>
                   <Grid container item sm={1} spacing={0}>
-                    <FormGroup className="FormGroup">
-                            <FormControl>
+                            <FormControl style={{width:'90%'}}>
+                              <TextValidator
+                                type="number"
+                                label={t('Discount')}
+                                value={product.product_discount}
+                                onChange={onChangeFproduct_discount}
+                                InputProps={{
+                                  endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                                }}
+                               
+                              />
+                            <FormHelperText>{t('Before Tax')}</FormHelperText>
+
+                            </FormControl>
+                  </Grid>
+
+
+                  <Grid container item sm={1} spacing={0}>
+                            <FormControl style={{width:'90%'}}>
                               <TextValidator
                                 type="number"
                                 label={t('tax')}
@@ -926,30 +961,22 @@ export default function InvoiceCreate(props) {
                                 InputProps={{
                                   endAdornment: <InputAdornment position="end">%</InputAdornment>,
                                 }}
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
+                               
                               />
                             </FormControl>
-                          </FormGroup>
                   </Grid>
                   <Grid container item sm={1} spacing={0}>
-                    <FormGroup className="FormGroup">
-                        <FormControl>
+                        <FormControl style={{width:'90%'}}>
                           <TextValidator
                             disabled
                             type="number"
                             label={t('amount')}
                             value={product.amount}
-                            InputLabelProps={{
-                              shrink: true,
-                            }}
+                            
                           />
                         </FormControl>
-                      </FormGroup>
                   </Grid>
                   <Grid container item sm={1} spacing={0}>
-                    <FormGroup className="FormGroup">
                       <FormControl>
                         <Button color="primary" onClick={onClickAddItem} disabled={!product.amount}>
                           <Tooltip title={t('Add Product')}>
@@ -957,7 +984,6 @@ export default function InvoiceCreate(props) {
                           </Tooltip>
                         </Button>
                       </FormControl>
-                    </FormGroup>
                   </Grid>
                 </Grid>
                 <Grid container item sm={12} spacing={0}>
@@ -1012,12 +1038,12 @@ export default function InvoiceCreate(props) {
                         <TableCell align="right" className="textRight"> {(taxtotal).toFixed(2)} </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell>Discont</TableCell>
+                        <TableCell>After Tax Discount</TableCell>
                         <TableCell>
                           <TextValidator
                             margin="dense"
                             type="number"
-                            style={{ width: '200px', marginLeft: '70px' }}
+                            style={{ width: '100px', marginLeft: '70px' }}
                             value={discount}
                             onChange={onChangeFdiscount}
                             InputProps={{

@@ -1,358 +1,517 @@
-import React, { Component } from 'react';
+import React, { forwardRef, useState, useEffect } from 'react';
 import axios from 'axios';
-import { withSnackbar } from 'notistack';
+import { useSnackbar } from 'notistack';
+import { useHistory} from 'react-router-dom'
 import Select from 'react-select';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { withNamespaces } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+
+import Moment from 'moment';
+
+
+import MaterialTable from 'material-table';
+import Select2 from '@material-ui/core/Select';
 
 import {
   FormControl,
-  DialogContentText,
   FormGroup,
-  InputLabel,
-  Input,
   FormHelperText,
   Card,
   Button,
   Typography,
   TextField,
-  Slider,
   Tooltip,
-  ExpansionPanel,
-  ExpansionPanelSummary,
-  ExpansionPanelDetails,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   FormLabel,
+  Switch,
+  FormControlLabel,
+  InputAdornment,
+  RadioGroup,
+  Radio,
+  TableRow,
+  TableCell,
+  TableBody,
+  Table,
+  MenuItem,
   Grid,
 } from '@material-ui/core';
 
 import {
   AddBox,
-  ExpandMore,
-  FileCopy,
-  GroupAdd,
-  Delete,
+  PlaylistAddCheck,
   ContactMail,
+  Edit,
+  ArrowUpward,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Clear,
+  DeleteOutline,
+  FilterList,
+  FirstPage,
+  LastPage,
+  Remove,
+  SaveAlt,
+  Search,
+  ViewColumn,
+  Receipt,
   Save,
 } from '@material-ui/icons';
 
+
+import {
+  MuiPickersUtilsProvider,
+  KeyboardDatePicker,
+} from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns';
+
 import '../../assets/css/style.css';
 
+export default function InvoiceEdit(props) {
+  const [t] = useTranslation();
+  const history = useHistory();
+  const { enqueueSnackbar } = useSnackbar();
 
-class CustomerEdit extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
+  const [dataCustomers, seTdataCustomers] = useState([]);
+  const [dataProducts, seTdataProducts] = useState([]);
+  const [dataCountry, seTdataCountry] = useState([]);
+  const [selectedbillingAddressStateArray, seTselectedbillingAddressStateArray] = useState([]);
+  const [selectedshippingAddressStateArray, seTselectedshippingAddressStateArray] = useState([]);
+  const [dataBankAccount, seTdataBankAccount] = useState('');
+  const [paid, seTpaid] = useState(false);
+  const [selectedDefaultProduct, seTselectedDefaultProduct] = useState([]);
+  const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState([]);
+  const [dataPayments, seTdataPayments] = useState('');
+  
+  const [product,seTproduct] = useState({
+    product_description:'',
+    product_name:'',
+    sale_price:0,
+    product_vat:0,
+    product_discount:0,
+    amount:0
+  })
 
-      openalert: false,
-      selectedOption: null,
-      dataState: [],
-      newDataState: [],
-      selectedDefaultCountry: [],
-      selectedDefaultStates: [],
-      gropBoxOpen: false,
-      changeNewGroupName: '',
-      changeNewGroupNameJust: '',
-      gropBoxOpenSpesific: false,
+  const [quantity, seTquantity] = useState(1);
+  const [unit, seTunit] = useState('');
+  const [quantity_name, seTquantity_name] = useState(t('Qty'));
+  const [items, seTitems] = useState([]);
+  const [total, seTtotal] = useState(0);
+  const [anyAmount, seTanyAmount] = useState(0);
+  const [subtotal, seTsubtotal] = useState(0);
+  const [taxtotal, seTtaxtotal] = useState(0);
+  const [discountType, seTdiscountType] = useState('%');
+  const [discount, seTdiscount] = useState(0);
+  const [discountValue, seTdiscountValue] = useState(0);
+  
 
-      selected1Town: '',
-      selected2Town: '',
-      selected3Town: '',
+  const [state,seTstate] = useState({
 
-      selected1Address: '',
-      selected2Address: '',
-      Selected3Address: '',
+    serie:'A',
+    no :'',
+    created: Date.now(),
+    bank_account:'',
+    due_note:'',
+    due_date:Date.now(),
+    paid_date : Date.now(),
+
+    selectedbillingAddressState:   [{ label: '', value: '' }],
+    selectedbillingAddressCountry: [{ label: '', value: '' }],
+    selectedshippingAddressState:  [{ label: '', value: '' }],
+    selectedshippingAddressCountry:[{ label: '', value: '' }],
+    selected2Address:'',
+    selected2Town:'',
+    selected2Zipcode:'',
+    selected3Address:'',
+    selected3Town:'',
+    selected3Zipcode:'',
+    default_payment_method:''
+  })
+
+  const [edit1Address, seTedit1Address] = useState(true);
+  const [edit2Address, seTedit2Address] = useState(true);
 
 
-      selected1Zipcode: '',
-      selected2Zipcode: '',
-      selected3Zipcode: '',
-
-      company: '',
-      email: '',
-      password: '',
-      group_id: '',
-      taxoffice: '',
-      taxnumber: '',
-      ssn: '',
-      executive: '',
-      phone: '',
-      fax: '',
-      web: '',
-      default_payment_method: '',
-      risk: 0,
 
 
-    };
+  const columns = [
+    {
+      title: t('productName'),
+      field: 'product_name',
+      editComponent: (props) => (
+        <TextValidator
+          multiline
+          required
+          margin="dense"
+          type="text"
+          value={props.value}
+          onChange={(e) => { props.onChange(e.target.value); }}
+        />
+      ),
+    }, {
+      title: t('productDescription'),
+      field: 'product_description',
+      editComponent: (props) => (
+        <TextValidator
+          multiline
+          required
+          margin="dense"
+          type="text"
+          value={props.value}
+          onChange={(e) => props.onChange(e.target.value)}
+        />
+      ),
+    }, {
+      title: t('quantity'),
+      field: 'quantity',
+      type: 'numeric',
+      render: (rowData) => (
+        <div>
+          {`${rowData.quantity} ${rowData.quantity_name} ${rowData.unit}`}
+        </div>
+      ),
+      editComponent: (props) => (
+        <TextValidator
+          margin="dense"
+          type="number"
+          value={props.value}
+          onChange={(e) => {
+            props.onChange(e.target.value);
+            seTanyAmount(props.rowData.price * e.target.value * (1 + (props.rowData.tax / 100)));
+          }}
+          validators={['isNumber']}
+          errorMessages={[t('thisIsNotNumber')]}
+        />
+      ),
+    }, {
+      title: t('salePrice'),
+      field: 'price',
+      type: 'numeric',
+      editComponent: (props) => (
+        <TextValidator
+          margin="dense"
+          type="number"
+          value={props.value}
+          onChange={(e) => {
+            props.onChange(e.target.value);
+
+            seTanyAmount(((e.target.value * props.rowData.quantity ) * ( 1 + props.rowData.tax /100 ) ) - (((e.target.value * props.rowData.quantity) * (0 + (props.rowData.discount/ 100))) * (1 + (props.rowData.tax / 100))))
+          }}
+          validators={['isNumber']}
+          errorMessages={[t('thisIsNotNumber')]}
+        />
+      ),
+    }, {
+      title: t('Discount'),
+      field: 'discount',
+      type: 'numeric',
+      render: (rowData) => (
+        <div>
+          {`${rowData.discount} %`}
+        </div>
+      ),
+      editComponent: (props) => (
+        <TextValidator
+          margin="dense"
+          type="number"
+          value={props.value}
+          onChange={(e) => {
+            props.onChange(e.target.value);
+            seTanyAmount(((props.rowData.price * props.rowData.quantity ) * ( 1 + props.rowData.tax /100 ) ) - (((props.rowData.price * props.rowData.quantity) * (0 + (e.target.value/ 100))) * (1 + (props.rowData.tax / 100))))
+          }}
+          validators={['isNumber']}
+          errorMessages={[t('thisIsNotNumber')]}
+        />
+      ),
+    },
+    {
+      title: t('productVat'),
+      field: 'tax',
+      type: 'numeric',
+      render: (rowData) => (
+        <div>
+          {`${rowData.tax} %`}
+        </div>
+      ),
+      editComponent: (props) => (
+        <TextValidator
+          margin="dense"
+          type="number"
+          value={props.value}
+          onChange={(e) => {
+            props.onChange(e.target.value);
+            seTanyAmount(((props.rowData.price * props.rowData.quantity ) * ( 1 + e.target.value /100 ) ) - (((props.rowData.price * props.rowData.quantity) * (0 + (props.rowData.discount/ 100))) * (1 + (e.target.value / 100))))
+          }}
+          validators={['isNumber']}
+          errorMessages={[t('thisIsNotNumber')]}
+        />
+      ),
+    }, {
+      title: t('amount'),
+      field: 'amount',
+      type: 'numeric',
+      editComponent: (props) => (
+        <TextValidator
+          margin="dense"
+          type="text"
+          disabled
+          value={anyAmount ? (anyAmount).toFixed(0) : props.value}
+          onChange={(e) => props.onChange(e.target.value)}
+          validators={['isNumber']}
+          errorMessages={[t('thisIsNotNumber')]}
+        />
+      ),
+    },
+  ];
+
+  const tableIcons = {
+    Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
+    Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
+    Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
+    DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+    Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
+    Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
+    FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
+    LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
+    NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
+    ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
+    SortArrow: forwardRef((props, ref) => <ArrowUpward {...props} ref={ref} />),
+    ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
+    ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
+  };
+
+  function getCustomersF() {
+    axios.get('http://localhost:5000/customers')
+      .then((response) => {
+        if (response.data.length > 0) {
+          const details = [];
+          for (const i in response.data) {
+            details.push({
+              label: response.data[i].company,
+              value: response.data[i]._id,
+            });
+          }
+          seTdataCustomers(details);
+        }
+      })
+      .catch((err) => console.log(err));
   }
 
+  const handleChangeCustomer = (selectedOption) => {
+    axios.get(`http://localhost:5000/customers/${selectedOption.value}`)
+      .then((response) => {
 
-    onChangeFcompany = (e) => {
-      this.setState({
-        company: e.target.value,
-      });
+        seTstate({
+          ...state,
+          selectedbillingAddressState:[{ label: response.data.billingAddress_state_id || '', value: response.data.billingAddress_state_id || '' }],
+          selectedbillingAddressCountry:[{ label: response.data.billingAddress_country_id || '', value: response.data.billingAddress_country_id || '' }],
+          selected2Address:response.data.billingAddress_address || '',
+          selected2Town:response.data.billingAddress_town || '',
+          selected2Zipcode:response.data.billingAddress_zipcode || 0,
+          selectedshippingAddressState:[{ label: response.data.shippingAddress_state_id, value: response.data.shippingAddress_state_id }],
+          selectedshippingAddressCountry:[{ label: response.data.shippingAddress_country_id, value: response.data.shippingAddress_country_id }],
+          selected3Address:response.data.shippingAddress_address || '',
+          selected3Town:response.data.shippingAddress_town || '',
+          selected3Zipcode:response.data.shippingAddress_zipcode || 0,
+          default_payment_method:response.data.default_payment_method,
+        })
+
+        getStatesF1(response.data.billingAddress_country_id);
+        getStatesF2(response.data.shippingAddress_country_id);
+      })
+      .catch((err) => console.log(err));
+    seTselectedDefaultCustomer({ label: selectedOption.label, value: selectedOption.value });
+  };
+
+  const handleChangeDiscountType = (selectedOption) => {
+    if (selectedOption.target.value === '%') {
+      seTdiscountValue(((taxtotal + subtotal) * (1 + (discount / 100))) - (taxtotal + subtotal));
+      seTtotal((taxtotal + subtotal) - (((taxtotal + subtotal) * (1 + (discount / 100))) - (taxtotal + subtotal)));
+      seTdiscountType(selectedOption.target.value);
+    } else {
+      seTdiscountValue(discount);
+      seTtotal((taxtotal + subtotal) - (discount));
+      seTdiscountType(selectedOption.target.value);
     }
+  };
 
-    onChangeFweb = (e) => {
-      this.setState({
-        web: e.target.value,
-      });
-    }
+  const onChangeFquantity = (e) => {
+    const amount = (((product.sale_price  * e.target.value) - (product.sale_price * e.target.value * (0 + (product.product_discount / 100))))* (1 + (product.product_vat / 100))).toFixed(0);
+    seTquantity(e.target.value);
+    seTproduct({...product,amount:amount});
+  };
 
-    onChangeFemail = (e) => {
-      this.setState({
-        email: e.target.value,
-      });
-    }
+  const onChangeFprice = (e) => {
+    const amount = (((e.target.value  * quantity) - (e.target.value  * quantity * (0 + (product.product_discount / 100))))* (1 + (product.product_vat / 100))).toFixed(0);
+    seTproduct({...product,sale_price:e.target.value,amount:amount});
+  };
 
+  const onChangeFproduct_vat = (e) => {
+    const amount = (((product.sale_price * quantity) - (product.sale_price * quantity * (0 + (product.product_discount / 100))))* (1 + (e.target.value / 100))).toFixed(0);
+    seTproduct({...product,product_vat:e.target.value,amount:amount});
+  };
+  
+  const onChangeFproduct_discount = (e) => {
+    const amount = (((product.sale_price * quantity) - (product.sale_price * quantity * (0 + (e.target.value / 100))))* (1 + (product.product_vat / 100))).toFixed(0);
+    seTproduct({...product,product_discount:e.target.value,amount:amount});
+  };
 
-    onChangeFgroup_id = (selectedOption) => {
-      this.setState({
-        selectedGroupItems: selectedOption,
-      });
-    }
-
-
-    onChangeFnewGroup = (e) => {
-      this.setState({
-        changeNewGroupNameJust: e.target.value,
-      });
-    }
-
-
-    onChangeFtaxoffice = (e) => {
-      this.setState({
-        taxoffice: e.target.value,
-      });
-    }
-
-    onChangeFtaxnumber = (e) => {
-      this.setState({
-        taxnumber: e.target.value,
-      });
-    }
-
-    onChangeFssn = (e) => {
-      this.setState({
-        ssn: e.target.value,
-      });
-    }
-
-    onChangeFexecutive = (e) => {
-      this.setState({
-        executive: e.target.value,
-      });
-    }
-
-    onChangeFphone = (e) => {
-      this.setState({
-        phone: e.target.value,
-      });
-    }
-
-    onChangeFfax = (e) => {
-      this.setState({
-        fax: e.target.value,
-      });
-    }
-
-    onChangeFrisk = (e, val) => {
-      e.preventDefault();
-      this.setState({
-        risk: val,
-      });
-    }
-
-    onChangeFdefaultPayment_Method= (selectedOption) => {
-      this.setState({
-        default_payment_method: selectedOption,
-      });
-    };
-
-  // default adress func
-  onChangeF1address =(e) => {
-    this.setState({
-      selected1Address: e.target.value,
-    });
+  
+  function getPaymentsF() {
+    axios.get('http://localhost:5000/payments')
+      .then((response) => {
+        if (response.data.length > 0) {
+          const details = [];
+          for (const i in response.data) {
+            details.push({
+              label: response.data[i].name,
+              value: response.data[i]._id,
+            });
+          }
+          seTdataPayments(details);
+        }
+      })
+      .catch((err) => console.log(err));
   }
 
-  onChangeF1town =(e) => {
-    this.setState({
-      selected1Town: e.target.value,
-    });
+  function getBankAccountF() {
+    axios.get('http://localhost:5000/bankaccounts')
+      .then((response) => {
+        if (response.data.length > 0) {
+          const details = [];
+          for (const i in response.data) {
+            details.push({
+              label: response.data[i].name,
+              value: response.data[i]._id,
+            });
+          }
+          seTdataBankAccount(details);
+        }
+      })
+      .catch((err) => console.log(err));
   }
 
-  onChangeF1zipcode =(e) => {
-    this.setState({
-      selected1Zipcode: e.target.value,
-    });
+  const handleChangeProduct = (selectedOption) => {
+    axios.get(`http://localhost:5000/products/${selectedOption.value}`)
+      .then((response) => {
+        const productData = response.data;
+        const amount = productData.sale_price * quantity * (1 + (productData.product_vat / 100));
+        seTproduct({
+          ...product,
+          product_description:productData.product_description,
+          product_name:productData.product_name,
+          sale_price:productData.sale_price,
+          product_vat:productData.product_vat,
+          amount:amount
+        })
+      })
+      .catch((err) => console.log(err));
+    seTselectedDefaultProduct({ label: selectedOption.label, value: selectedOption.value });
+  };
+
+  function getProductsF() {
+    axios.get('http://localhost:5000/products')
+      .then((response) => {
+        if (response.data.length > 0) {
+          const details = [];
+          for (const i in response.data) {
+            details.push({
+              label: response.data[i].product_name,
+              value: response.data[i]._id,
+            });
+          }
+          seTdataProducts(details);
+        }
+      })
+      .catch((err) => console.log(err));
   }
 
+  const onClickAddItem = (e) => {
+    e.preventDefault();
+    items.push({
+      product_name:product.product_name,
+      product_description:product.product_description,
+      quantity_name,
+      quantity,
+      unit,
+      price: product.sale_price,
+      tax: product.product_vat,
+      discount: product.product_discount,
+      amount:product.amount,
+    });
 
-  handleChangeCountry1 = (selectedOption) => {
-    const details = [];
-    for (const i in selectedOption.value[1]) {
-      details.push({
-        label: selectedOption.value[1][i].name,
-        value: selectedOption.value[1][i].name,
-      });
+    seTitems(items);
+
+    items.map((item) => (
+      seTtotal(total +  item.amount),
+      seTsubtotal( subtotal + (( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) )) ),
+      seTtaxtotal( ((( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) )) * ( 1 + item.tax /100 ) ) - ((( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) ))  )  )
+    ));
+    totalCebirItems();
+  };
+
+
+  const onChangeFdiscount = (e) => {
+
+    totalCebirItems();
+    
+    if (discountType === '%') {
+      seTdiscountValue(((taxtotal + subtotal) * (1 + (e.target.value / 100))) - (taxtotal + subtotal));
+      seTtotal((taxtotal + subtotal) - (((taxtotal + subtotal) * (1 + (e.target.value / 100))) - (taxtotal + subtotal)));
+      seTdiscount(e.target.value);
+    } else {
+      seTdiscountValue(e.target.value);
+      seTtotal((taxtotal + subtotal) - (e.target.value));
+      seTdiscount(e.target.value);
     }
-
-
-    this.setState({
-      selectedDefaultStateArray: details,
-      selectedDefaultAddressCountryEdit: [{ label: selectedOption.label, value: selectedOption.label }],
-      selectedDefaultState: ['Select State'],
-
-    });
   };
 
-  handleChangeStates1 = (selectedOption) => {
-    this.setState({
-      selectedDefaultAddressStateEdit: [selectedOption],
+  function totalCebirItems() {
+    let total2 = 0;
+    let subtotal2 = 0;
+    let taxtotal2 = 0;
+    const items2 = [];
+    seTtaxtotal(0);
+
+    items.map((item) => {
+
+      total2 = (total2 +  item.amount)
+      subtotal2 =( subtotal2 + (( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) )))
+      taxtotal2 = taxtotal2 + ( ((( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) )) * ( 1 + item.tax /100 ) ) - ((( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) ))  )  )
+    
+      items2.push({
+        product_name: item.product_name,
+        product_description: item.product_description,
+        quantity_name: item.quantity_name,
+        quantity: item.quantity,
+        unit: item.unit,
+        price: item.price,
+        discount: item.discount,
+        tax: item.tax,
+        amount: ((item.price * item.quantity ) * ( 1 + item.tax /100 ) ) - (((item.price * item.quantity) * (0 + (item.discount / 100))) * (1 + (item.tax / 100))).toFixed(0),
+      });
     });
-  };
-  // default adress func end
 
+    seTtaxtotal(taxtotal2);
+    seTsubtotal(subtotal2);
+    seTitems(items2);
 
- // Billing adress func
- onChangeF2address =(e) => {
-   this.setState({
-     selected2Address: e.target.value,
-   });
- }
-
-onChangeF2town =(e) => {
-  this.setState({
-    selected2Town: e.target.value,
-  });
-}
-
-onChangeF2zipcode =(e) => {
-  this.setState({
-    selected2Zipcode: e.target.value,
-  });
-}
-
-
-handleChangeCountry2 = (selectedOption) => {
-  const details = [];
-  for (const i in selectedOption.value[1]) {
-    details.push({
-      label: selectedOption.value[1][i].name,
-      value: selectedOption.value[1][i].name,
-    });
+    if (discountType === '%') {
+      seTdiscountValue(((taxtotal2 + subtotal2) * (1 + (discount / 100))) - (taxtotal2 + subtotal2));
+      seTtotal((taxtotal2 + subtotal2) - (((taxtotal2 + subtotal2) * (1 + (discount / 100))) - (taxtotal2 + subtotal2)));
+      seTdiscount(discount);
+    } else {
+      seTdiscountValue(discountValue);
+      seTtotal((taxtotal2 + subtotal2) - (discountValue));
+      seTdiscount(discount);
+    }
+    
   }
 
-
-  this.setState({
-    selectedBillingStateArray: details,
-    selectedBillingAddressCountryEdit2: [{ label: selectedOption.label, value: selectedOption.label }],
-    selectedBillingState: ['Select State'],
-
-  });
-};
-
-  handleChangeStates2 = (selectedOption) => {
-    this.setState({
-      selectedBillingAddressStateEdit3: [selectedOption],
-    });
-  };
-
-  // Billing adress func end
-
-
-// Shipping adress func
-onChangeF3address =(e) => {
-  this.setState({
-    Selected3Address: e.target.value,
-  });
-}
-
-onChangeFpassword =(e) => {
-  this.setState({
-    password: e.target.value,
-  });
-}
-
-onChangeF3town =(e) => {
-  this.setState({
-    selected3Town: e.target.value,
-  });
-}
-
-onChangeF3zipcode =(e) => {
-  this.setState({
-    selected3Zipcode: e.target.value,
-  });
-}
-
-
-handleChangeCountry3 = (selectedOption) => {
-  const details = [];
-  for (const i in selectedOption.value[1]) {
-    details.push({
-      label: selectedOption.value[1][i].name,
-      value: selectedOption.value[1][i].name,
-    });
-  }
-
-
-  this.setState({
-    selectedShippingStateArray: details,
-    selectedShippingAddressCountryEdit2: [{ label: selectedOption.label, value: selectedOption.label }],
-    selectedShippingState: ['Select State'],
-
-  });
-};
-
-  handleChangeStates3 = (selectedOption) => {
-    this.setState({
-      selectedShippingAddressStateEdit2: [selectedOption],
-    });
-  };
-
-
-  // end Shipping adress func end
-
-
-// open new group dialog
-saveHandleNewGroup = () => {
-  const data = {
-    name: this.state.changeNewGroupNameJust,
-  };
-  const { t } = this.props;
-
-  axios.post('http://localhost:5000/customersgroups/add', data)
-    .then((res) => {
-      if (res.data.variant == 'error') {
-        this.key = this.props.enqueueSnackbar(t('customersGroupNotAdded') + res.data.messagge, { variant: res.data.variant });
-      } else {
-        this.key = this.props.enqueueSnackbar(t('customersGroupAdded'), { variant: res.data.variant });
-      }
-
-
-      this.getCustomersGroup();
-    })
-    .catch((err) => console.log(err));
-
-  this.setState({ gropBoxOpen: false });
-};
-
-  handleClickOpenGroup = () => {
-    this.setState({ gropBoxOpen: true });
-  };
-
-  handleGroupBoxClose = () => {
-    this.setState({ gropBoxOpen: false });
-  };
-  // end/ open new group dialog
-
-
-  getCountryF() {
+  function getCountryF() {
     axios.get('http://localhost:5000/country')
       .then((response) => {
         if (response.data.length > 0) {
@@ -363,717 +522,762 @@ saveHandleNewGroup = () => {
               value: [response.data[i].name, response.data[i].states],
             });
           }
-          this.setState({
-            dataCountry: details,
-          });
+          seTdataCountry(details);
         }
       })
       .catch((err) => console.log(err));
   }
 
-
-  getCustomersGroup() {
-    axios.get('http://localhost:5000/customersgroups/')
-      .then((res) => {
-        if (res.data.length > 0) {
+  function getStatesF1(id) {
+    axios.get(`http://localhost:5000/country/${id}`)
+      .then((response) => {
+        if (response.data[0].states.length > 0) {
           const details = [];
-          for (const i in res.data) {
+          for (const i in response.data[0].states) {
             details.push({
-              label: res.data[i].name,
-              value: res.data[i]._id,
+              label: response.data[0].states[i].name,
+              value: response.data[0].states[i].name,
             });
           }
-
-          this.setState({
-            findCustomersGroup: details,
-          });
+          seTselectedbillingAddressStateArray(details);
         }
       })
       .catch((err) => console.log(err));
   }
 
-  getCustomersData() {
-    axios.get(`http://localhost:5000/customers/${this.props.match.params.id}`)
+  function getStatesF2(id) {
+    axios.get(`http://localhost:5000/country/${id}`)
       .then((response) => {
-        const details = [];
-        for (const i in response.data.group_id) {
-          details.push({
-            label: (response.data.group_id[i].label),
-            value: (response.data.group_id[i].value),
-          });
+        if (response.data[0].states.length > 0) {
+          const details = [];
+          for (const i in response.data[0].states) {
+            details.push({
+              label: response.data[0].states[i].name,
+              value: response.data[0].states[i].name,
+            });
+          }
+          seTselectedshippingAddressStateArray(details);
         }
-
-        this.setState({
-          ...response.data,
-
-        });
-
-        this.setState({
-          selected1Address: response.data.defaultAddress_address,
-          selected2Address: response.data.billingAddress_address,
-          Selected3Address: response.data.shippingAddress_address,
-
-          selected1Town: response.data.defaultAddress_town,
-          selected2Town: response.data.billingAddress_town,
-          selected3Town: response.data.shippingAddress_town,
-          risk: response.data.risk,
-
-          selected1Zipcode: response.data.defaultAddress_zipcode,
-          selected2Zipcode: response.data.billingAddress_zipcode,
-          selected3Zipcode: response.data.shippingAddress_zipcode,
-
-
-          selectedDefaultAddressCountryEdit: [{ label: response.data.defaultAddress_country_id, value: response.data.defaultAddress_country_id }],
-          selectedDefaultAddressStateEdit: [{ label: response.data.defaultAddress_state_id, value: response.data.defaultAddress_state_id }],
-
-          selectedBillingAddressCountryEdit2: [{ label: response.data.billingAddress_country_id, value: response.data.billingAddress_country_id }],
-          selectedBillingAddressStateEdit3: [{ label: response.data.billingAddress_state_id, value: response.data.billingAddress_state_id }],
-
-          selectedShippingAddressCountryEdit2: [{ label: response.data.shippingAddress_country_id, value: response.data.shippingAddress_country_id }],
-          selectedShippingAddressStateEdit2: [{ label: response.data.shippingAddress_state_id, value: response.data.shippingAddress_state_id }],
-          selectedGroupItems: details,
-        });
-      });
+      })
+      .catch((err) => console.log(err));
   }
 
-      onCopyDefaultAdressTObillingAdress = () => {
-        this.setState({
-          selectedBillingAddressCountryEdit2: this.state.selectedDefaultAddressCountryEdit,
-          selectedBillingAddressStateEdit3: this.state.selectedDefaultAddressStateEdit,
-          selected2Address: this.state.selected1Address,
-          selected2Town: this.state.selected1Town,
-          selected2Zipcode: this.state.selected1Zipcode,
-        });
-      }
+  const onChangeFbillingAddressCountry = (selectedOption) => {
+    const details = [];
+    for (const i in selectedOption.value[1]) {
+      details.push({
+        label: selectedOption.value[1][i].name,
+        value: selectedOption.value[1][i].name,
+      });
+    }
+    seTselectedbillingAddressStateArray(details);
+    seTstate({...state,selectedbillingAddressCountry:[{ label: selectedOption.label, value: selectedOption.label }]});
+  };
 
-      onCopyBillingAdressTOshippingAdress = () => {
-        this.setState({
-          selectedShippingAddressCountryEdit2: this.state.selectedBillingAddressCountryEdit2,
-          selectedShippingAddressStateEdit2: this.state.selectedBillingAddressStateEdit3,
-          selected3Address: this.state.selected2Address,
-          selected3Town: this.state.selected2Town,
-          selected3Zipcode: this.state.selected2Zipcode,
-        });
-      }
-
-      componentDidMount() {
-        this.getCustomersData();
-        this.getCustomersGroup();
-        this.getCountryF();
-      }
+  const onChangeFshippingAddressCountry = (selectedOption) => {
+    const details = [];
+    for (const i in selectedOption.value[1]) {
+      details.push({
+        label: selectedOption.value[1][i].name,
+        value: selectedOption.value[1][i].name,
+      });
+    }
+    seTselectedshippingAddressStateArray(details);
+    seTstate({...state, selectedshippingAddressCountry:[{ label: selectedOption.label, value: selectedOption.label }] });
+  };
 
 
-      onSubmit = (e) => {
-        e.preventDefault();
-        const { t } = this.props;
+  // componentDidMount = useEffect
+  useEffect(() => {
+    getCustomersF();
+    getPaymentsF();
+    getBankAccountF();
+    getProductsF();
+    getCountryF();
+  }, []);
 
-        const Customers = {
-          company: this.state.company,
-          email: this.state.email,
-          password: this.state.password,
-          group_id: this.state.selectedGroupItems,
-          taxoffice: this.state.taxoffice,
-          taxnumber: this.state.taxnumber,
-          ssn: this.state.ssn,
-          executive: this.state.executive,
-          phone: this.state.phone,
-          fax: this.state.fax,
-          web: this.state.web,
-          default_payment_method: this.state.default_payment_method,
-          risk: this.state.risk,
+  const onSubmit = (e) => {
+    e.preventDefault();
 
-          defaultAddress_country_id: this.state.selectedDefaultAddressCountryEdit[0].label,
-          defaultAddress_state_id: this.state.selectedDefaultAddressStateEdit[0].label,
-          defaultAddress_town: this.state.selected1Town,
-          defaultAddress_zipcode: this.state.selected1Zipcode,
-          defaultAddress_address: this.state.selected1Address,
-
-          billingAddress_country_id: this.state.selectedBillingAddressCountryEdit2[0].label,
-          billingAddress_state_id: this.state.selectedBillingAddressStateEdit3[0].label,
-          billingAddress_town: this.state.selected2Town,
-          billingAddress_zipcode: this.state.selected2Zipcode,
-          billingAddress_address: this.state.selected2Address,
-
-          shippingAddress_country_id: this.state.selectedShippingAddressCountryEdit2[0].label,
-          shippingAddress_state_id: this.state.selectedShippingAddressStateEdit2[0].label,
-          shippingAddress_town: this.state.selected3Town,
-          shippingAddress_zipcode: this.state.selected3Zipcode,
-          shippingAddress_address: this.state.Selected3Address,
-
-
-        };
-
-        axios.post(`http://localhost:5000/customers/${this.props.match.params.id}`, Customers)
-          .then((res) => {
-            if (res.data.variant == 'error') {
-              this.key = this.props.enqueueSnackbar(t('customerNotUpdated') + res.data.messagge, { variant: res.data.variant });
-            } else {
-              this.key = this.props.enqueueSnackbar(t('customerUpdated'), { variant: res.data.variant });
-            }
-
-
-            this.props.history.push('/customerslist');
-          })
-          .catch((err) => console.log(err));
-      }
-
-    deleteData = (id) => {
-      const { t } = this.props;
-
-      axios.delete(`http://localhost:5000/customers/${id}`)
-        .then((res) => {
-          this.props.history.push('/customerslist');
-          this.key = this.props.enqueueSnackbar(t('customerDeleted'), { variant: res.data.variant });
-        });
+    if (paid === true) {
+      var  paymentsArray = [{
+            amount: total.toFixed(2),
+            paid_date:  Moment(state.paid_date)._d,
+            bank_account:state.bank_account
+        }]
     }
 
-    handleClickOpenAlert = () => {
-      this.setState({
-        openalert: true,
-      });
+
+
+    const Invoices = {
+      draft:0 ,
+      no: state.no ,
+      serie: state.serie ,
+      created :Moment(state.created)._d,
+      due_date :Moment(state.due_date)._d,
+      date_send:0,
+      customer_id:selectedDefaultCustomer ,
+      due_note: state.due_note,
+      subtotal: subtotal.toFixed(2),
+      taxtotal:taxtotal.toFixed(2) ,
+      total:total.toFixed(2) ,
+      discount ,
+      discountType, 
+      discountValue: discountValue.toFixed(2),
+      items,
+      default_payment_method: state.default_payment_method,
+      quantity,  
+      quantity_name, 
+
+      billingAddress_country_id: state.selectedbillingAddressCountry[0].label ,
+      billingAddress_state_id: state.selectedbillingAddressState[0].label,
+      billingAddress_town: state.selected2Town,
+      billingAddress_zipcode: state.selected2Zipcode,
+      billingAddress_address: state.selected2Address,
+
+      shippingAddress_country_id: state.selectedshippingAddressCountry[0].label,
+      shippingAddress_state_id: state.selectedshippingAddressState[0].label,
+      shippingAddress_town: state.selected3Town,
+      shippingAddress_zipcode: state.selected3Zipcode,
+      shippingAddress_address: state.selected3Address,
+
+
     };
-
-    handleCloseAlert = () => {
-      this.setState({
-        openalert: false,
+    axios.post('http://localhost:5000/invoices/add', Invoices)
+      .then((res) => {
+        if (res.data.variant === 'error') {
+          enqueueSnackbar(t('invoiceNotAdded') + res.data.messagge, { variant: res.data.variant });
+        } else {
+          enqueueSnackbar(t('invoiceAdded') + res.data.messagge, { variant: res.data.variant });
+          // navigate
+          history.push('/invoiceslist');
+        }
       });
-    };
+  };
 
-    render() {
-      const { t } = this.props;
-      return (
-        <div className="containerP">
-          <ValidatorForm autoComplete="off" onSubmit={this.onSubmit}>
-            <Grid item container spacing={3}>
-              <Grid item container md={9} className="panelGridRelative">
-                <Card className="panelLargeIcon">
-                  <GroupAdd fontSize="large" />
-                </Card>
-                <Card className="listViewPaper">
-                  <Typography component="h1" variant="h6" color="inherit" noWrap style={{ width: '100%' }} className="typography">
-                    {t('editCustomer')}
+  return (
+    <div className="containerP">
+      <ValidatorForm autoComplete="off" onSubmit={onSubmit}>
+        <Grid item container spacing={3}>
+          <Grid item container md={10} className="panelGridRelative">
+            <Card className="panelLargeIcon">
+              <Receipt fontSize="large" />
+            </Card>
+            <Card className="listViewPaper">
+              <Typography component="h1" variant="h6" color="inherit" noWrap className="typography">
+                {t('invoiceCreate')}
+              </Typography>
+              <FormControlLabel
+                style={{ float: 'right' }}
+                control={
+                    <Switch checked={paid} onChange={ () => { seTpaid(!paid); }} color="primary" />
+                      }
+                label={t('paid')}
+              />
 
-                    <Tooltip title={t('deleteCustomer')}>
-                      <Button variant="outlined" color="primary" style={{ float: 'right', marginRight: '115px' }} onClick={this.handleClickOpenAlert}>
-                        <Delete />
-                      </Button>
-                    </Tooltip>
-
-                    <Dialog open={this.state.openalert} onClose={this.handleCloseAlert}>
-                      <DialogTitle>{t('deleteCustomer')}</DialogTitle>
-                      <DialogContent>
-                        <DialogContentText>
-                          {t('deleteInfoText1')}
-                          <br />
-                          {t('deleteInfoText2')}
-                        </DialogContentText>
-                      </DialogContent>
-                      <DialogActions>
-                        <Button onClick={this.handleCloseAlert} color="primary">
-                          {' '}
-                          {t('cancel')}
-                          {' '}
-                        </Button>
-                        <Button onClick={() => { this.deleteData(this.state._id); }} color="primary" autoFocus>
-                          {t('delete')}
-                        </Button>
-                      </DialogActions>
-                    </Dialog>
-                  </Typography>
-                  <Grid item container sm={12} style={{ background: '#fff', float: 'left' }}>
-                    <Grid container item sm={4} spacing={0}>
-                      <FormGroup className="FormGroup">
-                        <FormControl>
+              <Grid item container sm={12}>
+                <Grid container item sm={4} spacing={0}>
+                  <FormGroup className="FormGroup">
+                    <FormControl>
+                            <label className="selectLabel">{t('customer')}</label>
+                            <Select
+                              placeholder={t('selectCustomer')}
+                              value={selectedDefaultCustomer}
+                              options={dataCustomers}
+                              onChange={handleChangeCustomer}
+                            />
+                            <FormHelperText>{t('youNeedaCustomerName')}</FormHelperText>
+                          </FormControl>
+                  </FormGroup>
+                </Grid>
+                <Grid container item sm={2} spacing={0}>
+                  <FormGroup className="FormGroup">
+                    <FormControl>
                           <TextValidator
                             required
+                            label={t('serie')}
                             variant="outlined"
                             margin="dense"
-                            label={t('company')}
-                            value={this.state.company}
-                            onChange={this.onChangeFcompany}
+                            value={state.serie}
+                            onChange={(e) => {
+                              seTstate({...state,serie:e.target.value});
+                            }}
                           />
-                          <FormHelperText>{t('youNeedaCompanyName')}</FormHelperText>
+                          <FormHelperText>{t('youNeedaSerieName')}</FormHelperText>
                         </FormControl>
-                      </FormGroup>
-                    </Grid>
-                    <Grid container item sm={4} spacing={0}>
-                      <FormGroup className="FormGroup">
-                        <FormControl>
-                          <TextValidator
-                            required
-                            variant="outlined"
-                            margin="dense"
-                            label={t('email')}
-                            value={this.state.email}
-                            onChange={this.onChangeFemail}
-                            validators={['isEmail']}
-                            errorMessages={[t('emailIsNotValid')]}
-                          />
-                          <FormHelperText>{t('youNeedaEmail')}</FormHelperText>
-                        </FormControl>
-                      </FormGroup>
-                    </Grid>
-                    <Grid container item sm={4} spacing={0}>
-                      <FormGroup className="FormGroup">
-                        <FormControl>
-                          <TextField
-                            variant="outlined"
-                            margin="dense"
-                            label={t('password')}
-                            required
-                            value={this.state.password}
-                            onChange={this.onChangeFpassword}
-                          />
-                          <FormHelperText>{t('youNeedaPassword')}</FormHelperText>
-                        </FormControl>
-                      </FormGroup>
-                    </Grid>
-                    <Grid container item sm={4} spacing={0}>
-                      <Grid container item sm={1} spacing={0}>
-                        <Tooltip title={t('addNewGroupName')}>
-                          <AddBox onClick={this.handleClickOpenGroup} fontSize="large" style={{ margin: '20px 10px 0 5px' }} />
-                        </Tooltip>
-                      </Grid>
-                      <Grid container item sm={11} spacing={0}>
-                        <FormGroup className="FormGroup">
-                          <FormControl>
-                            <label className="selectLabel">{t('selectGropName')}</label>
-                            <Select
-                            isMulti
-                            placeholder={t('selectGropName')}
-                            value={this.state.selectedGroupItems}
-                            style={{ width: '100%', marginTop: '-6px' }}
-                            options={this.state.findCustomersGroup}
-                            onChange={this.onChangeFgroup_id}
-                          />
-                          </FormControl>
-                        </FormGroup>
-                      </Grid>
-                    </Grid>
-                    <Grid container item sm={4} spacing={0}>
-                      <FormGroup className="FormGroup">
-                        <FormControl>
-                          <TextValidator
-                            variant="outlined"
-                            margin="dense"
-                            label={t('taxNumber')}
-                            value={this.state.taxnumber}
-                            onChange={this.onChangeFtaxnumber}
-                            validators={['isNumber']}
-                            errorMessages={[t('thisIsNotNumber')]}
-                          />
-                          <FormHelperText>{t('youNeedaTaxnumber')}</FormHelperText>
-                        </FormControl>
-                      </FormGroup>
-                    </Grid>
-                    <Grid container item sm={4} spacing={0}>
-                      <FormGroup className="FormGroup">
-                        <FormControl>
-                          <TextField
-                            variant="outlined"
-                            margin="dense"
-                            label={t('taxOffice')}
-                            value={this.state.taxoffice}
-                            onChange={this.onChangeFtaxoffice}
-                          />
-                          <FormHelperText>{t('youNeedaTaxOfficeName')}</FormHelperText>
-                        </FormControl>
-                      </FormGroup>
-                    </Grid>
-                    <Grid container item sm={4} spacing={0}>
-                      <FormGroup className="FormGroup">
-                        <FormControl>
-                          <TextValidator
-                            variant="outlined"
-                            margin="dense"
-                            label={t('SSN')}
-                            value={this.state.ssn}
-                            onChange={this.onChangeFssn}
-                            validators={['isNumber']}
-                            errorMessages={[t('thisIsNotNumber')]}
-                          />
-                          <FormHelperText>{t('youNeedaSSN')}</FormHelperText>
-                        </FormControl>
-                      </FormGroup>
-                    </Grid>
-                    <Grid container item sm={4} spacing={0}>
-                      <FormGroup className="FormGroup">
-                        <FormControl>
-                          <TextField
-                            variant="outlined"
-                            margin="dense"
-                            label={t('executive')}
-                            value={this.state.executive}
-                            onChange={this.onChangeFexecutive}
-                          />
-                          <FormHelperText>{t('youNeedaExecutiveName')}</FormHelperText>
-                        </FormControl>
-                      </FormGroup>
-                    </Grid>
-                    <Grid container item sm={4} spacing={0}>
-                      <FormGroup className="FormGroup">
-                        <FormControl>
-                          <TextValidator
-                            variant="outlined"
-                            margin="dense"
-                            label={t('phone')}
-                            value={this.state.phone}
-                            onChange={this.onChangeFphone}
-                            validators={['isNumber']}
-                            errorMessages={[t('thisIsNotNumber')]}
-                          />
-                          <FormHelperText>{t('youNeedaPhone')}</FormHelperText>
-                        </FormControl>
-                      </FormGroup>
-                    </Grid>
-                    <Grid container item sm={4} spacing={0}>
-                      <FormGroup className="FormGroup">
-                        <FormControl>
-                          <TextValidator
-                            variant="outlined"
-                            margin="dense"
-                            label={t('fax')}
-                            value={this.state.fax}
-                            onChange={this.onChangeFfax}
-                            validators={['isNumber']}
-                            errorMessages={[t('thisIsNotNumber')]}
-                          />
-                          <FormHelperText>{t('youNeedaFax')}</FormHelperText>
-                        </FormControl>
-                      </FormGroup>
-                    </Grid>
-                    <Grid container item sm={4} spacing={0}>
-                      <FormGroup className="FormGroup">
-                        <FormControl>
-                          <TextField
-                            variant="outlined"
-                            margin="dense"
-                            label={t('webSite')}
-                            value={this.state.web}
-                            onChange={this.onChangeFweb}
-                          />
-                          <FormHelperText>{t('youNeedaWebSiteUrl')}</FormHelperText>
-                        </FormControl>
-                      </FormGroup>
-                    </Grid>
-                    <Grid container item sm={4} spacing={0}>
-                      <FormGroup className="FormGroup">
-                        <FormControl>
-                          <label className="selectLabel">{t('defaultPaymentMethod')}</label>
-                          <Select
-                            placeholder={t('defaultPaymentMethod')}
-                            style={{ width: '100%', marginTop: '-6px' }}
-                            options={[
-                            { label: 'Paypal', value: 1 },
-                            { label: 'Bank', value: 2 },
-                          ]}
-                            onChange={this.onChangeFdefaultPayment_Method}
-                          />
-                          <FormHelperText>{t('youNeedaDefaultPaymentMethod')}</FormHelperText>
-                        </FormControl>
-                      </FormGroup>
-                    </Grid>
-                    <Grid container item sm={12}>
-                      <FormGroup className="FormGroup" style={{ margin: '50px' }}>
-                        <InputLabel htmlFor="risk" className="InputLabel">{t('riskSource')}</InputLabel>
-                        <FormControl>
-                          <Slider
-                            color="secondary"
-                            value={this.state.risk}
-                            onChangeCommitted={this.onChangeFrisk}
-                            passive={0}
-                            valueLabelDisplay="on"
-                            step={5}
-                            min={0}
-                            max={100}
-                          />
-                          <FormHelperText>{t('pleaseSelectRiskSource')}</FormHelperText>
-                        </FormControl>
-                      </FormGroup>
-                    </Grid>
-                  </Grid>
-                </Card>
-                <div className="saveButtonPlace">
-                  <Button type="submit" className="glow-on-hover">
-                    <Save fontSize="small" style={{ marginRight: '15px' }} />
-                    {' '}
-                    {t('save')}
-                  </Button>
-                </div>
-              </Grid>
-              <Grid container item md={3} className="panelGridRelative">
-                <Card className="panelLargeIcon">
-                  <ContactMail fontSize="large" />
-                </Card>
-                <Card className="listViewPaper" style={{ marginBottom: '0' }}>
-                  <Typography component="h5" variant="h6" color="inherit" noWrap className="typography">
-                    {t('addresses')}
-                  </Typography>
-                  <Grid item container sm={12} className="gridRightPlace">
-                    <FormControl component="fieldset" className="addressFormControll">
-                      <FormLabel component="legend">{t('defaultAddress')}</FormLabel>
-                      <FormGroup>
-                        <TextField
-                          id="outlined-textarea"
-                          label={t('address')}
-                          multiline
-                          margin="normal"
-                          variant="outlined"
-                          style={{ width: '100%', float: 'left' }}
-                          value={this.state.selected1Address}
-                          onChange={this.onChangeF1address}
-                        />
-                        <FormHelperText>{t('youNeedaAddress')}</FormHelperText>
-                        <FormGroup className="FormGroupAddress">
-                          <FormControl>
-                            <label className="selectLabel">{t('country')}</label>
-                            <Select
-                            placeholder={t('selectCountry')}
-                            value={this.state.selectedDefaultAddressCountryEdit}
-                            options={this.state.dataCountry}
-                            onChange={this.handleChangeCountry1}
-                          />
-                            <FormHelperText>{t('youNeedaCauntryName')}</FormHelperText>
-                          </FormControl>
-                        </FormGroup>
-                        <FormGroup className="FormGroupAddress">
-                          <FormControl>
-                            <label className="selectLabel">{t('state')}</label>
-                            <Select
-                            placeholder={t('selectState')}
-                            value={this.state.selectedDefaultAddressStateEdit}
-                            options={this.state.selectedDefaultStateArray}
-                            onChange={this.handleChangeStates1}
-                          />
-                            <FormHelperText>{t('youNeedaStateName')}</FormHelperText>
-                          </FormControl>
-                        </FormGroup>
-                        <FormGroup className="FormGroupAddress">
-                          <FormControl>
+                  </FormGroup>
+                </Grid>
+                <Grid container item sm={3} spacing={0}>
+                  <FormGroup className="FormGroup">
+                    <FormControl>
                             <TextValidator
-                            variant="outlined"
-                            margin="dense"
-                            label={t('zipcode')}
-                            value={this.state.selected1Zipcode}
-                            onChange={this.onChangeF1zipcode}
-                            validators={['isNumber']}
-                            errorMessages={[t('thisIsNotNumber')]}
-                          />
-                            <FormHelperText>{t('youNeedaZipcode')}</FormHelperText>
+                              required
+                              label={t('invoiceNumber')}
+                              variant="outlined"
+                              margin="dense"
+                              value={state.no}
+                              onChange={(e) => { seTstate({...state,no:e.target.value}); }}
+                              validators={['isNumber']}
+                              errorMessages={[t('thisIsNotNumber')]}
+                            />
+                            <FormHelperText>{t('youNeedaInvoiceNumber')}</FormHelperText>
                           </FormControl>
-                        </FormGroup>
-                        <FormGroup className="FormGroupAddress">
-                          <FormControl>
-                            <TextField
-                            variant="outlined"
-                            margin="dense"
-                            label={t('town')}
-                            value={this.state.selected1Town}
-                            onChange={this.onChangeF1town}
-                          />
-                            <FormHelperText>{t('youNeedaTownName')}</FormHelperText>
+                  </FormGroup>
+                </Grid>
+                <Grid container item sm={3} spacing={0}>
+                  <FormGroup className="FormGroup">
+                    <FormControl>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                              <KeyboardDatePicker
+                                inputVariant="outlined"
+                                margin="dense"
+                                id="date-picker-dialog"
+                                label={t('createdDate')}
+                                format="dd/MM/yyyy"
+                                value={state.created}
+                                onChange={(date) => seTstate({...state, created:date})}
+                                KeyboardButtonProps={{
+                                  'aria-label': 'change date',
+                                }}
+                              />
+                            </MuiPickersUtilsProvider>
+                            <FormHelperText>{t('youNeedaCreatedDate')}</FormHelperText>
                           </FormControl>
-                        </FormGroup>
-                      </FormGroup>
+                  </FormGroup>
+                </Grid>
+
+       <Grid container item sm={6} spacing={0} style={{ display: paid ? 'none' : 'flex' }}>
+                  <FormGroup className="FormGroup">
+                    <FormControl>
+                            <TextValidator
+                              multiline
+                              label={t('duenote')}
+                              variant="outlined"
+                              margin="dense"
+                              value={state.due_note}
+                              onChange={(e) => {seTstate({...state,due_note:e.target.value}) }}
+                            />
+                            <FormHelperText>{t('youNeedaDueNote')}</FormHelperText>
                     </FormControl>
-                  </Grid>
-                </Card>
-                <Grid item container sm={12} style={{ float: 'left' }}>
-                  <div className="copyAddressPlace">
-                    <Tooltip title={t('copyDefaultAdress')} placement="left">
-                      <FileCopy onClick={this.onCopyDefaultAdressTObillingAdress} fontSize="large" style={{ marginBottom: '-5px' }} />
-                    </Tooltip>
-                  </div>
-                  <ExpansionPanel style={{ width: '100%' }}>
-                    <ExpansionPanelSummary expandIcon={<ExpandMore />}>
-                      <Typography style={{ paddingLeft: '15px' }}>
-                        {' '}
-                        {t('billingAddress')}
-                      </Typography>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails style={{ padding: '9px', width: '95%' }}>
-                      <FormControl component="fieldset" style={{ width: '100%' }}>
-                        <FormGroup>
-                          <TextField
-                            label={t('address')}
-                            multiline
-                            margin="normal"
-                            variant="outlined"
-                            style={{ width: '100%', float: 'left' }}
-                            value={this.state.selected2Address}
-                            onChange={this.onChangeF2address}
-                          />
-                          <FormHelperText>{t('youNeedaBillingAddress')}</FormHelperText>
-                          <FormGroup className="FormGroupAddress">
-                            <FormControl>
-                            <label className="selectLabel">{t('country')}</label>
-                            <Select
-                                  placeholder={t('selectCountry')}
-                                  value={this.state.selectedBillingAddressCountryEdit2}
-                                  options={this.state.dataCountry}
-                                  onChange={this.handleChangeCountry2}
-                                />
-                            <FormHelperText>{t('youNeedaCountryName')}</FormHelperText>
-                          </FormControl>
-                          </FormGroup>
-                          <FormGroup className="FormGroupAddress">
-                            <FormControl>
-                            <label className="selectLabel">{t('state')}</label>
-                            <Select
-                                  placeholder={t('selectState')}
-                                  value={this.state.selectedBillingAddressStateEdit3}
-                                  options={this.state.selectedBillingStateArray}
-                                  onChange={this.handleChangeStates2}
-                                />
-                            <FormHelperText>{t('youNeedaStateName')}</FormHelperText>
-                          </FormControl>
-                          </FormGroup>
-                          <FormGroup className="FormGroupAddress">
-                            <FormControl>
-                            <TextValidator
-                                  variant="outlined"
-                                  margin="dense"
-                                  label={t('zipcode')}
-                                  value={this.state.selected2Zipcode}
-                                  onChange={this.onChangeF2zipcode}
-                                  validators={['isNumber']}
-                                  errorMessages={[t('thisIsNotNumber')]}
-                                />
-                            <FormHelperText>{t('youNeedaZipcode')}</FormHelperText>
-                          </FormControl>
-                          </FormGroup>
-                          <FormGroup className="FormGroupAddress">
-                            <FormControl>
-                            <TextField
-                                  variant="outlined"
-                                  margin="dense"
-                                  label={t('town')}
-                                  value={this.state.selected2Town}
-                                  onChange={this.onChangeF2town}
-                                />
-                            <FormHelperText>{t('youNeedaTownName')}</FormHelperText>
-                          </FormControl>
-                          </FormGroup>
-                        </FormGroup>
-                      </FormControl>
-                    </ExpansionPanelDetails>
-                  </ExpansionPanel>
+                  </FormGroup>
                 </Grid>
-                <Grid item container sm={12} style={{ float: 'left' }}>
-                  <div className="copyAddressPlace">
-                    <Tooltip title={t('copyBillingAdress')} placement="left">
-                      <FileCopy onClick={this.onCopyBillingAdressTOshippingAdress} fontSize="large" style={{ marginBottom: '-5px' }} />
-                    </Tooltip>
-                  </div>
-                  <ExpansionPanel style={{ width: '100%' }}>
-                    <ExpansionPanelSummary expandIcon={<ExpandMore />}>
-                      <Typography style={{ paddingLeft: '15px' }}>
-                        {t('shippingAddress')}
-                      </Typography>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails style={{ padding: '9px', width: '95%' }}>
-                      <FormControl component="fieldset" style={{ width: '100%' }}>
-                        <FormGroup>
-                          <TextField
-                            id="outlined-textarea"
-                            label={t('address')}
-                            multiline
-                            margin="normal"
-                            variant="outlined"
-                            style={{ width: '100%', float: 'left' }}
-                            value={this.state.Selected3Address}
-                            onChange={this.onChangeF3address}
+                <Grid container item sm={3} spacing={0} style={{ display: paid ? 'none' : 'flex' }}>
+                  <FormGroup className="FormGroup">
+                    <FormControl>
+                            <label className="selectLabel">{t('defaultPaymentMethod')}</label>
+                            <Select
+                              placeholder={t('defaultPaymentMethod')}
+                              value={state.default_payment_method}
+                              options={dataPayments}
+                              onChange={(selectedOption) => { seTstate({...state,default_payment_method:selectedOption })  }}
+                            />
+                            <FormHelperText>{t('youNeedaDefaultPaymentMethod')}</FormHelperText>
+                          </FormControl>
+                  </FormGroup>
+                </Grid>
+                <Grid container item sm={3} spacing={0} style={{ display: paid ? 'none' : 'flex' }}>
+                  <FormGroup className="FormGroup">
+                    <FormControl>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                              <KeyboardDatePicker
+                                inputVariant="outlined"
+                                margin="dense"
+                                id="date-picker-dialog"
+                                label={t('dueDate')}
+                                format="dd/MM/yyyy"
+                                value={state.due_date}
+                                onChange={(date) => {
+                                  seTstate({...state,due_date:date});
+                                }}
+                                KeyboardButtonProps={{
+                                  'aria-label': 'change date',
+                                }}
+                              />
+                            </MuiPickersUtilsProvider>
+                            <FormHelperText>{t('youNeedaDueDate')}</FormHelperText>
+                          </FormControl>
+                  </FormGroup>
+                </Grid>
+                <Grid container item sm={6} spacing={0} style={{ display: paid ? 'flex' : 'none' }}>
+                  <FormGroup className="FormGroup">
+                    <FormControl>
+                            <label className="selectLabel">{t('selectBankAccount')}</label>
+                            <Select
+                              placeholder={t('selectBankAccount')}
+                              value={state.bank_account}
+                              style={{ width: '100%', marginTop: '-6px' }}
+                              options={dataBankAccount}
+                              onChange={(selectedOption) => { seTstate({...state,bank_account:selectedOption}); }}
+                            />
+                            <FormHelperText>{t('youNeedaselectBankAccount')}</FormHelperText>
+                          </FormControl>
+                  </FormGroup>
+                </Grid>
+                <Grid container item sm={6} spacing={0} style={{ display: paid ? 'flex' : 'none' }}>
+                  <FormGroup className="FormGroup">
+                    <FormControl>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                              <KeyboardDatePicker
+                                inputVariant="outlined"
+                                margin="dense"
+                                id="date-picker-dialog"
+                                label={t('paidDate')}
+                                format="dd/MM/yyyy"
+                                value={state.paid_date}
+                                onChange={(date) => {
+                                  seTstate({...state,paid_date:date});
+                                }}
+                                KeyboardButtonProps={{
+                                  'aria-label': 'change date',
+                                }}
+                                InputLabelProps={{
+                                  shrink: true,
+                                }}
+                              />
+                            </MuiPickersUtilsProvider>
+                            <FormHelperText>{t('youNeedaDueDate')}</FormHelperText>
+                          </FormControl>
+                  </FormGroup>
+                </Grid>
+                <Grid item container sm={12} spacing={0} style={{ borderTop: '1px solid #ddd', marginTop: '25px' }}>
+                  <Grid item container sm={3} spacing={0}>
+                    <FormGroup className="FormGroup">
+                            <FormControl>
+                              <Select
+                                placeholder={t('addProduct')}
+                                value={selectedDefaultProduct}
+                                options={dataProducts}
+                                onChange={handleChangeProduct}
+                                styles={{
+                                  control: (base) => ({
+                                    ...base,
+                                    color: 'white',
+                                    width: '100%',
+                                    border: 0,
+                                    borderBottom: '1px solid #949494',
+                                    borderRadius: 0,
+                                    marginTop: '10px',
+                                  }),
+                                }}
+                              />
+                              <FormHelperText>{t('youNeedaProductName')}</FormHelperText>
+                            </FormControl>
+                          </FormGroup>
+                  </Grid>
+                  <Grid item container sm={4} spacing={0}/>
+
+                  <Grid item container sm={5} spacing={0}>
+                          <RadioGroup value={quantity_name} onChange={(event) => { seTquantity_name(event.target.value); }} row>
+                            <label style={{ marginTop: '31px', marginRight: '10px'}}> {t('showQuantityAs')} : </label>
+                            <FormControlLabel value="Qty" control={<Radio />} label="Qty" />
+                            <FormControlLabel value="Hours" control={<Radio />} label="Hours" />
+                            <FormControlLabel value="Qty/Hours" control={<Radio />} label="Qty/Hours" />
+                          </RadioGroup>
+                  </Grid>
+                  <Grid container item sm={12} spacing={0} style={{ borderTop: '1px solid #ddd', marginBottom: '25px' }} /> 
+                  <Grid container item sm={3} spacing={0}>
+                            <FormControl style={{width:'90%', paddingLeft:'25px'}}>
+                              <TextValidator
+                                multiline
+                                label={t('productName')}
+                                value={product.product_name}
+                                onChange={(e) => { seTproduct({...product,product_name:e.target.value}); }}
+                                
+                              />
+                            </FormControl>
+                   </Grid>
+                  <Grid container item sm={2} spacing={0}>
+                            <FormControl style={{width:'90%'}}>
+                              <TextValidator
+                                multiline
+                                label={t('description')}
+                                value={product.product_description}
+                                onChange={(e) => { seTproduct({...product,product_description:e.target.value}); }}
+                                
+                              />
+                            </FormControl>
+                   </Grid>
+                  <Grid container item sm={1} spacing={0}>
+                            <FormControl style={{width:'90%'}}>
+                              <TextValidator
+                                type="number"
+                                label={t(quantity_name)}
+
+                                value={quantity}
+                                onChange={onChangeFquantity}
+                                 
+                              />
+                            </FormControl>
+                  </Grid>
+                  <Grid container item sm={1} spacing={0}>
+                            <FormControl style={{width:'90%'}}>
+                              <TextValidator
+                                label={t('unit')}
+                                value={unit}
+                                onChange={(e) => { seTunit(e.target.value); }}
+                                /*InputLabelProps={{
+                                  shrink: true,
+                                }}*/
+                              />
+                              <FormHelperText>{t('youNeedaProductUnit')}</FormHelperText>
+                            </FormControl>
+                  </Grid>
+                  <Grid container item sm={1} spacing={0}>
+                            <FormControl style={{width:'90%'}}>
+                              <TextValidator
+                                type="number"
+                                label={t('price')}
+                                value={product.sale_price}
+                                onChange={onChangeFprice}
+                                 
+                              />
+                            </FormControl>
+                  </Grid>
+                  <Grid container item sm={1} spacing={0}>
+                            <FormControl style={{width:'90%'}}>
+                              <TextValidator
+                                type="number"
+                                label={t('Discount')}
+                                value={product.product_discount}
+                                onChange={onChangeFproduct_discount}
+                                InputProps={{
+                                  endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                                }}
+                               
+                              />
+                            <FormHelperText>{t('Before Tax')}</FormHelperText>
+
+                            </FormControl>
+                  </Grid>
+
+
+                  <Grid container item sm={1} spacing={0}>
+                            <FormControl style={{width:'90%'}}>
+                              <TextValidator
+                                type="number"
+                                label={t('tax')}
+                                value={product.product_vat}
+                                onChange={onChangeFproduct_vat}
+                                InputProps={{
+                                  endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                                }}
+                               
+                              />
+                            </FormControl>
+                  </Grid>
+                  <Grid container item sm={1} spacing={0}>
+                        <FormControl style={{width:'90%'}}>
+                          <TextValidator
+                            disabled
+                            type="number"
+                            label={t('amount')}
+                            value={product.amount}
+                            
                           />
-                          <FormHelperText>{t('youNeedaShippingAddress')}</FormHelperText>
-                          <FormGroup className="FormGroupAddress">
-                            <FormControl>
-                            <label className="selectLabel">{t('country')}</label>
-                            <Select
-                                  placeholder={t('selectCountry')}
-                                  value={this.state.selectedShippingAddressCountryEdit2}
-                                  options={this.state.dataCountry}
-                                  onChange={this.handleChangeCountry3}
-                                />
-                            <FormHelperText>{t('youNeedaCauntryName')}</FormHelperText>
-                          </FormControl>
-                          </FormGroup>
-                          <FormGroup className="FormGroupAddress">
-                            <FormControl>
-                            <label className="selectLabel">{t('state')}</label>
-                            <Select
-                                  placeholder={t('selectState')}
-                                  value={this.state.selectedShippingAddressStateEdit2}
-                                  options={this.state.selectedShippingStateArray}
-                                  onChange={this.handleChangeStates3}
-                                />
-                            <FormHelperText>{t('youNeedaStateName')}</FormHelperText>
-                          </FormControl>
-                          </FormGroup>
-                          <FormGroup className="FormGroupAddress">
-                            <FormControl>
-                            <TextValidator
-                                  variant="outlined"
-                                  margin="dense"
-                                  label={t('zipcode')}
-                                  value={this.state.selected3Zipcode}
-                                  onChange={this.onChangeF3zipcode}
-                                  validators={['isNumber']}
-                                  errorMessages={[t('thisIsNotNumber')]}
-                                />
-                            <FormHelperText>{t('youNeedaZipcode')}</FormHelperText>
-                          </FormControl>
-                          </FormGroup>
-                          <FormGroup className="FormGroupAddress">
-                            <FormControl>
-                            <TextField
-                                  variant="outlined"
-                                  margin="dense"
-                                  label={t('town')}
-                                  value={this.state.selected3Town}
-                                  onChange={this.onChangeF3town}
-                                />
-                            <FormHelperText>{t('youNeedaTownName')}</FormHelperText>
-                          </FormControl>
-                          </FormGroup>
-                        </FormGroup>
+                        </FormControl>
+                  </Grid>
+                  <Grid container item sm={1} spacing={0}>
+                      <FormControl>
+                        <Button color="primary" onClick={onClickAddItem} disabled={!product.amount}>
+                          <Tooltip title={t('Add Product')}>
+                            <PlaylistAddCheck fontSize="large" />
+                          </Tooltip>
+                        </Button>
                       </FormControl>
-                    </ExpansionPanelDetails>
-                  </ExpansionPanel>
+                  </Grid>
+                </Grid>
+                <Grid container item sm={12} spacing={0}>
+                  <MaterialTable
+                    title="Editable Preview"
+                    columns={columns}
+                    data={items}
+                    icons={tableIcons}
+                    style={{ width: '100%', boxShadow: '1px -2px 5px 0px #0000000f' }}
+                    components={{
+                            Toolbar: (props) => (
+                              <div />
+                            ),
+                          }}
+                    options={{
+                            actionsColumnIndex: -1,
+                            paging: false,
+                          }}
+                    editable={{
+                                onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
+                                  {
+                                    const index = items.indexOf(oldData);
+                                    items[index] = newData;
+                                    seTitems(items);
+                                    totalCebirItems();
+                                  }
+                                  resolve();
+                                }),
+                                onRowDelete: (oldData) => new Promise((resolve, reject) => {
+                                  {
+                                    const index = items.indexOf(oldData);
+                                    items.splice(index, 1);
+                                    seTitems(items);
+                                    totalCebirItems();
+                                  }
+                                  resolve();
+                                }),
+                            }}
+                  />
+                </Grid>
+                <Grid container item sm={6} spacing={0} />
+                <Grid container item sm={6} spacing={0}>
+                  <Table style={{ marginTop: '20px' }} aria-label="spanning table">
+                    <TableBody>
+                      <TableRow>
+                        <TableCell rowSpan={4} />
+                        <TableCell colSpan={2}>Subtotal</TableCell>
+                        <TableCell align="right" className="textRight">{(subtotal).toFixed(2)}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell colSpan={2}>Tax</TableCell>
+                        <TableCell align="right" className="textRight"> {(taxtotal).toFixed(2)} </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>After Tax Discount</TableCell>
+                        <TableCell>
+                          <TextValidator
+                            margin="dense"
+                            type="number"
+                            style={{ width: '100px', marginLeft: '70px' }}
+                            value={discount}
+                            onChange={onChangeFdiscount}
+                            InputProps={{
+                              endAdornment:
+                                <FormControl>
+                                  <Select2
+                                    value={discountType}
+                                    onChange={handleChangeDiscountType}
+                                  >
+                                    <MenuItem value="%">%</MenuItem>
+                                    <MenuItem value="-">{t('fixedAmount')}</MenuItem>
+                                  </Select2>
+                                </FormControl>
+                            }}
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="right" className="textRight"> {Number(discountValue).toFixed(2)}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell colSpan={2}>{t('Total')}</TableCell>
+                        <TableCell align="right" className="textRight"> {Number(total).toFixed(2) }</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </Grid>
               </Grid>
-            </Grid>
-          </ValidatorForm>
-          <Dialog
-            disableBackdropClick
-            disableEscapeKeyDown
-            open={this.state.gropBoxOpen}
-            onClose={this.handleGroupBoxClose}
-          >
-            <DialogTitle>{t('addNewCustomerGroupName')}</DialogTitle>
-            <DialogContent>
-              <FormControl className="FormControl" style={{ width: '100%' }}>
-                <InputLabel htmlFor="group">{t('addGroupName')}</InputLabel>
-                <Input
-                  id="group"
-                  onChange={this.onChangeFnewGroup}
-                />
-                <FormHelperText>{t('addNewGroupName')}</FormHelperText>
-              </FormControl>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleGroupBoxClose} color="primary">
-                {t('cancel')}
-              </Button>
-              <Button onClick={this.saveHandleNewGroup} color="primary">
+            </Card>
+            <div className="saveButtonPlace">
+              <Button type="submit" className="glow-on-hover">
+                <Save fontSize="small" style={{ marginRight: '15px' }} />
                 {t('save')}
               </Button>
-            </DialogActions>
-          </Dialog>
+            </div>
+          </Grid>
+          <Grid container item md={2} className="panelGridRelative">
+            <Card className="panelLargeIcon">
+              <ContactMail fontSize="large" />
+            </Card>
+            <Card className="listViewPaper" style={{ marginBottom: '0' }}>
+              <Typography component="h5" variant="h6" color="inherit" noWrap className="typography">
+                {t('addresses')}
+              </Typography>
+              <Grid item container sm={12} className="gridRightPlace">
+                <FormControl component="fieldset" className="addressFormControll">
+                  <FormLabel component="legend" style={{ width: '100%' }}>
+                    {t('billingAddress')}
+                    <Button style={{ float: 'right', padding: '5px', minWidth: '0' }} onClick={() => { seTedit1Address(!edit1Address); }}>
+                      <Edit fontSize="small" />
+                    </Button>
+                  </FormLabel>
+                  <div style={{ fontSize: '9pt', marginTop: '15px' }}>
+                    {state.selected2Address || ' ------------------------------------------------------------------------ '}
+                    {` ${state.selected2Zipcode} ` || ' ------------ '}
+                    {state.selected2Town || ' ------------ '}
+                    <br />
+                    {state.selectedbillingAddressState[0].label || ' ------------ ' } / {state.selectedbillingAddressCountry[0].label || ' ------------ '}
+                  </div>
+                  <div style={{ display: edit1Address ? 'none' : 'flex' }}>
+                    <FormLabel component="legend" />
+                    <FormGroup>
+                      <TextField
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        id="outlined-textarea"
+                        label={t('address')}
+                        multiline
+                        margin="normal"
+                        variant="outlined"
+                        style={{ width: '100%', float: 'left' }}
+                        value={state.selected2Address}
+                        onChange={(e) => { seTstate({...state,selected2Address:e.target.value }); }}
+                      />
+                      <FormHelperText>{t('youNeedaBillingAddress')}</FormHelperText>
+                      <FormGroup className="FormGroupAddress">
+                        <FormControl>
+                          <label className="selectLabel">{t('country')}</label>
+                          <Select
+                            placeholder={t('selectCountry')}
+                            value={state.selectedbillingAddressCountry}
+                            options={dataCountry}
+                            onChange={onChangeFbillingAddressCountry}
+                          />
+                          <FormHelperText>{t('youNeedaCountryName')}</FormHelperText>
+                        </FormControl>
+                      </FormGroup>
+                      <FormGroup className="FormGroupAddress">
+                        <FormControl>
+                          <label className="selectLabel">{t('state')}</label>
+                          <Select
+                            placeholder={t('selectState')}
+                            value={state.selectedbillingAddressState}
+                            options={selectedbillingAddressStateArray}
+                            onChange={(selectedOption) => { seTstate({...state,selectedbillingAddressState:[selectedOption]}) }}
+                          />
+                          <FormHelperText>{t('youNeedaStateName')}</FormHelperText>
+                        </FormControl>
+                      </FormGroup>
+                      <FormGroup className="FormGroupAddress">
+                        <FormControl>
+                          <TextValidator
+                            label={t('zipcode')}
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            margin="dense"
+                            variant="outlined"
+                            value={state.selected2Zipcode}
+                            onChange={(e) => { seTstate({...state,selected2Zipcode:e.target.value }); }}
+                            validators={['isNumber']}
+                            errorMessages={[t('thisIsNotNumber')]}
+                          />
+                          <FormHelperText>{t('youNeedaZipcode')}</FormHelperText>
+                        </FormControl>
+                      </FormGroup>
+                      <FormGroup className="FormGroupAddress">
+                        <FormControl>
+                          <TextField
+                            margin="dense"
+                            variant="outlined"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            label={t('town')}
+                            id="town"
+                            value={state.selected2Town}
+                            onChange={(e) => { seTstate({...state,selected2Town:e.target.value }); }}
+                          />
+                          <FormHelperText>{t('youNeedaTownName')}</FormHelperText>
+                        </FormControl>
+                      </FormGroup>
+                    </FormGroup>
+                  </div>
+                </FormControl>
+                <FormControl component="fieldset" style={{ width: '100%', marginTop: '25px' }}>
+                  <FormLabel component="legend" style={{ width: '100%' }}>
+                    {t('shippingAddress')}
+                    <Button style={{ float: 'right', padding: '5px', minWidth: '0' }} onClick={() => { seTedit2Address(!edit2Address); }}>
+                      <Edit fontSize="small" />
+                    </Button>
+                  </FormLabel>
+                  <div style={{ fontSize: '9pt', marginTop: '15px' }}>
+                    {state.selected3Address || ' ------------------------------------------------------------------------ ' } 
+                    {` ${state.selected3Zipcode} ` || ' ------------ '} {state.selected3Town || ' ------------ '}
+                    <br />
+                    {state.selectedshippingAddressState[0].label || ' ------------ ' } / {state.selectedshippingAddressCountry[0].label || ' ------------ '}
+                  </div>
+                  <div style={{ display: edit2Address ? 'none' : 'flex' }}>
+                    <FormGroup>
+                      <TextField
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        id="outlined-textarea"
+                        label={t('address')}
+                        multiline
+                        margin="normal"
+                        variant="outlined"
+                        style={{ width: '100%', float: 'left' }}
+                        value={state.selected3Address}
+                        onChange={(e) => { seTstate({...state,selected3Address:e.target.value }); }}
+                      />
+                      <FormHelperText>{t('youNeedaShippingAddress')}</FormHelperText>
+                      <FormGroup className="FormGroupAddress">
+                        <FormControl>
+                          <label className="selectLabel">{t('country')}</label>
+                          <Select
+                            placeholder={t('selectCountry')}
+                            value={state.selectedshippingAddressCountry}
+                            options={dataCountry}
+                            onChange={onChangeFshippingAddressCountry}
+                          />
+                          <FormHelperText>{t('youNeedaCauntryName')}</FormHelperText>
+                        </FormControl>
+                      </FormGroup>
+                      <FormGroup className="FormGroupAddress">
+                        <FormControl>
+                          <label className="selectLabel">{t('state')}</label>
+                          <Select
+                            placeholder={t('selectState')}
+                            style={{ width: '100%' }}
+                            value={state.selectedshippingAddressState}
+                            options={selectedshippingAddressStateArray}
+                            onChange={(selectedOption) => { seTstate({...state, selectedshippingAddressState:[selectedOption]}); }}
+                          />
+                          <FormHelperText>{t('youNeedaStateName')}</FormHelperText>
+                        </FormControl>
+                      </FormGroup>
+                      <FormGroup className="FormGroupAddress">
+                        <FormControl>
+                          <TextValidator
+                            label={t('zipcode')}
+                            margin="dense"
+                            variant="outlined"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            value={state.selected3Zipcode}
+                            onChange={(e) => { seTstate({...state,selected3Zipcode:e.target.value }); }}
+                            validators={['isNumber']}
+                            errorMessages={[t('thisIsNotNumber')]}
+                          />
+                          <FormHelperText>{t('youNeedaZipcode')}</FormHelperText>
+                        </FormControl>
+                      </FormGroup>
+                      <FormGroup className="FormGroupAddress">
+                        <FormControl>
+                          <TextField
+                            id="town"
+                            label={t('town')}
+                            margin="dense"
+                            variant="outlined"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            value={state.selected3Town}
+                            onChange={(e) => { seTstate({...state,selected3Town:e.target.value }); }}
+                          />
+                          <FormHelperText>{t('youNeedaTownName')}</FormHelperText>
+                        </FormControl>
+                      </FormGroup>
+                    </FormGroup>
+                  </div>
+                </FormControl>
+              </Grid>
+            </Card>
+          </Grid>
+        </Grid>
+      </ValidatorForm>
+    </div>
 
-        </div>
-      );
-    }
+
+  );
 }
-
-
-export default withNamespaces()(withSnackbar(CustomerEdit));

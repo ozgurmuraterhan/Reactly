@@ -32,7 +32,7 @@ import CustomersList from './components/customers/list.component';
 
 import InvoicesList from './components/invoices/list.component';
 import InvoicesCreate from './components/invoices/create.component';
-
+import InvoicesEdit from './components/invoices/edit.component';
 
 import ProductsList from './components/products/list.component';
 import ProductsCreate from './components/products/create.component';
@@ -40,8 +40,7 @@ import ProductsEdit from './components/products/edit.component';
 
 
 /*
-import InvoicesEdit from './components/invoices/edit.component';
-<Route path="/invoices/edit/:id" component={InvoicesEdit} />
+
 
 import CreateExercise from './components/exercises/create.component';
 import EditExercise from './components/exercises/edit.component';
@@ -97,7 +96,6 @@ export default function App() {
                 </NavText>
               </NavItem>
 
-
               <NavItem eventKey="customerslist">
                 <NavIcon>
                   <SupervisedUserCircle fontSize="large" style={{ marginTop: '7px' }} />
@@ -115,7 +113,6 @@ export default function App() {
                           Products
                 </NavText>
               </NavItem>
-
 
               <NavItem eventKey="expenses">
                 <NavIcon>
@@ -170,6 +167,7 @@ export default function App() {
 
             <Route path="/invoicecreate" component={InvoicesCreate} />
             <Route path="/invoiceslist" component={InvoicesList} />
+            <Route path="/invoices/edit/:id" component={InvoicesEdit} />
 
 
             <Route path="/productslist" component={ProductsList} />
