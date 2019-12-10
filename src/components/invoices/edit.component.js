@@ -177,6 +177,7 @@ export default function InvoiceCreate(props) {
           onChange={(e) => {
             props.onChange(e.target.value);
             seTanyAmount(((props.rowData.price * e.target.value ) * ( 1 + props.rowData.tax /100 ) ) - (((props.rowData.price * e.target.value) * (0 + (props.rowData.discount/ 100))) * (1 + (props.rowData.tax / 100))))
+
           }}
           validators={['isNumber']}
           errorMessages={[t('thisIsNotNumber')]}
@@ -620,6 +621,7 @@ export default function InvoiceCreate(props) {
       seTquantity_name(response.data.quantity_name)
 
     });
+
   }
   // componentDidMount = useEffect
   useEffect(() => {

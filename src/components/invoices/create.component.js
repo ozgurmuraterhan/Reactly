@@ -336,6 +336,7 @@ export default function InvoiceCreate(props) {
       seTtotal((taxtotal + subtotal) - (discount));
       seTdiscountType(selectedOption.target.value);
     }
+
   };
 
   const onChangeFquantity = (e) => {
@@ -622,7 +623,7 @@ export default function InvoiceCreate(props) {
       taxtotal:taxtotal.toFixed(2) ,
       total:total.toFixed(2) ,
       discount ,
-      discountType, 
+      discountType:discountType + '-', 
       discountValue: discountValue.toFixed(2),
       items:items,
       default_payment_method: state.default_payment_method,
