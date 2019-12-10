@@ -4,8 +4,8 @@ body{font-family: 'Roboto'}
 .InputLabel{text-transform: capitalize; }
 .selectLabel{ margin:0px 0 -9px 8px;padding:0 5px; z-index:5;  float:left; width:fit-content; color:#777676; font-size:9pt; background:#fff}
 .typography{float:left ; padding:10px 0 20px 110px; }
-.panelLargeIcon{float:left;margin:-23px 0 0px 20px; position:absolute;z-index:1000; padding:15px 20px; background:linear-gradient(60deg, rgb(63, 81, 181), rgb(6, 193, 249)); color:#fff!important}
-.panelGridRelative{position:relative;  margin-top:35px!important; float:left}
+.panelLargeIcon{float:left;margin:20px 0 -50px 20px;;z-index:1000; padding:15px 20px; background:linear-gradient(60deg, rgb(63, 81, 181), rgb(6, 193, 249)); color:#fff!important}
+.panelGridRelative{position:relative;  margin-top:0px!important; float:left}
 .addButtonPlace{ margin: 15px 10px 0px 10px; float: right}
 .addButtonIcon{float: right; color: #000}
 .listViewPaper{  width: 100%; min-height:350px; margin-bottom:55px;     box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 2px 1px -1px rgba(0,0,0,0.12);}
@@ -18,6 +18,8 @@ body{font-family: 'Roboto'}
 .addressFormControll{width:100%; margin-top:6px}
 .containerP{margin:  15px}
 
+.containerP form .MuiGrid-container:first-child {display:block!important;}
+.containerP form .MuiGrid-container .MuiGrid-grid-sm-12 .MuiGrid-grid-sm-4 {display:flex!important}
 
 .MuiInputLabel-outlined.MuiInputLabel-shrink {
     transform: translate(14px, -6px) scale(0.75);

@@ -839,7 +839,7 @@ export default function InvoiceCreate(props) {
                           </FormControl>
                   </FormGroup>
                 </Grid>
-                <Grid item container sm={12} spacing={0} style={{ borderTop: '1px solid #ddd', marginTop: '25px' }}>
+                <Grid item container sm={12} spacing={0} style={{ borderTop: '1px solid #ddd', margin: '15px 0' }}>
                   <Grid item container sm={3} spacing={0}>
                     <FormGroup className="FormGroup">
                             <FormControl>
@@ -1038,7 +1038,7 @@ export default function InvoiceCreate(props) {
                         <TableCell align="right" className="textRight"> {(taxtotal).toFixed(2)} </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell>After Tax Discount</TableCell>
+                        <TableCell>Discount (After Tax) </TableCell>
                         <TableCell>
                           <TextValidator
                             margin="dense"
@@ -1082,7 +1082,7 @@ export default function InvoiceCreate(props) {
             </div>
           </Grid>
           <Grid container item md={2} className="panelGridRelative">
-            <Card className="panelLargeIcon">
+          <Card className="panelLargeIcon">
               <ContactMail fontSize="large" />
             </Card>
             <Card className="listViewPaper" style={{ marginBottom: '0' }}>
@@ -1273,6 +1273,8 @@ export default function InvoiceCreate(props) {
                 </FormControl>
               </Grid>
             </Card>
+
+            
           </Grid>
         </Grid>
       </ValidatorForm>
