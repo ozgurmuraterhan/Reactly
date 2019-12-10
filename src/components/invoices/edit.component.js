@@ -176,7 +176,7 @@ export default function InvoiceCreate(props) {
           value={props.value}
           onChange={(e) => {
             props.onChange(e.target.value);
-            seTanyAmount(props.rowData.price * e.target.value * (1 + (props.rowData.tax / 100)));
+            seTanyAmount(((props.rowData.price * e.target.value ) * ( 1 + props.rowData.tax /100 ) ) - (((props.rowData.price * e.target.value) * (0 + (props.rowData.discount/ 100))) * (1 + (props.rowData.tax / 100))))
           }}
           validators={['isNumber']}
           errorMessages={[t('thisIsNotNumber')]}
@@ -586,15 +586,52 @@ export default function InvoiceCreate(props) {
     seTstate({...state, selectedshippingAddressCountry:[{ label: selectedOption.label, value: selectedOption.label }] });
   };
 
+  function getInvoices() {
+    axios.get(`http://localhost:5000/invoices/${props.match.params.id}`)
+    .then((response) => {
+      seTstate({
+        no: response.data.no ,
+        serie: response.data.serie ,
+        created : response.data.created ,
+        due_date :response.data.due_date ,
+        due_note: response.data.due_note,
+        default_payment_method: response.data.default_payment_method,
+        selectedbillingAddressCountry: [{ label: response.data.billingAddress_country_id, value: response.data.billingAddress_country_id }],
+        selectedbillingAddressState: [{ label: response.data.billingAddress_state_id, value: response.data.billingAddress_state_id }],
+        selected2Town: response.data.billingAddress_town,
+        selected2Zipcode: response.data.billingAddress_zipcode,
+        selected2Address: response.data.billingAddress_address,
+        selectedshippingAddressCountry: [{ label: response.data.shippingAddress_country_id, value: response.data.shippingAddress_country_id }] ,
+        selectedshippingAddressState: [{ label: response.data.shippingAddress_state_id, value: response.data.shippingAddress_state_id }] ,
+        selected3Town : response.data.shippingAddress_town, 
+        selected3Zipcode : response.data.shippingAddress_zipcode,
+        selected3Address: response.data.shippingAddress_address, 
+      })  
 
+      seTselectedDefaultCustomer(response.data.customer_id) 
+      seTsubtotal(response.data.subtotal)
+      seTtaxtotal(response.data.taxtotal) 
+      seTtotal(response.data.total) 
+      seTdiscount(response.data.discount) 
+      seTdiscountType(response.data.discountType)
+      seTdiscountValue(response.data.discountValue)
+      seTitems(response.data.items)
+      seTquantity(response.data.quantity)
+      seTquantity_name(response.data.quantity_name)
+
+    });
+  }
   // componentDidMount = useEffect
   useEffect(() => {
+    getInvoices();
     getCustomersF();
     getPaymentsF();
     getBankAccountF();
     getProductsF();
     getCountryF();
   }, []);
+
+
 
   const onSubmit = (e) => {
     e.preventDefault();

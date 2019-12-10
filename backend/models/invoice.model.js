@@ -92,6 +92,9 @@ const InvoiceSchema = new Schema({
         type:String,
         trim:true
     },
+    items:{
+        type:Array
+    },
     quantity:{
         type:String
     },  

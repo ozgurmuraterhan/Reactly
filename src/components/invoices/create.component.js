@@ -176,7 +176,7 @@ export default function InvoiceCreate(props) {
           value={props.value}
           onChange={(e) => {
             props.onChange(e.target.value);
-            seTanyAmount(props.rowData.price * e.target.value * (1 + (props.rowData.tax / 100)));
+            seTanyAmount(((props.rowData.price * e.target.value ) * ( 1 + props.rowData.tax /100 ) ) - (((props.rowData.price * e.target.value) * (0 + (props.rowData.discount/ 100))) * (1 + (props.rowData.tax / 100))))
           }}
           validators={['isNumber']}
           errorMessages={[t('thisIsNotNumber')]}
@@ -624,7 +624,7 @@ export default function InvoiceCreate(props) {
       discount ,
       discountType, 
       discountValue: discountValue.toFixed(2),
-      items,
+      items:items,
       default_payment_method: state.default_payment_method,
       quantity,  
       quantity_name, 
