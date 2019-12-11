@@ -610,9 +610,11 @@ export default function InvoiceCreate(props) {
       })  
 
       seTselectedDefaultCustomer(response.data.customer_id) 
+
       seTsubtotal(response.data.subtotal)
       seTtaxtotal(response.data.taxtotal) 
       seTtotal(response.data.total) 
+      
       seTdiscount(response.data.discount) 
       seTdiscountType(response.data.discountType)
       seTdiscountValue(response.data.discountValue)
@@ -667,6 +669,7 @@ export default function InvoiceCreate(props) {
       default_payment_method: state.default_payment_method,
       quantity,  
       quantity_name, 
+      payments:paymentsArray,
 
       billingAddress_country_id: state.selectedbillingAddressCountry[0].label ,
       billingAddress_state_id: state.selectedbillingAddressState[0].label,
@@ -1085,22 +1088,20 @@ export default function InvoiceCreate(props) {
                             style={{ width: '100px', marginLeft: '70px' }}
                             value={discount}
                             onChange={onChangeFdiscount}
-                            InputProps={{
-                              endAdornment:
-                                <FormControl>
-                                  <Select2
-                                    value={discountType}
-                                    onChange={handleChangeDiscountType}
-                                  >
-                                    <MenuItem value="%">%</MenuItem>
-                                    <MenuItem value="-">{t('fixedAmount')}</MenuItem>
-                                  </Select2>
-                                </FormControl>
-                            }}
+                            
                             InputLabelProps={{
                               shrink: true,
                             }}
                           />
+
+                            <Select2
+                              value={discountType}
+                              onChange={handleChangeDiscountType}
+                              style={{marginTop:'5px'}}
+                            >
+                              <MenuItem value="%">%</MenuItem>
+                              <MenuItem value="eksi">{t('fixedAmount')}</MenuItem>
+                            </Select2>
                         </TableCell>
                         <TableCell align="right" className="textRight"> {Number(discountValue).toFixed(2)}</TableCell>
                       </TableRow>

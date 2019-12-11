@@ -78,6 +78,7 @@ export default function InvoiceCreate(props) {
   const [selectedshippingAddressStateArray, seTselectedshippingAddressStateArray] = useState([]);
   const [dataBankAccount, seTdataBankAccount] = useState('');
   const [paid, seTpaid] = useState(false);
+  const [focus, seTfocus] = useState(false);
   const [selectedDefaultProduct, seTselectedDefaultProduct] = useState([]);
   const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState([]);
   const [dataPayments, seTdataPayments] = useState('');
@@ -174,9 +175,11 @@ export default function InvoiceCreate(props) {
           margin="dense"
           type="number"
           value={props.value}
+          autoFocus={focus}
           onChange={(e) => {
             props.onChange(e.target.value);
             seTanyAmount(((props.rowData.price * e.target.value ) * ( 1 + props.rowData.tax /100 ) ) - (((props.rowData.price * e.target.value) * (0 + (props.rowData.discount/ 100))) * (1 + (props.rowData.tax / 100))))
+            seTfocus(true)
           }}
           validators={['isNumber']}
           errorMessages={[t('thisIsNotNumber')]}
@@ -599,7 +602,6 @@ export default function InvoiceCreate(props) {
 
   const onSubmit = (e) => {
     e.preventDefault();
-
     if (paid === true) {
       var  paymentsArray = [{
             amount: total.toFixed(2),
@@ -607,8 +609,6 @@ export default function InvoiceCreate(props) {
             bank_account:state.bank_account
         }]
     }
-
-
 
     const Invoices = {
       draft:0 ,
@@ -623,12 +623,14 @@ export default function InvoiceCreate(props) {
       taxtotal:taxtotal.toFixed(2) ,
       total:total.toFixed(2) ,
       discount ,
-      discountType:discountType + '-', 
-      discountValue: discountValue.toFixed(2),
+      discountType, 
+      discountValue,
       items:items,
       default_payment_method: state.default_payment_method,
       quantity,  
       quantity_name, 
+
+      payments:paymentsArray,
 
       billingAddress_country_id: state.selectedbillingAddressCountry[0].label ,
       billingAddress_state_id: state.selectedbillingAddressState[0].label,
@@ -644,16 +646,20 @@ export default function InvoiceCreate(props) {
 
 
     };
+
+    console.log(Invoices)
     axios.post('http://localhost:5000/invoices/add', Invoices)
       .then((res) => {
         if (res.data.variant === 'error') {
+          console.log('slm')
           enqueueSnackbar(t('invoiceNotAdded') + res.data.messagge, { variant: res.data.variant });
         } else {
           enqueueSnackbar(t('invoiceAdded') + res.data.messagge, { variant: res.data.variant });
           // navigate
           history.push('/invoiceslist');
         }
-      });
+      })
+      .catch(err => console.log(err))
   };
 
   return (
@@ -682,6 +688,7 @@ export default function InvoiceCreate(props) {
                     <FormControl>
                             <label className="selectLabel">{t('customer')}</label>
                             <Select
+                              required
                               placeholder={t('selectCustomer')}
                               value={selectedDefaultCustomer}
                               options={dataCustomers}
@@ -1047,22 +1054,20 @@ export default function InvoiceCreate(props) {
                             style={{ width: '100px', marginLeft: '70px' }}
                             value={discount}
                             onChange={onChangeFdiscount}
-                            InputProps={{
-                              endAdornment:
-                                <FormControl>
-                                  <Select2
-                                    value={discountType}
-                                    onChange={handleChangeDiscountType}
-                                  >
-                                    <MenuItem value="%">%</MenuItem>
-                                    <MenuItem value="-">{t('fixedAmount')}</MenuItem>
-                                  </Select2>
-                                </FormControl>
-                            }}
+                            
                             InputLabelProps={{
                               shrink: true,
                             }}
                           />
+
+                            <Select2
+                              value={discountType}
+                              onChange={handleChangeDiscountType}
+                              style={{marginTop:'5px'}}
+                            >
+                              <MenuItem value="%">%</MenuItem>
+                              <MenuItem value="eksi">{t('fixedAmount')}</MenuItem>
+                            </Select2>
                         </TableCell>
                         <TableCell align="right" className="textRight"> {Number(discountValue).toFixed(2)}</TableCell>
                       </TableRow>
