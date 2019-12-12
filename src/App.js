@@ -155,6 +155,7 @@ export default function App() {
           </SideNav>
           <main style={{ marginLeft: '55px' }}>
             <div>
+               Lang:
               <button onClick={() => changeLanguage('tr')}>tr</button>
               <button onClick={() => changeLanguage('en')}>en</button>
               <span />

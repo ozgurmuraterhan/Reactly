@@ -1,10 +1,10 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, {  useState, useEffect } from 'react';
 import axios from 'axios';
-import { withSnackbar, useSnackbar } from 'notistack';
+import {   useSnackbar } from 'notistack';
 import { useHistory} from 'react-router-dom'
 import Select from 'react-select';
 import { ValidatorForm, TextValidator, SelectValidator } from 'react-material-ui-form-validator';
-import { withNamespaces, useTranslation } from 'react-i18next';
+import {  useTranslation } from 'react-i18next';
 
 import {
   FormControl,
@@ -30,7 +30,6 @@ import {
   Save,
 } from '@material-ui/icons';
 
-import '../../assets/css/style.css';
 
 
 export default function ProductCreate() {
@@ -133,12 +132,11 @@ useEffect(() => {
   }
 
     return (
-
       <div className="containerP">
-        <ValidatorForm autoComplete="off" onSubmit={onSubmit}>
-          <Grid item container spacing={3}>
-            <Grid item container md={9} className="panelGridRelative">
-              <Card className="panelLargeIcon">
+      <ValidatorForm autoComplete="off" onSubmit={onSubmit}>
+        <Grid item container spacing={3} style={{display: 'flex'}}>
+          <Grid item container md={9} className="panelGridRelative" >
+            <Card className="panelLargeIcon">
                 <GroupAdd fontSize="large" />
               </Card>
               <div className="listViewPaper">
@@ -314,11 +312,10 @@ useEffect(() => {
               </div>
             </Grid>
             <Grid container item md={3} className="panelGridRelative">
-
               <div className="listViewPaper">
+                <br/> <br/> <br/> <br/>
                     Update Images coming soon :)
               </div>
-
             </Grid>
           </Grid>
         </ValidatorForm>
