@@ -66,7 +66,7 @@ import DateFnsUtils from '@date-io/date-fns';
 
 import '../../assets/css/style.css';
 
-export default function InvoiceCreate(props) {
+export default function InvoiceEdit(props) {
   const [t] = useTranslation();
   const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
@@ -78,7 +78,13 @@ export default function InvoiceCreate(props) {
   const [selectedshippingAddressStateArray, seTselectedshippingAddressStateArray] = useState([]);
   const [dataBankAccount, seTdataBankAccount] = useState('');
   const [paid, seTpaid] = useState(false);
-  const [focus, seTfocus] = useState(false);
+  const [focus, seTfocus] = useState({
+    focus1:true,
+    focus2:false,
+    focus3:false,
+    focus4:false
+  });
+  
   const [selectedDefaultProduct, seTselectedDefaultProduct] = useState([]);
   const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState([]);
   const [dataPayments, seTdataPayments] = useState('');
@@ -96,13 +102,17 @@ export default function InvoiceCreate(props) {
   const [unit, seTunit] = useState('');
   const [quantity_name, seTquantity_name] = useState(t('Qty'));
   const [items, seTitems] = useState([]);
-  const [total, seTtotal] = useState(0);
   const [anyAmount, seTanyAmount] = useState(0);
-  const [subtotal, seTsubtotal] = useState(0);
-  const [taxtotal, seTtaxtotal] = useState(0);
-  const [discountType, seTdiscountType] = useState('%');
-  const [discount, seTdiscount] = useState(0);
-  const [discountValue, seTdiscountValue] = useState(0);
+
+  const [totalAll, seTtotalAll] = useState({
+    total:0,
+    subtotal:0,
+    taxtotal:0,
+    discountType:'%',
+    discount:0,
+    discountValue:0
+  });
+
   
 
   const [state,seTstate] = useState({
@@ -130,9 +140,6 @@ export default function InvoiceCreate(props) {
 
   const [edit1Address, seTedit1Address] = useState(true);
   const [edit2Address, seTedit2Address] = useState(true);
-
-
-
 
   const columns = [
     {
@@ -175,11 +182,17 @@ export default function InvoiceCreate(props) {
           margin="dense"
           type="number"
           value={props.value}
-          autoFocus={focus}
+          autoFocus={focus.focus1}
           onChange={(e) => {
             props.onChange(e.target.value);
             seTanyAmount(((props.rowData.price * e.target.value ) * ( 1 + props.rowData.tax /100 ) ) - (((props.rowData.price * e.target.value) * (0 + (props.rowData.discount/ 100))) * (1 + (props.rowData.tax / 100))))
-            seTfocus(true)
+            seTfocus({
+              focus1:true,
+              focus2:false,
+              focus3:false,
+              focus4:false
+            })
+            
           }}
           validators={['isNumber']}
           errorMessages={[t('thisIsNotNumber')]}
@@ -194,10 +207,18 @@ export default function InvoiceCreate(props) {
           margin="dense"
           type="number"
           value={props.value}
+          autoFocus={focus.focus2}
           onChange={(e) => {
             props.onChange(e.target.value);
-
             seTanyAmount(((e.target.value * props.rowData.quantity ) * ( 1 + props.rowData.tax /100 ) ) - (((e.target.value * props.rowData.quantity) * (0 + (props.rowData.discount/ 100))) * (1 + (props.rowData.tax / 100))))
+            seTfocus({
+              focus1:false,
+              focus2:true,
+              focus3:false,
+              focus4:false
+            })
+            
+
           }}
           validators={['isNumber']}
           errorMessages={[t('thisIsNotNumber')]}
@@ -217,9 +238,18 @@ export default function InvoiceCreate(props) {
           margin="dense"
           type="number"
           value={props.value}
+          autoFocus={focus.focus3}
           onChange={(e) => {
             props.onChange(e.target.value);
             seTanyAmount(((props.rowData.price * props.rowData.quantity ) * ( 1 + props.rowData.tax /100 ) ) - (((props.rowData.price * props.rowData.quantity) * (0 + (e.target.value/ 100))) * (1 + (props.rowData.tax / 100))))
+            
+            seTfocus({
+              focus1:false,
+              focus2:false,
+              focus3:true,
+              focus4:false
+            })
+
           }}
           validators={['isNumber']}
           errorMessages={[t('thisIsNotNumber')]}
@@ -240,9 +270,18 @@ export default function InvoiceCreate(props) {
           margin="dense"
           type="number"
           value={props.value}
+          autoFocus={focus.focus4}
           onChange={(e) => {
             props.onChange(e.target.value);
             seTanyAmount(((props.rowData.price * props.rowData.quantity ) * ( 1 + e.target.value /100 ) ) - (((props.rowData.price * props.rowData.quantity) * (0 + (props.rowData.discount/ 100))) * (1 + (e.target.value / 100))))
+            
+            seTfocus({
+              focus1:false,
+              focus2:false,
+              focus3:false,
+              focus4:true
+            })
+
           }}
           validators={['isNumber']}
           errorMessages={[t('thisIsNotNumber')]}
@@ -331,15 +370,20 @@ export default function InvoiceCreate(props) {
 
   const handleChangeDiscountType = (selectedOption) => {
     if (selectedOption.target.value === '%') {
-      seTdiscountValue(((taxtotal + subtotal) * (1 + (discount / 100))) - (taxtotal + subtotal));
-      seTtotal((taxtotal + subtotal) - (((taxtotal + subtotal) * (1 + (discount / 100))) - (taxtotal + subtotal)));
-      seTdiscountType(selectedOption.target.value);
+      seTtotalAll({
+        ...totalAll,
+        discountValue:((totalAll.taxtotal + totalAll.subtotal) * (1 + (totalAll.discount / 100))) - (totalAll.taxtotal + totalAll.subtotal),
+        total:(totalAll.taxtotal + totalAll.subtotal) - (((totalAll.taxtotal + totalAll.subtotal) * (1 + (totalAll.discount / 100))) - (totalAll.taxtotal + totalAll.subtotal)),
+        discountType:selectedOption.target.value,
+      })
     } else {
-      seTdiscountValue(discount);
-      seTtotal((taxtotal + subtotal) - (discount));
-      seTdiscountType(selectedOption.target.value);
+      seTtotalAll({
+        ...totalAll,
+        discountValue:totalAll.discount,
+        total:(totalAll.taxtotal + totalAll.subtotal) - (totalAll.discount),
+        discountType:selectedOption.target.value,
+      })
     }
-
   };
 
   const onChangeFquantity = (e) => {
@@ -450,9 +494,13 @@ export default function InvoiceCreate(props) {
     seTitems(items);
 
     items.map((item) => (
-      seTtotal(total +  item.amount),
-      seTsubtotal( subtotal + (( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) )) ),
-      seTtaxtotal( ((( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) )) * ( 1 + item.tax /100 ) ) - ((( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) ))  )  )
+      seTtotalAll({
+        ...totalAll,
+        total     : totalAll.total +  item.amount,
+        subtotal  : totalAll.subtotal + (( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) )) ,
+        taxtotal  : ((( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) )) * ( 1 + item.tax /100 ) ) - ((( item.price *  item.quantity) - (( item.price *  item.quantity) * ( 0 + (item.discount / 100)) ))  )  
+  
+      })
     ));
     totalCebirItems();
   };
@@ -462,14 +510,23 @@ export default function InvoiceCreate(props) {
 
     totalCebirItems();
     
-    if (discountType === '%') {
-      seTdiscountValue(((taxtotal + subtotal) * (1 + (e.target.value / 100))) - (taxtotal + subtotal));
-      seTtotal((taxtotal + subtotal) - (((taxtotal + subtotal) * (1 + (e.target.value / 100))) - (taxtotal + subtotal)));
-      seTdiscount(e.target.value);
+    if (totalAll.discountType === '%') {
+
+      seTtotalAll({
+        ...totalAll,
+        discountValue:((totalAll.taxtotal + totalAll.subtotal) * (1 + (e.target.value / 100))) - (totalAll.taxtotal + totalAll.subtotal),
+        total:(totalAll.taxtotal + totalAll.subtotal) - (((totalAll.taxtotal + totalAll.subtotal) * (1 + (e.target.value / 100))) - (totalAll.taxtotal + totalAll.subtotal)),
+        discount:e.target.value,
+      })
+      
     } else {
-      seTdiscountValue(e.target.value);
-      seTtotal((taxtotal + subtotal) - (e.target.value));
-      seTdiscount(e.target.value);
+
+      seTtotalAll({
+        ...totalAll,
+        discountValue:e.target.value,
+        total:(totalAll.taxtotal + totalAll.subtotal) - (e.target.value),
+        discount:e.target.value,
+      })
     }
   };
 
@@ -478,7 +535,11 @@ export default function InvoiceCreate(props) {
     let subtotal2 = 0;
     let taxtotal2 = 0;
     const items2 = [];
-    seTtaxtotal(0);
+
+    seTtotalAll({
+      ...totalAll,
+      taxtotal:0
+    });
 
     items.map((item) => {
 
@@ -499,20 +560,32 @@ export default function InvoiceCreate(props) {
       });
     });
 
-    seTtaxtotal(taxtotal2);
-    seTsubtotal(subtotal2);
+ 
     seTitems(items2);
 
-    if (discountType === '%') {
-      seTdiscountValue(((taxtotal2 + subtotal2) * (1 + (discount / 100))) - (taxtotal2 + subtotal2));
-      seTtotal((taxtotal2 + subtotal2) - (((taxtotal2 + subtotal2) * (1 + (discount / 100))) - (taxtotal2 + subtotal2)));
-      seTdiscount(discount);
+    if (totalAll.discountType === '%') {
+
+      seTtotalAll({
+        ...totalAll,
+        taxtotal:taxtotal2,
+        subtotal:subtotal2,
+        discountValue:((taxtotal2 + subtotal2) * (1 + (totalAll.discount / 100))) - (taxtotal2 + subtotal2),
+        total:(taxtotal2 + subtotal2) - (((taxtotal2 + subtotal2) * (1 + (totalAll.discount / 100))) - (taxtotal2 + subtotal2)),
+        discount:totalAll.discount,
+      })
     } else {
-      seTdiscountValue(discountValue);
-      seTtotal((taxtotal2 + subtotal2) - (discountValue));
-      seTdiscount(discount);
-    }
-    
+
+      seTtotalAll({
+        ...totalAll,
+        taxtotal:taxtotal2,
+        subtotal:subtotal2,
+        discountValue:totalAll.discountValue,
+        total:(taxtotal2 + subtotal2) - (totalAll.discountValue),
+        discount:totalAll.discount,
+      })
+    } 
+    console.log(totalAll.subtotal)
+
   }
 
   function getCountryF() {
@@ -590,7 +663,6 @@ export default function InvoiceCreate(props) {
     seTstate({...state, selectedshippingAddressCountry:[{ label: selectedOption.label, value: selectedOption.label }] });
   };
 
-
   // componentDidMount = useEffect
   useEffect(() => {
     getCustomersF();
@@ -598,13 +670,15 @@ export default function InvoiceCreate(props) {
     getBankAccountF();
     getProductsF();
     getCountryF();
+
   }, []);
+
 
   const onSubmit = (e) => {
     e.preventDefault();
     if (paid === true) {
       var  paymentsArray = [{
-            amount: total.toFixed(2),
+            amount: totalAll.total.toFixed(2),
             paid_date:  Moment(state.paid_date)._d,
             bank_account:state.bank_account
         }]
@@ -619,12 +693,12 @@ export default function InvoiceCreate(props) {
       date_send:0,
       customer_id:selectedDefaultCustomer ,
       due_note: state.due_note,
-      subtotal: subtotal.toFixed(2),
-      taxtotal:taxtotal.toFixed(2) ,
-      total:total.toFixed(2) ,
-      discount ,
-      discountType, 
-      discountValue,
+      subtotal: totalAll.subtotal.toFixed(2),
+      taxtotal:totalAll.taxtotal.toFixed(2) ,
+      total:totalAll.total.toFixed(2) ,
+      discount:totalAll.discount ,
+      discountType:totalAll.discountType, 
+      discountValue:totalAll.discountValue,
       items:items,
       default_payment_method: state.default_payment_method,
       quantity,  
@@ -651,7 +725,6 @@ export default function InvoiceCreate(props) {
     axios.post('http://localhost:5000/invoices/add', Invoices)
       .then((res) => {
         if (res.data.variant === 'error') {
-          console.log('slm')
           enqueueSnackbar(t('invoiceNotAdded') + res.data.messagge, { variant: res.data.variant });
         } else {
           enqueueSnackbar(t('invoiceAdded') + res.data.messagge, { variant: res.data.variant });
@@ -1039,11 +1112,11 @@ export default function InvoiceCreate(props) {
                       <TableRow>
                         <TableCell rowSpan={4} />
                         <TableCell colSpan={2}>Subtotal</TableCell>
-                        <TableCell align="right" className="textRight">{(subtotal).toFixed(2)}</TableCell>
+                        <TableCell align="right" className="textRight">{(totalAll.subtotal).toFixed(2)}</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell colSpan={2}>Tax</TableCell>
-                        <TableCell align="right" className="textRight"> {(taxtotal).toFixed(2)} </TableCell>
+                        <TableCell align="right" className="textRight"> {(totalAll.taxtotal).toFixed(2)} </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>Discount (After Tax) </TableCell>
@@ -1052,7 +1125,7 @@ export default function InvoiceCreate(props) {
                             margin="dense"
                             type="number"
                             style={{ width: '100px', marginLeft: '70px' }}
-                            value={discount}
+                            value={totalAll.discount}
                             onChange={onChangeFdiscount}
                             
                             InputLabelProps={{
@@ -1061,7 +1134,7 @@ export default function InvoiceCreate(props) {
                           />
 
                             <Select2
-                              value={discountType}
+                              value={totalAll.discountType}
                               onChange={handleChangeDiscountType}
                               style={{marginTop:'5px'}}
                             >
@@ -1069,11 +1142,11 @@ export default function InvoiceCreate(props) {
                               <MenuItem value="eksi">{t('fixedAmount')}</MenuItem>
                             </Select2>
                         </TableCell>
-                        <TableCell align="right" className="textRight"> {Number(discountValue).toFixed(2)}</TableCell>
+                        <TableCell align="right" className="textRight"> {Number(totalAll.discountValue).toFixed(2)}</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell colSpan={2}>{t('Total')}</TableCell>
-                        <TableCell align="right" className="textRight"> {Number(total).toFixed(2) }</TableCell>
+                        <TableCell align="right" className="textRight"> {Number(totalAll.total).toFixed(2) }</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
