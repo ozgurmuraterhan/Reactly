@@ -43,7 +43,6 @@ passport.use(
 
             //if no user error exits
             if (!user) return done(null, false);
-
             user.comparePassword(password, done);
         });
     })
