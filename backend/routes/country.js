@@ -12,7 +12,7 @@ router
         Country.find().then((data) => res.json(data));
     });
 
-// get item
+// get item 
 router
     .route('/:id')
     .get(passport.authenticate('jwt', { session: false }), (req, res, next) => {

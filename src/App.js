@@ -107,7 +107,7 @@ export default function App() {
                             {location.pathname === '/'
                                 ? history.push('/login')
                                 : ''}
-                            <main style={{ margin: '-30px' }}>
+                            <main>
                                 <div>
                                     <UnPrivateRoute
                                         path="/login"
@@ -226,7 +226,7 @@ export default function App() {
                                     </NavItem>
                                 </SideNav.Nav>
                             </SideNav>
-                            <main style={{ marginLeft: '55px' }}>
+                            <main style={{ marginLeft: '63px' }}>
                                 <div>
                                     Lang:
                                     <button

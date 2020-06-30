@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import AuthService from '../Services/AuthService';
+import '../assets/css/style.css';
 
 export const AuthContext = createContext();
 
@@ -19,7 +20,7 @@ export default ({ children }) => {
     return (
         <div>
             {!isLoaded ? (
-                <h1>Loading</h1>
+                <div className="loadingGif">..........</div>
             ) : (
                 <AuthContext.Provider
                     value={{

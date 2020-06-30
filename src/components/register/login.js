@@ -1,11 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import AuthService from '../../Services/AuthService';
-import Message from '../register/message';
 import { AuthContext } from '../../Context/AuthContext';
 
 import { useSnackbar } from 'notistack';
 import { useHistory } from 'react-router-dom';
-import Select from 'react-select';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { useTranslation } from 'react-i18next';
 
@@ -16,9 +14,11 @@ import {
     Grid,
     Button,
     Container,
+    InputAdornment,
+    Typography,
 } from '@material-ui/core';
 
-import { AddBox, GroupAdd, Save } from '@material-ui/icons';
+import { ContactMail } from '@material-ui/icons';
 import '../../assets/css/style.css';
 
 const Login = (props) => {
@@ -57,26 +57,42 @@ const Login = (props) => {
     };
 
     return (
-        <div style={{ height: '100%', position: 'relative' }}>
-            <div style={{ top: '50%', left: '50%', position: 'absolite' }}>
+        <div>
+            <div>
                 <ValidatorForm autoComplete="off" onSubmit={onSubmit}>
                     <Grid item container sm={12}>
                         <Grid container item md={6} spacing={0} sm={6}>
                             <Container maxWidth="sm">
-                                <div className="logo"></div>
+                                <Typography
+                                    variant="h2"
+                                    style={{
+                                        textAlign: 'center',
+                                        marginTop: '100px',
+                                    }}
+                                >
+                                    ReactLY
+                                </Typography>
+                                <Typography
+                                    variant="caption"
+                                    display="block"
+                                    gutterBottom
+                                    style={{
+                                        textAlign: 'center',
+                                        marginBottom: '100px',
+                                    }}
+                                >
+                                    Fortune favors the bold.
+                                </Typography>
                                 <FormGroup className="FormGroupLogin">
                                     <FormControl>
                                         <TextValidator
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
                                             variant="outlined"
-                                            margin="dense"
                                             required
-                                            label={t('Username')}
+                                            label={t('Username or E-mail')}
                                             name="username"
                                             onChange={onChange}
                                         />
+
                                         <FormHelperText>
                                             {t(
                                                 'You need a username or e-mail.'
@@ -84,16 +100,11 @@ const Login = (props) => {
                                         </FormHelperText>
                                     </FormControl>
                                 </FormGroup>
-
                                 <FormGroup className="FormGroupLogin">
                                     <FormControl>
                                         <TextValidator
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
                                             required
                                             variant="outlined"
-                                            margin="dense"
                                             label={t('Password')}
                                             name="password"
                                             type="password"
@@ -104,32 +115,24 @@ const Login = (props) => {
                                         </FormHelperText>
                                     </FormControl>
                                 </FormGroup>
-                                <Grid container item md={6} spacing={0} sm={6}>
-                                    <FormGroup className="FormGroupLogin">
-                                        <FormControl>
-                                            <Button
-                                                type="submit"
-                                                variant="outlined"
-                                                margin="dense"
-                                                color="primary"
-                                            >
-                                                Log in
-                                            </Button>{' '}
-                                        </FormControl>
-                                    </FormGroup>
-                                </Grid>
-                                <Grid container item md={6} spacing={0} sm={6}>
-                                    <FormGroup className="FormGroupLogin">
-                                        <FormControl>
-                                            <Button>Forget Passport</Button>{' '}
-                                        </FormControl>
-                                    </FormGroup>
-                                </Grid>
+                                <FormGroup className="FormGroupLogin">
+                                    <FormControl>
+                                        <Button
+                                            type="submit"
+                                            variant="outlined"
+                                            margin="dense"
+                                            color="primary"
+                                        >
+                                            Log in
+                                        </Button>
+                                    </FormControl>
+                                </FormGroup>
+                                <Button>{t('Forgot Passport ?')}</Button>
                             </Container>
                         </Grid>
 
                         <Grid container item md={6} sm={6} spacing={0}>
-                            <div className="loginBanner">sdsd</div>
+                            <div className="loginBanner"></div>
                         </Grid>
                     </Grid>
                 </ValidatorForm>
