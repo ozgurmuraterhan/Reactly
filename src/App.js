@@ -107,8 +107,8 @@ export default function App() {
                             {location.pathname === '/'
                                 ? history.push('/login')
                                 : ''}
-                            <main>
-                                <div>
+                            <main style={{ height: '100%' }}>
+                                <div style={{ height: '100%' }}>
                                     <UnPrivateRoute
                                         path="/login"
                                         component={Login}
@@ -135,7 +135,7 @@ export default function App() {
                             <SideNav
                                 onMouseOver={() => seTopen(true)}
                                 onMouseOut={() => seTopen(false)}
-                                onToggle={() => {}}
+                                onToggle={() => { }}
                                 expanded={open}
                                 onSelect={(selected) => {
                                     const to = `/${selected}`;
@@ -280,6 +280,7 @@ export default function App() {
                                         component={ProductsList}
                                     />
                                     <PrivateRoute
+                                        roles={['user', 'admin']}
                                         path="/productcreate"
                                         component={ProductsCreate}
                                     />

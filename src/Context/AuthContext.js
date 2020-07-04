@@ -18,21 +18,21 @@ export default ({ children }) => {
     }, []);
 
     return (
-        <div>
+        <div className="AuthDiv">
             {!isLoaded ? (
                 <div className="loadingGif">..........</div>
             ) : (
-                <AuthContext.Provider
-                    value={{
-                        user,
-                        setUser,
-                        isAuthenticated,
-                        setIsAuthenticated,
-                    }}
-                >
-                    {children}
-                </AuthContext.Provider>
-            )}
+                    <AuthContext.Provider
+                        value={{
+                            user,
+                            setUser,
+                            isAuthenticated,
+                            setIsAuthenticated,
+                        }}
+                    >
+                        {children}
+                    </AuthContext.Provider>
+                )}
         </div>
     );
 };
