@@ -11,11 +11,14 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^8.1.0",
     "express": "^4.17.1",
     "mongoose": "^5.9.20",
+    "nodemailer": "^6.4.10",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
+    "sequelize": "^6.3.0",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {

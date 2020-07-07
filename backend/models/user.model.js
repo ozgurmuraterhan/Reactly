@@ -17,7 +17,14 @@ const UserSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         required: true,
     },
-    todos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Todo' }],
+    resetPasswordToken: {
+        type: String,
+        default: 'asdasdasdas--example--6yhjkoıu7654esxcvbhythbvfde45ty'
+    },
+    resetPasswordExpires: {
+        type: Date,
+        default: Date.now()
+    },
 });
 
 UserSchema.pre('save', function (next) {

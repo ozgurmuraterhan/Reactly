@@ -4,6 +4,14 @@ const passport = require('passport');
 const passportConfig = require('../passport');
 const JWT = require('jsonwebtoken');
 const User = require('../models/user.model');
+const crypto = require('crypto');
+const bcrypt = require('bcrypt')
+
+require('dotenv').config();
+
+const BCRYPT_SALT_ROUNDS = 10;
+
+const nodemailer = require('nodemailer');
 
 const signToken = (userID) => {
     return JWT.sign(
@@ -16,53 +24,86 @@ const signToken = (userID) => {
     );
 };
 
-router.post('/register',
-    passport.authenticate('jwt', { session: false }), (req, res) => {
-        const { username, password, role } = req.body;
 
-        if (req.user.role === 'admin') {
-            User.findOne({ username }, (err, user) => {
-                if (err)
-                    res.status(500).json({
-                        message: { msgBody: 'Error has occured', msgError: true },
-                    });
-                if (user)
-                    res.status(400).json({
-                        message: {
-                            msgBody: 'Username is already taken',
-                            msgError: true,
-                        },
-                    });
-                else {
-                    const newUser = new User({ username, password, role });
-                    newUser.save((err) => {
-                        if (err)
-                            res.status(500).json({
-                                message: {
-                                    msgBody: 'Error has occured',
-                                    msgError: true,
-                                },
-                            });
-                        else
-                            res.status(201).json({
-                                message: {
-                                    msgBody: 'Account successfully created',
-                                    msgError: false,
-                                },
-                            });
-                    });
-                }
-            });
+
+router.put('/updatePasswordViaEmail', (req, res) => {
+
+    User.findOne({
+        username: req.body.username,
+        resetPasswordToken: req.body.resetPasswordToken,
+        resetPasswordExpires: { $gte: Date.now() },
+    }).then(user => {
+        if (user == null) {
+            console.error('password reset link is invalid or has expired');
+            res.status(403).send('password reset link is invalid or has expired');
+        } else if (user != null) {
+            console.log('user exists in db');
+            bcrypt
+                .hash(req.body.password, BCRYPT_SALT_ROUNDS)
+                .then(hashedPassword => {
+                    User.findOneAndUpdate(
+                        {
+                            username: req.body.username,
+                        }
+                        , {
+                            password: hashedPassword,
+                            resetPasswordToken: null,
+                            resetPasswordExpires: null,
+                        }).then(res => console.log(res))
+                        .catch(err => console.log(err));
+                })
+                .then(() => {
+                    console.log('password updated');
+                    res.status(200).send({ message: 'password updated' });
+                });
         } else {
-            res.status(403).json({
+            console.error('no user exists in db to update');
+            res.status(401).json('no user exists in db to update');
+        }
+    });
+});
+
+
+
+
+router.post('/register', (req, res) => {
+    const { username, password, role } = req.body;
+
+
+    User.findOne({ username }, (err, user) => {
+        if (err)
+            res.status(500).json({
+                message: { msgBody: 'Error has occured', msgError: true },
+            });
+        if (user)
+            res.status(400).json({
                 message: {
-                    msgBody: "You're not an admin,go away",
+                    msgBody: 'Username is already taken',
                     msgError: true,
                 },
             });
-
+        else {
+            const newUser = new User({ username, password, role });
+            newUser.save((err) => {
+                if (err)
+                    res.status(500).json({
+                        message: {
+                            msgBody: 'Error has occured',
+                            msgError: true,
+                        },
+                    });
+                else
+                    res.status(201).json({
+                        message: {
+                            msgBody: 'Account successfully created',
+                            msgError: false,
+                        },
+                    });
+            });
         }
     });
+
+});
 
 router.post(
     '/login',
@@ -83,69 +124,89 @@ router.post(
     }
 );
 
+router.get('/reset', (req, res) => {
+    User.findOne({
+
+        resetPasswordToken: req.query.resetPasswordToken,
+        resetPasswordExpires: { $gte: Date.now() },
+
+    }).then((user) => {
+        if (user == null) {
+            console.error('password reset link is invalid or has expired');
+            res.status(403).send('password reset link is invalid or has expired');
+        } else {
+            res.status(200).send({
+                username: user.username,
+                message: 'password reset link a-ok',
+            });
+        }
+    });
+});
+
+router.post('/forgotPassword', (req, res) => {
+
+
+    if (req.body.username === '') {
+        res.status(400).send('email required');
+    }
+
+
+    User.findOne({ username: req.body.username, })
+
+        .then((user) => {
+            if (user === null) {
+                console.error('email not in database');
+                res.status(403).send('email not in db');
+            } else {
+                const token = crypto.randomBytes(20).toString('hex');
+                user.updateOne({
+                    resetPasswordToken: token,
+                    resetPasswordExpires: Date.now() + 3600000,
+                })
+                    .then(res => console.log(res + " added"))
+                    .catch(err => console.log(err));
+
+                const transporter = nodemailer.createTransport({
+                    host: `${process.env.MAIL_HOST}`,
+                    port: 587,
+                    secure: false,
+                    tls: { rejectUnauthorized: false },
+                    auth: {
+                        user: `merhan@bigfil.com.tr`,
+                        pass: `U&e224$!`,
+                    },
+                });
+
+                const mailOptions = {
+                    from: `merhan@bigfil.com.tr`,
+                    to: `${user.username}`,
+                    subject: 'Link To Reset Password',
+                    text:
+                        'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n'
+                        + 'Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n'
+                        + `http://localhost:3000/reset/${token}\n\n`
+                        + 'If you did not request this, please ignore this email and your password will remain unchanged.\n',
+                };
+
+                console.log('sending mail');
+
+                transporter.sendMail(mailOptions, (err, response) => {
+                    if (err) {
+                        console.error('there was an error: ', err);
+                    } else {
+                        console.log('here is the res: ', response);
+                        res.status(200).json('recovery email sent');
+                    }
+                });
+            }
+        });
+})
 router.get(
     '/logout',
     passport.authenticate('jwt', { session: false }),
     (req, res) => {
         res.clearCookie('access_token');
         res.json({ user: { username: '', role: '' }, success: true });
-    }
-);
-
-router.post(
-    '/todo',
-    passport.authenticate('jwt', { session: false }),
-    (req, res) => {
-        const todo = new Todo(req.body);
-        todo.save((err) => {
-            if (err)
-                res.status(500).json({
-                    message: { msgBody: 'Error has occured', msgError: true },
-                });
-            else {
-                req.user.todos.push(todo);
-                req.user.save((err) => {
-                    if (err)
-                        res.status(500).json({
-                            message: {
-                                msgBody: 'Error has occured',
-                                msgError: true,
-                            },
-                        });
-                    else
-                        res.status(200).json({
-                            message: {
-                                msgBody: 'Successfully created todo',
-                                msgError: false,
-                            },
-                        });
-                });
-            }
-        });
-    }
-);
-
-router.get(
-    '/todos',
-    passport.authenticate('jwt', { session: false }),
-    (req, res) => {
-        User.findById({ _id: req.user._id })
-            .populate('todos')
-            .exec((err, document) => {
-                if (err)
-                    res.status(500).json({
-                        message: {
-                            msgBody: 'Error has occured',
-                            msgError: true,
-                        },
-                    });
-                else {
-                    res.status(200).json({
-                        todos: document.todos,
-                        authenticated: true,
-                    });
-                }
-            });
     }
 );
 

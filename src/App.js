@@ -38,9 +38,8 @@ import i18n from './i18n';
 /* import UserEdit from './components/users/edit.component';
 import UsersList from './components/users/list.component';
 import UserCreate from './components/users/create.component';
-
-
 */
+
 
 import CustomersEdit from './components/customers/edit.component';
 import CustomersCreate from './components/customers/create.component';
@@ -56,6 +55,9 @@ import ProductsEdit from './components/products/edit.component';
 
 import Register from './components/register/register';
 import Login from './components/register/login';
+
+import ForgotPassword from './components/register/forgotpassword';
+import ResetPassword from './components/register/resetpassword';
 
 /*
 import CreateExercise from './components/exercises/create.component';
@@ -92,16 +94,6 @@ export default function App() {
         return (
             <>
                 <Route
-                    render={({ location, history }) => {
-                        if (!isAuthenticated) {
-                            if (location.pathname !== '/login') {
-                                history.push('/login');
-                            }
-                        }
-                    }}
-                />
-
-                <Route
                     render={({ location, history }) => (
                         <>
                             {location.pathname === '/'
@@ -116,6 +108,14 @@ export default function App() {
                                     <UnPrivateRoute
                                         path="/register"
                                         component={Register}
+                                    />
+                                    <UnPrivateRoute
+                                        path="/reset/:token"
+                                        component={ResetPassword}
+                                    />
+                                    <UnPrivateRoute
+                                        path="/forgotPassword"
+                                        component={ForgotPassword}
                                     />
                                 </div>
                             </main>

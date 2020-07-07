@@ -26,6 +26,7 @@ connection.once('open', () => {
     console.log('connection MongoDB');
 });
 
+
 const exerciseRouter = require('./routes/exercises');
 const userRouter = require('./routes/user');
 const customerRouter = require('./routes/customers');
@@ -37,7 +38,10 @@ const invoicesRouter = require('./routes/invoices');
 const BankAccountsRouter = require('./routes/bankAccounts');
 const PaymentsRouter = require('./routes/payments');
 
+
+
 app.use(bodyParser.json());
+
 
 app.use('/exercises', exerciseRouter);
 app.use('/user', userRouter);
@@ -49,6 +53,7 @@ app.use('/products', productsRouter);
 app.use('/invoices', invoicesRouter);
 app.use('/bankaccounts', BankAccountsRouter);
 app.use('/payments', PaymentsRouter);
+
 
 app.listen(port, () => {
     console.log('sever is runnin port: ' + port);
