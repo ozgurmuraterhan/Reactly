@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -18,16 +18,16 @@ const UserSchema = new mongoose.Schema({
     },
     resetPasswordToken: {
         type: String,
-        default: 'asdasdasdas--example--6yhjkoıu7654esxcvbhythbvfde45ty'
+        default: "asdasdasdas--example--6yhjkoıu7654esxcvbhythbvfde45ty",
     },
     resetPasswordExpires: {
         type: Date,
-        default: Date.now()
+        default: Date.now(),
     },
 });
 
-UserSchema.pre('save', function (next) {
-    if (!this.isModified('password')) return next();
+UserSchema.pre("save", function (next) {
+    if (!this.isModified("password")) return next();
     bcrypt.hash(this.password, 10, (err, passwordHash) => {
         if (err) return next(err);
         this.password = passwordHash;
@@ -45,5 +45,5 @@ UserSchema.methods.comparePassword = function (password, cb) {
     });
 };
 
-const User = mongoose.model('User', UserSchema);
+const User = mongoose.model("User", UserSchema);
 module.exports = User;

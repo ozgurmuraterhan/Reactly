@@ -1,32 +1,37 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const BankAccountsSchema = new Schema({
-    name:{
-        required:true,
-        type:String
+const BankAccountsSchema = new Schema(
+    {
+        created_user: {
+            required: true,
+            type: String,
+        },
+        name: {
+            required: true,
+            type: String,
+        },
+
+        branchbank: {
+            required: true,
+            type: String,
+        },
+
+        account: {
+            required: true,
+            type: Number,
+        },
+
+        iban: {
+            required: true,
+            type: String,
+        },
     },
+    {
+        timestamps: true,
+    }
+);
 
-    branchbank:{
-        required:true,
-        type:String
-    },
+const BankAccounts = mongoose.model("BankAccounts", BankAccountsSchema);
 
-    account:{
-        required:true,
-        type:Number
-    },
-
-    iban:{
-        required:true,
-        type:String
-    },
-    
-
-},{
-    timestamps: true
-})
-
-const BankAccounts = mongoose.model('BankAccounts',BankAccountsSchema)
-
-module.exports = BankAccounts
+module.exports = BankAccounts;

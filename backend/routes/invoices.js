@@ -4,12 +4,13 @@ const JWT = require("jsonwebtoken");
 let Invoice = require("../models/invoice.model");
 
 const title = "Invoice";
+const roleTitle = "customers";
 
 // get all items
 router
     .route("/")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
-        if (req.user.role.includes("invoices.list")) {
+        if (req.user.role.includes(roleTitle + ".list")) {
             Invoice.find()
                 .then((data) => {
                     res.json(data);
@@ -20,7 +21,7 @@ router
                         variant: "error",
                     })
                 );
-        } else if (req.user.role.includes("invoices.onlyyou")) {
+        } else if (req.user.role.includes(roleTitle + ".onlyyou")) {
             Invoice.find({ created_user: req.user._id })
                 .then((data) => {
                     res.json(data);
@@ -47,8 +48,7 @@ router
     .post(
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
-            console.log(req.user.role);
-            if (req.user.role.includes("invoices.create")) {
+            if (req.user.role.includes(roleTitle + ".create")) {
                 new Invoice(req.body)
                     .save()
                     .then(() =>
@@ -78,7 +78,7 @@ router
 router
     .route("/statistic")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
-        if (req.user.role.includes("invoices.list")) {
+        if (req.user.role.includes(roleTitle + ".list")) {
             Invoice.aggregate([
                 { $unwind: "$group_id" },
                 {
@@ -95,7 +95,7 @@ router
 router
     .route("/:id")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
-        if (req.user.role.includes("invoices.list")) {
+        if (req.user.role.includes(roleTitle + ".list")) {
             Invoice.findById(req.params.id)
                 .then((data) => res.json(data))
                 .catch((err) =>
@@ -104,7 +104,7 @@ router
                         variant: "error",
                     })
                 );
-        } else if (req.user.role.includes("invoices.onlyyou")) {
+        } else if (req.user.role.includes(roleTitle + ".onlyyou")) {
             Invoice.findOne({ _id: req.params.id, created_user: req.user._id })
                 .then((data) => {
                     if (data) {
@@ -138,7 +138,7 @@ router
 router
     .route("/:id")
     .delete(passport.authenticate("jwt", { session: false }), (req, res) => {
-        if (req.user.role.includes("invoices.remove")) {
+        if (req.user.role.includes(roleTitle + ".remove")) {
             Invoice.findByIdAndDelete(req.params.id)
                 .then((data) =>
                     res.json({
@@ -152,7 +152,7 @@ router
                         variant: "error",
                     })
                 );
-        } else if (req.user.role.includes("invoices.onlyyou")) {
+        } else if (req.user.role.includes(roleTitle + ".onlyyou")) {
             Invoice.deleteOne({
                 _id: req.params.id,
                 created_user: req.user._id,
@@ -194,7 +194,7 @@ router
     .post(
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
-            if (req.user.role.includes("invoices.edit")) {
+            if (req.user.role.includes(roleTitle + ".edit")) {
                 Invoice.findByIdAndUpdate(req.params.id, req.body)
                     .then(() =>
                         res.json({
@@ -208,7 +208,7 @@ router
                             variant: "error",
                         })
                     );
-            } else if (req.user.role.includes("invoices.onlyyou")) {
+            } else if (req.user.role.includes(roleTitle + ".onlyyou")) {
                 Invoice.findOneAndUpdate(
                     { _id: req.params.id, created_user: req.user._id },
                     req.body

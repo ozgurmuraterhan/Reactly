@@ -1,10 +1,10 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 
-require('dotenv').config();
+require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -22,39 +22,32 @@ mongoose.connect(uri, {
 });
 
 const connection = mongoose.connection;
-connection.once('open', () => {
-    console.log('connection MongoDB');
+connection.once("open", () => {
+    console.log("connection MongoDB");
 });
 
-
-const exerciseRouter = require('./routes/exercises');
-const userRouter = require('./routes/user');
-const customerRouter = require('./routes/customers');
-const countryRouter = require('./routes/country');
-const customersGroupsRouter = require('./routes/customersGroups');
-const productCategoriesRouter = require('./routes/productCategories');
-const productsRouter = require('./routes/products');
-const invoicesRouter = require('./routes/invoices');
-const BankAccountsRouter = require('./routes/bankAccounts');
-const PaymentsRouter = require('./routes/payments');
-
-
+const userRouter = require("./routes/user");
+const customerRouter = require("./routes/customers");
+const countryRouter = require("./routes/country");
+const customersGroupsRouter = require("./routes/customersGroups");
+const productCategoriesRouter = require("./routes/productCategories");
+const productsRouter = require("./routes/products");
+const invoicesRouter = require("./routes/invoices");
+const BankAccountsRouter = require("./routes/bankAccounts");
+const PaymentsRouter = require("./routes/payments");
 
 app.use(bodyParser.json());
 
-
-app.use('/exercises', exerciseRouter);
-app.use('/user', userRouter);
-app.use('/customers', customerRouter);
-app.use('/country', countryRouter);
-app.use('/customersgroups', customersGroupsRouter);
-app.use('/productcategories', productCategoriesRouter);
-app.use('/products', productsRouter);
-app.use('/invoices', invoicesRouter);
-app.use('/bankaccounts', BankAccountsRouter);
-app.use('/payments', PaymentsRouter);
-
+app.use("/user", userRouter);
+app.use("/customers", customerRouter);
+app.use("/country", countryRouter);
+app.use("/customersgroups", customersGroupsRouter);
+app.use("/productcategories", productCategoriesRouter);
+app.use("/products", productsRouter);
+app.use("/invoices", invoicesRouter);
+app.use("/bankaccounts", BankAccountsRouter);
+app.use("/payments", PaymentsRouter);
 
 app.listen(port, () => {
-    console.log('sever is runnin port: ' + port);
+    console.log("sever is runnin port: " + port);
 });
