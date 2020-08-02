@@ -2,113 +2,118 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const InvoiceSchema = new Schema({
-    draft:{
-        required:true,
-        type:Boolean
+
+    created_user: {
+        required: true,
+        type: String,
     },
-    no:{
-        type:String,
-        required:true,
-        trim:true,
-        unique:true
+    draft: {
+        required: true,
+        type: Boolean
     },
-    serie:{
-        type:String,
-        trim:true
+    no: {
+        type: String,
+        required: true,
+        trim: true,
+        unique: true
     },
-    created:{
-        type:Date,
-        required:true,
+    serie: {
+        type: String,
+        trim: true
     },
-    due_date:{
-        type:Date
+    created: {
+        type: Date,
+        required: true,
     },
-    date_send:{
-        type:Date
+    due_date: {
+        type: Date
     },
-    customer_id:{
-        type:Array
+    date_send: {
+        type: Date
     },
-    due_note:{
-        type:String
+    customer_id: {
+        type: Array
     },
-    payments:{
-        type:Array
+    due_note: {
+        type: String
     },
-    subtotal:{
-        type:Number
+    payments: {
+        type: Array
     },
-    taxtotal:{
-        type:Number
+    subtotal: {
+        type: Number
     },
-    discount:{
-        type:Number
+    taxtotal: {
+        type: Number
     },
-    discountType:{
-        type:String
-    }, 
-    discountValue:{
-        type:Number
+    discount: {
+        type: Number
     },
-    total:{
-        type:Number
+    discountType: {
+        type: String
     },
-    default_payment_method:{
-        type:Array
+    discountValue: {
+        type: Number
     },
-    billingAddress_country_id:{
-        type:String
+    total: {
+        type: Number
     },
-    billingAddress_state_id:{
-        type:String
+    default_payment_method: {
+        type: Array
     },
-    billingAddress_town:{
-        type:String,
-        trim:true
+    billingAddress_country_id: {
+        type: String
     },
-    billingAddress_zipcode:{
-        type:Number,
-        trim:true
+    billingAddress_state_id: {
+        type: String
     },
-    billingAddress_address:{
-        type:String,
-        trim:true
+    billingAddress_town: {
+        type: String,
+        trim: true
     },
-    shippingAddress_country_id:{
-        type:String
+    billingAddress_zipcode: {
+        type: Number,
+        trim: true
     },
-    shippingAddress_state_id:{
-        type:String
+    billingAddress_address: {
+        type: String,
+        trim: true
     },
-    shippingAddress_town:{
-        type:String,
-        trim:true
+    shippingAddress_country_id: {
+        type: String
     },
-    shippingAddress_zipcode:{
-        type:Number,
-        trim:true
+    shippingAddress_state_id: {
+        type: String
     },
-    shippingAddress_address:{
-        type:String,
-        trim:true
+    shippingAddress_town: {
+        type: String,
+        trim: true
     },
-    items:{
-        type:Array
+    shippingAddress_zipcode: {
+        type: Number,
+        trim: true
     },
-    quantity:{
-        type:String
-    },  
-    quantity_name:{
-        type:String
-    }, 
-    spesific_id:{
-        type:String
+    shippingAddress_address: {
+        type: String,
+        trim: true
+    },
+    items: {
+        type: Array
+    },
+    quantity: {
+        type: String
+    },
+    quantity_name: {
+        type: String
+    },
+    spesific_id: {
+        type: String
     },
 
-},{
+}, {
     timestamps: true
 })
 
-const Invoice = mongoose.model('Invoice',InvoiceSchema)
+const Invoice = mongoose.model('Invoice', InvoiceSchema)
 
 module.exports = Invoice

@@ -218,13 +218,14 @@ router.get(
             res.status(200).json({
                 message: { msgBody: 'You are an admin', msgError: false },
             });
-        } else
+        } else {
             res.status(403).json({
                 message: {
                     msgBody: "You're not an admin,go away",
                     msgError: true,
                 },
             });
+        }
     }
 );
 

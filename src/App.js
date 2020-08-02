@@ -243,49 +243,50 @@ export default function App() {
                                 </div>
                                 <div>
                                     <PrivateRoute
-                                        roles={['user', 'admin']}
+                                        roles={['customers.list', 'customers.onlyyou']}
                                         path="/CustomersList"
                                         component={CustomersList}
                                     />
                                     <PrivateRoute
-                                        roles={['user', 'admin']}
+                                        roles={['customers.create', 'customers.onlyyou']}
                                         path="/CustomerCreate"
                                         component={CustomersCreate}
                                     />
                                     <PrivateRoute
-                                        roles={['user', 'admin']}
+                                        roles={['customers.edit', 'customers.onlyyou']}
                                         path="/Customers/edit/:id"
                                         component={CustomersEdit}
                                     />
 
                                     <PrivateRoute
-                                        roles={['user', 'admin']}
+                                        roles={['invoices.create', 'invoices.onlyyou']}
                                         path="/invoicecreate"
                                         component={InvoicesCreate}
                                     />
                                     <PrivateRoute
-                                        roles={['user', 'admin']}
+                                        roles={['invoices.list', 'invoices.onlyyou']}
                                         path="/invoiceslist"
                                         component={InvoicesList}
                                     />
                                     <PrivateRoute
-                                        roles={['user', 'admin']}
+                                        roles={['invoices.edit', 'invoices.onlyyou']}
                                         path="/invoices/edit/:id"
                                         component={InvoicesEdit}
                                     />
 
                                     <PrivateRoute
-                                        roles={['user', 'admin']}
+                                        roles={['products.list', 'products.onlyyou']}
                                         path="/productslist"
                                         component={ProductsList}
                                     />
+
                                     <PrivateRoute
-                                        roles={['user', 'admin']}
+                                        roles={['products.create', 'products.onlyyou']}
                                         path="/productcreate"
                                         component={ProductsCreate}
                                     />
                                     <PrivateRoute
-                                        roles={['user', 'admin']}
+                                        roles={['products.edit', 'products.onlyyou']}
                                         path="/products/edit/:id"
                                         component={ProductsEdit}
                                     />

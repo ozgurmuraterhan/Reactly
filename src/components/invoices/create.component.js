@@ -192,12 +192,12 @@ export default function InvoiceEdit(props) {
                         props.onChange(e.target.value);
                         seTanyAmount(
                             props.rowData.price *
-                                e.target.value *
-                                (1 + props.rowData.tax / 100) -
-                                props.rowData.price *
-                                    e.target.value *
-                                    (0 + props.rowData.discount / 100) *
-                                    (1 + props.rowData.tax / 100)
+                            e.target.value *
+                            (1 + props.rowData.tax / 100) -
+                            props.rowData.price *
+                            e.target.value *
+                            (0 + props.rowData.discount / 100) *
+                            (1 + props.rowData.tax / 100)
                         );
                         seTfocus({
                             focus1: true,
@@ -225,12 +225,12 @@ export default function InvoiceEdit(props) {
                         props.onChange(e.target.value);
                         seTanyAmount(
                             e.target.value *
-                                props.rowData.quantity *
-                                (1 + props.rowData.tax / 100) -
-                                e.target.value *
-                                    props.rowData.quantity *
-                                    (0 + props.rowData.discount / 100) *
-                                    (1 + props.rowData.tax / 100)
+                            props.rowData.quantity *
+                            (1 + props.rowData.tax / 100) -
+                            e.target.value *
+                            props.rowData.quantity *
+                            (0 + props.rowData.discount / 100) *
+                            (1 + props.rowData.tax / 100)
                         );
                         seTfocus({
                             focus1: false,
@@ -259,12 +259,12 @@ export default function InvoiceEdit(props) {
                         props.onChange(e.target.value);
                         seTanyAmount(
                             props.rowData.price *
-                                props.rowData.quantity *
-                                (1 + props.rowData.tax / 100) -
-                                props.rowData.price *
-                                    props.rowData.quantity *
-                                    (0 + e.target.value / 100) *
-                                    (1 + props.rowData.tax / 100)
+                            props.rowData.quantity *
+                            (1 + props.rowData.tax / 100) -
+                            props.rowData.price *
+                            props.rowData.quantity *
+                            (0 + e.target.value / 100) *
+                            (1 + props.rowData.tax / 100)
                         );
 
                         seTfocus({
@@ -294,12 +294,12 @@ export default function InvoiceEdit(props) {
                         props.onChange(e.target.value);
                         seTanyAmount(
                             props.rowData.price *
-                                props.rowData.quantity *
-                                (1 + e.target.value / 100) -
-                                props.rowData.price *
-                                    props.rowData.quantity *
-                                    (0 + props.rowData.discount / 100) *
-                                    (1 + e.target.value / 100)
+                            props.rowData.quantity *
+                            (1 + e.target.value / 100) -
+                            props.rowData.price *
+                            props.rowData.quantity *
+                            (0 + props.rowData.discount / 100) *
+                            (1 + e.target.value / 100)
                         );
 
                         seTfocus({
@@ -447,7 +447,7 @@ export default function InvoiceEdit(props) {
                 ...totalAll,
                 discountValue:
                     (totalAll.taxtotal + totalAll.subtotal) *
-                        (1 + totalAll.discount / 100) -
+                    (1 + totalAll.discount / 100) -
                     (totalAll.taxtotal + totalAll.subtotal),
                 total:
                     totalAll.taxtotal +
@@ -472,8 +472,8 @@ export default function InvoiceEdit(props) {
         const amount = (
             (product.sale_price * e.target.value -
                 product.sale_price *
-                    e.target.value *
-                    (0 + product.product_discount / 100)) *
+                e.target.value *
+                (0 + product.product_discount / 100)) *
             (1 + product.product_vat / 100)
         ).toFixed(0);
         seTquantity(e.target.value);
@@ -484,8 +484,8 @@ export default function InvoiceEdit(props) {
         const amount = (
             (e.target.value * quantity -
                 e.target.value *
-                    quantity *
-                    (0 + product.product_discount / 100)) *
+                quantity *
+                (0 + product.product_discount / 100)) *
             (1 + product.product_vat / 100)
         ).toFixed(0);
         seTproduct({ ...product, sale_price: e.target.value, amount: amount });
@@ -495,8 +495,8 @@ export default function InvoiceEdit(props) {
         const amount = (
             (product.sale_price * quantity -
                 product.sale_price *
-                    quantity *
-                    (0 + product.product_discount / 100)) *
+                quantity *
+                (0 + product.product_discount / 100)) *
             (1 + e.target.value / 100)
         ).toFixed(0);
         seTproduct({ ...product, product_vat: e.target.value, amount: amount });
@@ -621,9 +621,9 @@ export default function InvoiceEdit(props) {
                 taxtotal:
                     (item.price * item.quantity -
                         item.price *
-                            item.quantity *
-                            (0 + item.discount / 100)) *
-                        (1 + item.tax / 100) -
+                        item.quantity *
+                        (0 + item.discount / 100)) *
+                    (1 + item.tax / 100) -
                     (item.price * item.quantity -
                         item.price * item.quantity * (0 + item.discount / 100)),
             })
@@ -639,7 +639,7 @@ export default function InvoiceEdit(props) {
                 ...totalAll,
                 discountValue:
                     (totalAll.taxtotal + totalAll.subtotal) *
-                        (1 + e.target.value / 100) -
+                    (1 + e.target.value / 100) -
                     (totalAll.taxtotal + totalAll.subtotal),
                 total:
                     totalAll.taxtotal +
@@ -683,8 +683,8 @@ export default function InvoiceEdit(props) {
                     (1 + item.tax / 100) -
                     (item.price * item.quantity -
                         item.price *
-                            item.quantity *
-                            (0 + item.discount / 100)));
+                        item.quantity *
+                        (0 + item.discount / 100)));
 
             items2.push({
                 product_name: item.product_name,
@@ -1363,9 +1363,9 @@ export default function InvoiceEdit(props) {
                                                 onChange={(e) => {
                                                     seTunit(e.target.value);
                                                 }}
-                                                /*InputLabelProps={{
-                                  shrink: true,
-                                }}*/
+                                            /*InputLabelProps={{
+                              shrink: true,
+                            }}*/
                                             />
                                             <FormHelperText>
                                                 {t('youNeedaProductUnit')}
