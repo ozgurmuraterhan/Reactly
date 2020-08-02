@@ -1,17 +1,17 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const passport = require('passport');
-const passportConfig = require('../passport');
-const JWT = require('jsonwebtoken');
-const User = require('../models/user.model');
-const crypto = require('crypto');
-const bcrypt = require('bcrypt')
+const passport = require("passport");
+const passportConfig = require("../passport");
+const JWT = require("jsonwebtoken");
+const User = require("../models/user.model");
+const crypto = require("crypto");
+const bcrypt = require("bcrypt");
 
-require('dotenv').config();
+require("dotenv").config();
 
 const BCRYPT_SALT_ROUNDS = 10;
 
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 const signToken = (userID) => {
     return JWT.sign(
@@ -20,65 +20,98 @@ const signToken = (userID) => {
             sub: userID,
         },
         process.env.PASPORTJS_KEY,
-        { expiresIn: '1h' }
+        { expiresIn: "1h" }
     );
 };
 
+// get all items
+router
+    .route("/")
+    .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
+        if (req.user.role.includes(roleTitle + ".list")) {
+            User.find()
+                .then((data) => {
+                    res.json(data);
+                })
+                .catch((err) =>
+                    res.json({
+                        messagge: "Error: " + err,
+                        variant: "error",
+                    })
+                );
+        } else if (req.user.role.includes(roleTitle + ".onlyyou")) {
+            User.find({ created_user: req.user._id })
+                .then((data) => {
+                    res.json(data);
+                })
+                .catch((err) =>
+                    res.json({
+                        messagge: "Error: " + err,
+                        variant: "error",
+                    })
+                );
+        } else {
+            res.status(403).json({
+                message: {
+                    messagge: "You are not authorized, go away!",
+                    variant: "error",
+                },
+            });
+        }
+    });
 
-
-router.put('/updatePasswordViaEmail', (req, res) => {
-
+router.put("/updatePasswordViaEmail", (req, res) => {
     User.findOne({
         username: req.body.username,
         resetPasswordToken: req.body.resetPasswordToken,
         resetPasswordExpires: { $gte: Date.now() },
-    }).then(user => {
+    }).then((user) => {
         if (user == null) {
-            console.error('password reset link is invalid or has expired');
-            res.status(403).send('password reset link is invalid or has expired');
+            console.error("password reset link is invalid or has expired");
+            res.status(403).send(
+                "password reset link is invalid or has expired"
+            );
         } else if (user != null) {
-            console.log('user exists in db');
+            console.log("user exists in db");
             bcrypt
                 .hash(req.body.password, BCRYPT_SALT_ROUNDS)
-                .then(hashedPassword => {
+                .then((hashedPassword) => {
                     User.findOneAndUpdate(
                         {
                             username: req.body.username,
-                        }
-                        , {
+                        },
+                        {
                             password: hashedPassword,
                             resetPasswordToken: null,
                             resetPasswordExpires: null,
-                        }).then(res => console.log(res))
-                        .catch(err => console.log(err));
+                        }
+                    )
+                        .then((res) => console.log(res))
+                        .catch((err) => console.log(err));
                 })
                 .then(() => {
-                    console.log('password updated');
-                    res.status(200).send({ message: 'password updated' });
+                    console.log("password updated");
+                    res.status(200).send({ message: "password updated" });
                 });
         } else {
-            console.error('no user exists in db to update');
-            res.status(401).json('no user exists in db to update');
+            console.error("no user exists in db to update");
+            res.status(401).json("no user exists in db to update");
         }
     });
 });
 
-
-
-
-router.post('/register', (req, res) => {
+router.post("/register", (req, res) => {
     const { username, password, role } = req.body;
-
 
     User.findOne({ username }, (err, user) => {
         if (err)
             res.status(500).json({
-                message: { msgBody: 'Error has occured', msgError: true },
+                message: { msgBody: "Error has occured", msgError: true },
             });
         if (user)
             res.status(400).json({
                 message: {
-                    msgBody: 'Username is already taken',
+                    msgBody: "Username is already taken",
                     msgError: true,
                 },
             });
@@ -88,31 +121,30 @@ router.post('/register', (req, res) => {
                 if (err)
                     res.status(500).json({
                         message: {
-                            msgBody: 'Error has occured',
+                            msgBody: "Error has occured",
                             msgError: true,
                         },
                     });
                 else
                     res.status(201).json({
                         message: {
-                            msgBody: 'Account successfully created',
+                            msgBody: "Account successfully created",
                             msgError: false,
                         },
                     });
             });
         }
     });
-
 });
 
 router.post(
-    '/login',
-    passport.authenticate('local', { session: false }),
+    "/login",
+    passport.authenticate("local", { session: false }),
     (req, res) => {
         if (req.isAuthenticated()) {
             const { _id, username, role } = req.user;
             const token = signToken(_id);
-            res.cookie('access_token', token, {
+            res.cookie("access_token", token, {
                 httpOnly: true,
                 sameSite: true,
             });
@@ -124,99 +156,94 @@ router.post(
     }
 );
 
-router.get('/reset', (req, res) => {
+router.get("/reset", (req, res) => {
     User.findOne({
-
         resetPasswordToken: req.query.resetPasswordToken,
         resetPasswordExpires: { $gte: Date.now() },
-
     }).then((user) => {
         if (user == null) {
-            console.error('password reset link is invalid or has expired');
-            res.status(403).send('password reset link is invalid or has expired');
+            console.error("password reset link is invalid or has expired");
+            res.status(403).send(
+                "password reset link is invalid or has expired"
+            );
         } else {
             res.status(200).send({
                 username: user.username,
-                message: 'password reset link a-ok',
+                message: "password reset link a-ok",
             });
         }
     });
 });
 
-router.post('/forgotPassword', (req, res) => {
-
-
-    if (req.body.username === '') {
-        res.status(400).send('email required');
+router.post("/forgotPassword", (req, res) => {
+    if (req.body.username === "") {
+        res.status(400).send("email required");
     }
 
+    User.findOne({ username: req.body.username }).then((user) => {
+        if (user === null) {
+            console.error("email not in database");
+            res.status(403).send("email not in db");
+        } else {
+            const token = crypto.randomBytes(20).toString("hex");
+            user.updateOne({
+                resetPasswordToken: token,
+                resetPasswordExpires: Date.now() + 3600000,
+            })
+                .then((res) => console.log(res + " added"))
+                .catch((err) => console.log(err));
 
-    User.findOne({ username: req.body.username, })
+            const transporter = nodemailer.createTransport({
+                host: `${process.env.MAIL_HOST}`,
+                port: 587,
+                secure: false,
+                tls: { rejectUnauthorized: false },
+                auth: {
+                    user: `merhan@bigfil.com.tr`,
+                    pass: `U&e224$!`,
+                },
+            });
 
-        .then((user) => {
-            if (user === null) {
-                console.error('email not in database');
-                res.status(403).send('email not in db');
-            } else {
-                const token = crypto.randomBytes(20).toString('hex');
-                user.updateOne({
-                    resetPasswordToken: token,
-                    resetPasswordExpires: Date.now() + 3600000,
-                })
-                    .then(res => console.log(res + " added"))
-                    .catch(err => console.log(err));
+            const mailOptions = {
+                from: `merhan@bigfil.com.tr`,
+                to: `${user.username}`,
+                subject: "Link To Reset Password",
+                text:
+                    "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
+                    "Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n" +
+                    `http://localhost:3000/reset/${token}\n\n` +
+                    "If you did not request this, please ignore this email and your password will remain unchanged.\n",
+            };
 
-                const transporter = nodemailer.createTransport({
-                    host: `${process.env.MAIL_HOST}`,
-                    port: 587,
-                    secure: false,
-                    tls: { rejectUnauthorized: false },
-                    auth: {
-                        user: `merhan@bigfil.com.tr`,
-                        pass: `U&e224$!`,
-                    },
-                });
+            console.log("sending mail");
 
-                const mailOptions = {
-                    from: `merhan@bigfil.com.tr`,
-                    to: `${user.username}`,
-                    subject: 'Link To Reset Password',
-                    text:
-                        'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n'
-                        + 'Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n'
-                        + `http://localhost:3000/reset/${token}\n\n`
-                        + 'If you did not request this, please ignore this email and your password will remain unchanged.\n',
-                };
-
-                console.log('sending mail');
-
-                transporter.sendMail(mailOptions, (err, response) => {
-                    if (err) {
-                        console.error('there was an error: ', err);
-                    } else {
-                        console.log('here is the res: ', response);
-                        res.status(200).json('recovery email sent');
-                    }
-                });
-            }
-        });
-})
+            transporter.sendMail(mailOptions, (err, response) => {
+                if (err) {
+                    console.error("there was an error: ", err);
+                } else {
+                    console.log("here is the res: ", response);
+                    res.status(200).json("recovery email sent");
+                }
+            });
+        }
+    });
+});
 router.get(
-    '/logout',
-    passport.authenticate('jwt', { session: false }),
+    "/logout",
+    passport.authenticate("jwt", { session: false }),
     (req, res) => {
-        res.clearCookie('access_token');
-        res.json({ user: { username: '', role: '' }, success: true });
+        res.clearCookie("access_token");
+        res.json({ user: { username: "", role: "" }, success: true });
     }
 );
 
 router.get(
-    '/admin',
-    passport.authenticate('jwt', { session: false }),
+    "/admin",
+    passport.authenticate("jwt", { session: false }),
     (req, res) => {
-        if (req.user.role === 'admin') {
+        if (req.user.role === "admin") {
             res.status(200).json({
-                message: { msgBody: 'You are an admin', msgError: false },
+                message: { msgBody: "You are an admin", msgError: false },
             });
         } else {
             res.status(403).json({
@@ -230,8 +257,8 @@ router.get(
 );
 
 router.get(
-    '/authenticated',
-    passport.authenticate('jwt', { session: false }),
+    "/authenticated",
+    passport.authenticate("jwt", { session: false }),
     (req, res) => {
         const { username, role } = req.user;
         res.status(200).json({

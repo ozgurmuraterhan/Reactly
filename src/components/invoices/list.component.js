@@ -1,11 +1,11 @@
-import React, { Component, forwardRef, useState, useEffect } from 'react';
-import { Link, useHistory } from 'react-router-dom';
-import axios from 'axios';
+import React, { Component, forwardRef, useState, useEffect } from "react";
+import { Link, useHistory } from "react-router-dom";
+import axios from "axios";
 
-import MaterialTable, { MTableToolbar } from 'material-table';
-import { useTranslation } from 'react-i18next';
+import MaterialTable, { MTableToolbar } from "material-table";
+import { useTranslation } from "react-i18next";
 
-import { Doughnut } from 'react-chartjs-2';
+import { Doughnut } from "react-chartjs-2";
 
 import {
     DialogActions,
@@ -16,7 +16,7 @@ import {
     Tooltip,
     Grid,
     Typography,
-} from '@material-ui/core';
+} from "@material-ui/core";
 
 import {
     Settings,
@@ -37,41 +37,41 @@ import {
     Search,
     ViewColumn,
     Receipt,
-} from '@material-ui/icons';
+} from "@material-ui/icons";
 
-import '../../assets/css/style.css';
+import "../../assets/css/style.css";
 
 export default function InvoicesList(props) {
     const [t] = useTranslation();
     const history = useHistory();
     const pieColors = [
-        '#FF6384',
-        '#36A2EB',
-        '#FFCE56',
-        '#cc65fe',
-        '#445ce2',
-        '#e244b1',
-        '#0c3836',
-        '#51e4b5',
-        '#ff0000',
-        '#6eff00',
-        '#00ffe7',
-        '#28a743',
-        '#ff00c8',
-        '#063361',
-        '#1f77b4',
-        '#e377c2',
-        '#ff7f0e',
-        '#2ca02c',
-        '#bcbd22',
-        '#d62728',
-        '#17becf',
-        '#9467bd',
-        '#7f7f7f',
-        '#8c564b',
-        '#3366cc',
+        "#FF6384",
+        "#36A2EB",
+        "#FFCE56",
+        "#cc65fe",
+        "#445ce2",
+        "#e244b1",
+        "#0c3836",
+        "#51e4b5",
+        "#ff0000",
+        "#6eff00",
+        "#00ffe7",
+        "#28a743",
+        "#ff00c8",
+        "#063361",
+        "#1f77b4",
+        "#e377c2",
+        "#ff7f0e",
+        "#2ca02c",
+        "#bcbd22",
+        "#d62728",
+        "#17becf",
+        "#9467bd",
+        "#7f7f7f",
+        "#8c564b",
+        "#3366cc",
     ];
-    const customergroups_label = [{ title: t('groupName'), field: 'name' }];
+    const customergroups_label = [{ title: t("groupName"), field: "name" }];
     const [state, seTstate] = useState({});
     const [open, seTopen] = useState(false);
     const [customergroups, seTcustomergroups] = useState([]);
@@ -79,16 +79,16 @@ export default function InvoicesList(props) {
 
     const columns = [
         {
-            title: t('no'),
-            field: 'no',
+            title: t("no"),
+            field: "no",
         },
         {
-            title: t('customer'),
+            title: t("customer"),
             render: (rowData) => rowData.customer_id[0].label,
         },
 
         {
-            title: t('groupName'),
+            title: t("groupName"),
             render: (rowData) => {
                 const group_label = [];
                 for (const i in rowData.group_id) {
@@ -101,16 +101,16 @@ export default function InvoicesList(props) {
         },
 
         {
-            title: t('country'),
-            field: 'defaultAddress_country_id',
+            title: t("country"),
+            field: "defaultAddress_country_id",
         },
         {
-            title: t('state'),
-            field: 'defaultAddress_state_id',
+            title: t("state"),
+            field: "defaultAddress_state_id",
         },
         {
-            title: t('actions'),
-            field: '_id',
+            title: t("actions"),
+            field: "_id",
             render: (rowData) => (
                 <div>
                     <Link to={`/invoices/edit/${rowData._id}`}>
@@ -158,7 +158,7 @@ export default function InvoicesList(props) {
     };
 
     const getInvoicesData = () => {
-        axios.get('/invoices').then((response) => {
+        axios.get("/invoices").then((response) => {
             if (response.data.length > 0) {
                 seTdata(response.data);
                 // console.log(data)
@@ -201,14 +201,14 @@ export default function InvoicesList(props) {
                                                 noWrap
                                                 className="typography"
                                             >
-                                                {t('invoicesList')}
+                                                {t("invoicesList")}
                                             </Typography>
                                             <Link
                                                 to="/invoicecreate"
                                                 className="addButtonPlace"
                                             >
                                                 <Tooltip
-                                                    title={t('createInvoice')}
+                                                    title={t("createInvoice")}
                                                 >
                                                     <AddBox
                                                         fontSize="large"
@@ -217,7 +217,7 @@ export default function InvoicesList(props) {
                                                 </Tooltip>
                                             </Link>
                                             <MTableToolbar {...props} />
-                                            <div style={{ clear: 'both' }} />
+                                            <div style={{ clear: "both" }} />
                                         </div>
                                     ),
                                 }}
