@@ -207,8 +207,8 @@ export default function App() {
                                             />
                                         </NavIcon>
                                         <NavText>Drowdown</NavText>
-                                        <NavItem eventKey="userslist">
-                                            <NavText>Users</NavText>
+                                        <NavItem eventKey="stafflist">
+                                            <NavText>Staff </NavText>
                                         </NavItem>
                                         <NavItem eventKey="charts/barchart">
                                             <NavText>Bar Chart</NavText>
@@ -316,19 +316,19 @@ export default function App() {
                                     />
 
                                     <PrivateRoute
-                                        roles={["users.list", "users.onlyyou"]}
-                                        path="/userslist"
+                                        roles={["staff.list", "staff.onlyyou"]}
+                                        path="/stafflist"
                                         component={UsersList}
                                     />
 
                                     <PrivateRoute
-                                        roles={["users.create"]}
-                                        path="/usercreate"
+                                        roles={["staff.create"]}
+                                        path="/staffcreate"
                                         component={UsersCreate}
                                     />
                                     <PrivateRoute
-                                        roles={["users.edit", "users.onlyyou"]}
-                                        path="/users/edit/:id"
+                                        roles={["staff.edit", "staff.onlyyou"]}
+                                        path="/staff/edit/:id"
                                         component={UsersEdit}
                                     />
 

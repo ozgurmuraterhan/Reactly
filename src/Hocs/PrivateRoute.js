@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Route, Redirect } from "react-router-dom";
+import { Route } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 import { useSnackbar } from "notistack";
 import { useHistory } from "react-router-dom";
@@ -30,7 +30,7 @@ const PrivateRoute = ({ component: Component, roles, ...rest }) => {
                         { variant: "error" }
                     );
                     // navigate
-                    history.push("/");
+                    history.goBack();
                 }
 
                 return <Component {...props} />;

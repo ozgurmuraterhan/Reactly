@@ -38,30 +38,15 @@ export default function ProductEdit(props) {
     const [findProductsCategories, seTfindProductsCategories] = useState([]);
 
     const [state, seTstate] = useState({
-        selectedCategoryItems: [],
-        changeNewCategoryNameJust: [],
-        product_name: "",
-        product_code: "",
-        product_description: "",
-        purchase_price: 0,
-        sale_price: 0,
-        product_vat: 0,
-        product_stock: 0,
+        username: "",
     });
 
     function getUserData() {
-        axios.get(`/user/${props.match.params.id}`).then((response) => {
+        axios.get(`/staff/${props.match.params.id}`).then((response) => {
             seTstate({
                 ...state,
                 username: response.data.username,
                 _id: response.data._id,
-                product_name: response.data.product_name,
-                product_code: response.data.product_code,
-                product_description: response.data.product_description,
-                purchase_price: response.data.purchase_price,
-                sale_price: response.data.sale_price,
-                product_vat: response.data.product_vat,
-                product_stock: response.data.product_stock,
             });
         });
     }
@@ -74,14 +59,7 @@ export default function ProductEdit(props) {
     const onSubmit = (e) => {
         e.preventDefault();
         const Product = {
-            product_name: state.product_name,
-            category_id: state.selectedCategoryItems,
-            product_code: state.product_code,
-            product_description: state.product_description,
-            purchase_price: state.purchase_price,
-            sale_price: state.sale_price,
-            product_vat: state.product_vat,
-            product_stock: state.product_stock,
+            username: state.username,
         };
         axios
             .post(`/user/${props.match.params.id}`, Product)
@@ -95,7 +73,7 @@ export default function ProductEdit(props) {
                     enqueueSnackbar(t("Staff Updated"), {
                         variant: res.data.variant,
                     });
-                    history.push("/userlist");
+                    history.push("/stafflist");
                 }
             })
             .catch((err) => console.log(err));
@@ -106,7 +84,7 @@ export default function ProductEdit(props) {
             enqueueSnackbar(t("Staf Deleted"), {
                 variant: res.data.variant,
             });
-            history.push("/userslist");
+            history.push("/stafflist");
         });
     };
 
@@ -191,7 +169,7 @@ export default function ProductEdit(props) {
                                                 variant="outlined"
                                                 margin="dense"
                                                 label={t("E-mail")}
-                                                value={state.product_name}
+                                                value={state.username}
                                                 onChange={(e) => {
                                                     seTstate({
                                                         ...state,
@@ -202,12 +180,14 @@ export default function ProductEdit(props) {
                                                 required
                                             />
                                             <FormHelperText>
-                                                {t("youNeedaProductName")}
+                                                {t("You need E-mail")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
                                 </Grid>
+                            </Grid>
 
+                            <Grid item container sm={12}>
                                 <Grid container item sm={4} spacing={0}>
                                     <FormGroup className="FormGroup">
                                         <FormControl>
@@ -217,233 +197,19 @@ export default function ProductEdit(props) {
                                                 }}
                                                 variant="outlined"
                                                 margin="dense"
-                                                label={t("productCode")}
-                                                value={state.product_code}
+                                                label={t("E-mail")}
+                                                value={state.username}
                                                 onChange={(e) => {
                                                     seTstate({
                                                         ...state,
-                                                        product_code:
+                                                        product_name:
                                                             e.target.value,
                                                     });
                                                 }}
                                                 required
                                             />
                                             <FormHelperText>
-                                                {t("youNeedaProductCode")}
-                                            </FormHelperText>
-                                        </FormControl>
-                                    </FormGroup>
-                                </Grid>
-                                <Grid container item sm={4} spacing={0}>
-                                    <Grid container item sm={1} spacing={0}>
-                                        <Tooltip title={t("addNewCategory")}>
-                                            <AddBox
-                                                onClick={() => {
-                                                    seTgropBoxOpen(true);
-                                                }}
-                                                fontSize="large"
-                                                style={{
-                                                    margin: "20px 10px 0 5px",
-                                                }}
-                                            />
-                                        </Tooltip>
-                                    </Grid>
-                                    <Grid container item sm={11} spacing={0}>
-                                        <div
-                                            style={{
-                                                marginTop: "0px",
-                                                clear: "both",
-                                            }}
-                                        />
-                                        <FormGroup className="FormGroup">
-                                            <FormControl>
-                                                <label className="selectLabel">
-                                                    {t("category")}
-                                                </label>
-
-                                                <Select
-                                                    isMulti
-                                                    placeholder={t(
-                                                        "selectCategory"
-                                                    )}
-                                                    value={
-                                                        state.selectedCategoryItems
-                                                    }
-                                                    options={
-                                                        findProductsCategories
-                                                    }
-                                                    onChange={(
-                                                        selectedOption
-                                                    ) => {
-                                                        seTstate({
-                                                            ...state,
-                                                            selectedCategoryItems: selectedOption,
-                                                        });
-                                                    }}
-                                                />
-                                                <FormHelperText>
-                                                    {t(
-                                                        "youNeedSelectCategories"
-                                                    )}
-                                                </FormHelperText>
-                                            </FormControl>
-                                        </FormGroup>
-                                    </Grid>
-                                </Grid>
-                                <Grid container item sm={3} spacing={0}>
-                                    <FormGroup className="FormGroup">
-                                        <FormControl>
-                                            <TextValidator
-                                                InputLabelProps={{
-                                                    shrink: true,
-                                                }}
-                                                variant="outlined"
-                                                margin="dense"
-                                                label={t("purchasePrice")}
-                                                value={state.purchase_price}
-                                                onChange={(e) => {
-                                                    seTstate({
-                                                        ...state,
-                                                        purchase_price:
-                                                            e.target.value,
-                                                    });
-                                                }}
-                                                required
-                                                type="number"
-                                                validators={["isNumber"]}
-                                                errorMessages={[
-                                                    t("thisIsNotNumber"),
-                                                ]}
-                                            />
-                                            <FormHelperText>
-                                                {t("youNeedaPurchasePrice")}
-                                            </FormHelperText>
-                                        </FormControl>
-                                    </FormGroup>
-                                </Grid>
-
-                                <Grid container item sm={3} spacing={0}>
-                                    <FormGroup className="FormGroup">
-                                        <FormControl>
-                                            <TextValidator
-                                                InputLabelProps={{
-                                                    shrink: true,
-                                                }}
-                                                variant="outlined"
-                                                margin="dense"
-                                                label={t("salePrice")}
-                                                value={state.sale_price}
-                                                onChange={(e) => {
-                                                    seTstate({
-                                                        ...state,
-                                                        sale_price:
-                                                            e.target.value,
-                                                    });
-                                                }}
-                                                required
-                                                type="number"
-                                                validators={["isNumber"]}
-                                                errorMessages={[
-                                                    t("thisIsNotNumber"),
-                                                ]}
-                                            />
-                                            <FormHelperText>
-                                                {t("youNeedaSalePrice")}
-                                            </FormHelperText>
-                                        </FormControl>
-                                    </FormGroup>
-                                </Grid>
-
-                                <Grid container item sm={3} spacing={0}>
-                                    <FormGroup className="FormGroup">
-                                        <FormControl>
-                                            <TextValidator
-                                                InputLabelProps={{
-                                                    shrink: true,
-                                                }}
-                                                variant="outlined"
-                                                margin="dense"
-                                                label={t("productStock")}
-                                                value={state.product_stock}
-                                                onChange={(e) => {
-                                                    seTstate({
-                                                        ...state,
-                                                        product_stock:
-                                                            e.target.value,
-                                                    });
-                                                }}
-                                                required
-                                                type="number"
-                                                validators={["isNumber"]}
-                                                errorMessages={[
-                                                    t("thisIsNotNumber"),
-                                                ]}
-                                            />
-                                            <FormHelperText>
-                                                {t("youNeedaProductStock")}
-                                            </FormHelperText>
-                                        </FormControl>
-                                    </FormGroup>
-                                </Grid>
-
-                                <Grid container item sm={3} spacing={0}>
-                                    <FormGroup className="FormGroup">
-                                        <FormControl>
-                                            <TextValidator
-                                                InputLabelProps={{
-                                                    shrink: true,
-                                                }}
-                                                variant="outlined"
-                                                margin="dense"
-                                                label={t("productVat")}
-                                                value={state.product_vat}
-                                                onChange={(e) => {
-                                                    seTstate({
-                                                        ...state,
-                                                        product_vat:
-                                                            e.target.value,
-                                                    });
-                                                }}
-                                                required
-                                                type="number"
-                                                validators={["isNumber"]}
-                                                errorMessages={[
-                                                    t("thisIsNotNumber"),
-                                                ]}
-                                            />
-                                            <FormHelperText>
-                                                {t("youNeedaProductVat")}
-                                            </FormHelperText>
-                                        </FormControl>
-                                    </FormGroup>
-                                </Grid>
-
-                                <Grid container item sm={12} spacing={0}>
-                                    <FormGroup className="FormGroup">
-                                        <FormControl>
-                                            <TextField
-                                                InputLabelProps={{
-                                                    shrink: true,
-                                                }}
-                                                variant="outlined"
-                                                label={t("productDescription")}
-                                                multiline
-                                                margin="normal"
-                                                value={
-                                                    state.product_description
-                                                }
-                                                onChange={(e) => {
-                                                    seTstate({
-                                                        ...state,
-                                                        product_description:
-                                                            e.target.value,
-                                                    });
-                                                }}
-                                            />
-                                            <FormHelperText>
-                                                {t(
-                                                    "youNeedaProductDescription"
-                                                )}
+                                                {t("You need E-mail")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>

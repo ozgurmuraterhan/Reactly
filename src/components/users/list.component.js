@@ -56,7 +56,7 @@ export default function ProductsList() {
             field: "_id",
             render: (rowData) => (
                 <div>
-                    <Link to={`/users/edit/${rowData._id}`}>
+                    <Link to={`/staff/edit/${rowData._id}`}>
                         <Edit />
                     </Link>
                 </div>
@@ -101,7 +101,7 @@ export default function ProductsList() {
     };
 
     const getUserssData = () => {
-        axios.get("/user").then((response) => {
+        axios.get("/staff").then((response) => {
             if (response.data.length > 0) {
                 seTdata(response.data);
             }
@@ -144,7 +144,7 @@ export default function ProductsList() {
                                                 {t("productList")}
                                             </Typography>
                                             <Link
-                                                to="/productcreate"
+                                                to="/staffcreate"
                                                 className="addButtonPlace"
                                             >
                                                 <Tooltip
