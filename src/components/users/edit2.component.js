@@ -60,71 +60,59 @@ export default function ProductEdit(props) {
                 phone: response.data.phone,
                 _id: response.data._id,
             });
+
+            console.log(response.data.role);
         });
     }
 
-    const [staff, seTstaff] = useState({
-        onlyyou: true,
-        create: false,
-        edit: false,
-        list: false,
-        delete: false,
-    });
+    const [permissions, seTpermissions] = useState({
+        staffonlyyou: true,
+        staffcreate: false,
+        staffedit: false,
+        stafflist: false,
+        staffdelete: false,
 
-    const [customers, seTcustomers] = useState({
-        onlyyou: true,
-        create: false,
-        edit: false,
-        list: false,
-        delete: false,
-    });
+        customersonlyyou: true,
+        customerscreate: false,
+        customersedit: false,
+        customerslist: false,
+        customersdelete: false,
 
-    const [products, seTproducts] = useState({
-        onlyyou: true,
-        create: false,
-        edit: false,
-        list: false,
-        delete: false,
-    });
+        productsonlyyou: true,
+        productscreate: false,
+        productsedit: false,
+        productslist: false,
+        productsdelete: false,
 
-    const [bankaccounts, seTbankaccounts] = useState({
-        onlyyou: true,
-        create: false,
-        edit: false,
-        list: false,
-        delete: false,
-    });
+        bankaccountsonlyyou: true,
+        bankaccountscreate: false,
+        bankaccountsedit: false,
+        bankaccountslist: false,
+        bankaccountsdelete: false,
 
-    const [customersgroup, seTcustomersgroup] = useState({
-        onlyyou: true,
-        create: false,
-        edit: false,
-        list: false,
-        delete: false,
-    });
+        customersgrouponlyyou: true,
+        customersgroupcreate: false,
+        customersgroupedit: false,
+        customersgrouplist: false,
+        customersgroupdelete: false,
 
-    const [invoices, seTinvoices] = useState({
-        onlyyou: true,
-        create: false,
-        edit: false,
-        list: false,
-        delete: false,
-    });
+        invoicesonlyyou: true,
+        invoicescreate: false,
+        invoicesedit: false,
+        invoiceslist: false,
+        invoicesdelete: false,
 
-    const [payments, seTpayments] = useState({
-        onlyyou: true,
-        create: false,
-        edit: false,
-        list: false,
-        delete: false,
-    });
+        paymentsonlyyou: true,
+        paymentscreate: false,
+        paymentsedit: false,
+        paymentslist: false,
+        paymentsdelete: false,
 
-    const [productsCategories, seTproductsCategories] = useState({
-        onlyyou: true,
-        create: false,
-        edit: false,
-        list: false,
-        delete: false,
+        productsCategoriesonlyyou: true,
+        productsCategoriescreate: false,
+        productsCategoriesedit: false,
+        productsCategorieslist: false,
+        productsCategoriesdelete: false,
     });
 
     // componentDidMount = useEffect
@@ -391,6 +379,7 @@ export default function ProductEdit(props) {
                         </div>
                     </Grid>
                     <Grid item container md={5} className="panelGridRelative">
+                        {console.log(permissions)}
                         <div className="listViewPaperPadding">
                             <Typography
                                 component="h1"
@@ -413,12 +402,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={staff.onlyyou}
+                                                checked={
+                                                    permissions.staffonlyyou
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTstaff({
-                                                        ...staff,
-                                                        onlyyou: val,
-                                                        list: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        staffonlyyou: val,
+                                                        stafflist: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -429,12 +420,12 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={staff.list}
+                                                checked={permissions.stafflist}
                                                 onChange={(e, val) => {
-                                                    seTstaff({
-                                                        ...staff,
-                                                        list: val,
-                                                        onlyyou: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        stafflist: val,
+                                                        staffonlyyou: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -446,11 +437,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={staff.create}
+                                                checked={
+                                                    permissions.staffcreate
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTstaff({
-                                                        ...staff,
-                                                        create: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        staffcreate: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -461,11 +454,11 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={staff.edit}
+                                                checked={permissions.staffedit}
                                                 onChange={(e, val) => {
-                                                    seTstaff({
-                                                        ...staff,
-                                                        edit: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        staffedit: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -476,11 +469,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={staff.delete}
+                                                checked={
+                                                    permissions.staffdelete
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTstaff({
-                                                        ...staff,
-                                                        delete: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        staffdelete: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -496,12 +491,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={customers.onlyyou}
+                                                checked={
+                                                    permissions.customersonlyyou
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTcustomers({
-                                                        ...customers,
-                                                        onlyyou: val,
-                                                        list: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        customersonlyyou: val,
+                                                        customerslist: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -512,12 +509,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={customers.list}
+                                                checked={
+                                                    permissions.customerslist
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTcustomers({
-                                                        ...customers,
-                                                        list: val,
-                                                        onlyyou: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        customerslist: val,
+                                                        customersonlyyou: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -529,11 +528,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={customers.create}
+                                                checked={
+                                                    permissions.customerscreate
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTcustomers({
-                                                        ...customers,
-                                                        create: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        customerscreate: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -544,11 +545,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={customers.edit}
+                                                checked={
+                                                    permissions.customersedit
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTcustomers({
-                                                        ...customers,
-                                                        edit: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        customersedit: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -559,11 +562,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={customers.delete}
+                                                checked={
+                                                    permissions.customersdelete
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTcustomers({
-                                                        ...customers,
-                                                        delete: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        customersdelete: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -579,12 +584,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={products.onlyyou}
+                                                checked={
+                                                    permissions.productsonlyyou
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTproducts({
-                                                        ...products,
-                                                        onlyyou: val,
-                                                        list: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        productsonlyyou: val,
+                                                        productslist: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -595,12 +602,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={products.list}
+                                                checked={
+                                                    permissions.productslist
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTproducts({
-                                                        ...products,
-                                                        list: val,
-                                                        onlyyou: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        productslist: val,
+                                                        productsonlyyou: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -612,11 +621,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={products.create}
+                                                checked={
+                                                    permissions.productscreate
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTproducts({
-                                                        ...products,
-                                                        create: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        productscreate: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -627,11 +638,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={products.edit}
+                                                checked={
+                                                    permissions.productsedit
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTproducts({
-                                                        ...products,
-                                                        edit: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        productsedit: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -642,11 +655,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={products.delete}
+                                                checked={
+                                                    permissions.productsdelete
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTproducts({
-                                                        ...products,
-                                                        delete: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        productsdelete: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -662,12 +677,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={bankaccounts.onlyyou}
+                                                checked={
+                                                    permissions.bankaccountsonlyyou
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTbankaccounts({
-                                                        ...bankaccounts,
-                                                        onlyyou: val,
-                                                        list: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        bankaccountsonlyyou: val,
+                                                        bankaccountslist: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -678,12 +695,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={bankaccounts.list}
+                                                checked={
+                                                    permissions.bankaccountslist
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTbankaccounts({
-                                                        ...bankaccounts,
-                                                        list: val,
-                                                        onlyyou: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        bankaccountslist: val,
+                                                        bankaccountsonlyyou: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -695,11 +714,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={bankaccounts.create}
+                                                checked={
+                                                    permissions.bankaccountscreate
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTbankaccounts({
-                                                        ...bankaccounts,
-                                                        create: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        bankaccountscreate: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -710,11 +731,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={bankaccounts.edit}
+                                                checked={
+                                                    permissions.bankaccountsedit
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTbankaccounts({
-                                                        ...bankaccounts,
-                                                        edit: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        bankaccountsedit: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -725,11 +748,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={bankaccounts.delete}
+                                                checked={
+                                                    permissions.bankaccountsdelete
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTbankaccounts({
-                                                        ...bankaccounts,
-                                                        delete: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        bankaccountsdelete: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -745,12 +770,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={customersgroup.onlyyou}
+                                                checked={
+                                                    permissions.customersgrouponlyyou
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTcustomersgroup({
-                                                        ...customersgroup,
-                                                        onlyyou: val,
-                                                        list: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        customersgrouponlyyou: val,
+                                                        customersgrouplist: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -761,12 +788,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={customersgroup.list}
+                                                checked={
+                                                    permissions.customersgrouplist
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTcustomersgroup({
-                                                        ...customersgroup,
-                                                        list: val,
-                                                        onlyyou: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        customersgrouplist: val,
+                                                        customersgrouponlyyou: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -778,11 +807,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={customersgroup.create}
+                                                checked={
+                                                    permissions.customersgroupcreate
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTcustomersgroup({
-                                                        ...customersgroup,
-                                                        create: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        customersgroupcreate: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -793,11 +824,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={customersgroup.edit}
+                                                checked={
+                                                    permissions.customersgroupedit
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTcustomersgroup({
-                                                        ...customersgroup,
-                                                        edit: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        customersgroupedit: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -808,11 +841,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={customersgroup.delete}
+                                                checked={
+                                                    permissions.customersgroupdelete
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTcustomersgroup({
-                                                        ...customersgroup,
-                                                        delete: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        customersgroupdelete: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -828,12 +863,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={invoices.onlyyou}
+                                                checked={
+                                                    permissions.invoicesonlyyou
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTinvoices({
-                                                        ...invoices,
-                                                        onlyyou: val,
-                                                        list: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        invoicesonlyyou: val,
+                                                        invoiceslist: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -844,12 +881,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={invoices.list}
+                                                checked={
+                                                    permissions.invoiceslist
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTinvoices({
-                                                        ...invoices,
-                                                        list: val,
-                                                        onlyyou: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        invoiceslist: val,
+                                                        invoicesonlyyou: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -861,11 +900,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={invoices.create}
+                                                checked={
+                                                    permissions.invoicescreate
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTinvoices({
-                                                        ...invoices,
-                                                        create: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        invoicescreate: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -876,11 +917,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={invoices.edit}
+                                                checked={
+                                                    permissions.invoicesedit
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTinvoices({
-                                                        ...invoices,
-                                                        edit: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        invoicesedit: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -891,11 +934,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={invoices.delete}
+                                                checked={
+                                                    permissions.invoicesdelete
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTinvoices({
-                                                        ...invoices,
-                                                        delete: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        invoicesdelete: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -911,12 +956,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={payments.onlyyou}
+                                                checked={
+                                                    permissions.paymentsonlyyou
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTpayments({
-                                                        ...payments,
-                                                        onlyyou: val,
-                                                        list: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        paymentsonlyyou: val,
+                                                        paymentslist: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -927,12 +974,14 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={payments.list}
+                                                checked={
+                                                    permissions.paymentslist
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTpayments({
-                                                        ...payments,
+                                                    seTpermissions({
+                                                        ...permissions,
                                                         list: val,
-                                                        onlyyou: false,
+                                                        paymentslist: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -944,11 +993,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={payments.create}
+                                                checked={
+                                                    permissions.paymentscreate
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTpayments({
-                                                        ...payments,
-                                                        create: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        paymentscreate: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -959,11 +1010,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={payments.edit}
+                                                checked={
+                                                    permissions.paymentsedit
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTpayments({
-                                                        ...payments,
-                                                        edit: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        paymentsedit: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -974,11 +1027,13 @@ export default function ProductEdit(props) {
                                     <FormControlLabel
                                         control={
                                             <Checkbox
-                                                checked={payments.delete}
+                                                checked={
+                                                    permissions.paymentsdelete
+                                                }
                                                 onChange={(e, val) => {
-                                                    seTpayments({
-                                                        ...payments,
-                                                        delete: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        paymentsdelete: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -995,13 +1050,13 @@ export default function ProductEdit(props) {
                                         control={
                                             <Checkbox
                                                 checked={
-                                                    productsCategories.onlyyou
+                                                    permissions.productsCategoriesonlyyou
                                                 }
                                                 onChange={(e, val) => {
-                                                    seTproductsCategories({
-                                                        ...productsCategories,
-                                                        onlyyou: val,
-                                                        list: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        productsCategoriesonlyyou: val,
+                                                        productsCategorieslist: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -1013,13 +1068,13 @@ export default function ProductEdit(props) {
                                         control={
                                             <Checkbox
                                                 checked={
-                                                    productsCategories.list
+                                                    permissions.productsCategorieslist
                                                 }
                                                 onChange={(e, val) => {
-                                                    seTproductsCategories({
-                                                        ...productsCategories,
-                                                        list: val,
-                                                        onlyyou: false,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        productsCategorieslist: val,
+                                                        productsCategoriesonlyyou: false,
                                                     });
                                                 }}
                                                 color="primary"
@@ -1032,12 +1087,12 @@ export default function ProductEdit(props) {
                                         control={
                                             <Checkbox
                                                 checked={
-                                                    productsCategories.create
+                                                    permissions.productsCategoriescreate
                                                 }
                                                 onChange={(e, val) => {
-                                                    seTproductsCategories({
-                                                        ...productsCategories,
-                                                        create: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        productsCategoriescreate: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -1049,12 +1104,12 @@ export default function ProductEdit(props) {
                                         control={
                                             <Checkbox
                                                 checked={
-                                                    productsCategories.edit
+                                                    permissions.productsCategoriesedit
                                                 }
                                                 onChange={(e, val) => {
-                                                    seTproductsCategories({
-                                                        ...productsCategories,
-                                                        edit: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        productsCategoriesedit: val,
                                                     });
                                                 }}
                                                 color="primary"
@@ -1066,12 +1121,12 @@ export default function ProductEdit(props) {
                                         control={
                                             <Checkbox
                                                 checked={
-                                                    productsCategories.delete
+                                                    permissions.productsCategoriesdelete
                                                 }
                                                 onChange={(e, val) => {
-                                                    seTproductsCategories({
-                                                        ...productsCategories,
-                                                        delete: val,
+                                                    seTpermissions({
+                                                        ...permissions,
+                                                        productsCategoriesdelete: val,
                                                     });
                                                 }}
                                                 color="primary"

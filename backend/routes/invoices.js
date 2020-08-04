@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const passport = require("passport");
-const getRole = require("../rolescontrol/index.js");
 const JWT = require("jsonwebtoken");
 let Invoice = require("../models/invoice.model");
 let User = require("../models/user.model");

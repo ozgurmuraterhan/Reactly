@@ -1,16 +1,17 @@
 html {
-    font-family: 'Roboto';
+    font-family: "Roboto";
     height: 100%;
-}body {
+}
+body {
     height: 100%;
 }
 
 #root {
     height: 100%;
 }
-.AuthDiv{
+.AuthDiv {
     height: 100%;
-  }
+}
 .FormGroup {
     margin: 10px 10px;
     width: 100%;
@@ -71,6 +72,30 @@ html {
         0px 1px 1px 0px rgba(0, 0, 0, 0.14),
         0px 2px 1px -1px rgba(0, 0, 0, 0.12);
 }
+
+.listViewPaperPadding {
+    padding: 15px;
+    width: 100%;
+    min-height: 350px;
+    margin-bottom: 55px;
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
+        0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+        0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+}
+
+.permissions .permissions_div b {
+    margin-top: 20px;
+    float: left;
+    width: 100%;
+}
+
+.permissions .permissions_div {
+    float: left;
+    width: 100%;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
 .MuiFormHelperText-root {
     margin-top: 2px !important;
 }
@@ -136,7 +161,7 @@ html {
 }
 
 .glow-on-hover:before {
-    content: '';
+    content: "";
     background: linear-gradient(
         45deg,
         #ff0000,
@@ -178,7 +203,7 @@ html {
 
 .glow-on-hover:after {
     z-index: -1;
-    content: '';
+    content: "";
     position: absolute;
     width: 100%;
     height: 100%;
@@ -229,7 +254,7 @@ html {
 
 .sidenav---sidenav---_2tBP {
     position: fixed !important;
-    font-family: 'Roboto';
+    font-family: "Roboto";
 }
 .sidenav---sidenav-nav---3tvij
     > .sidenav---sidenav-navitem---uwIJ-
@@ -333,17 +358,8 @@ body {
     background-color: #fff;
 }
 
-
- 
 @media only screen and (max-width: 600px) {
-
- 
-
- 
     .loginBanner {
-       display:none
-    } 
-    
- 
- 
+        display: none;
+    }
 }
