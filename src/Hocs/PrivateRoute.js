@@ -11,9 +11,13 @@ const PrivateRoute = ({ component: Component, roles, ...rest }) => {
     const [t] = useTranslation();
     const history = useHistory();
     const { enqueueSnackbar } = useSnackbar();
-    const eqRoles = [roles, user.role].reduce((a, c) =>
-        a.filter((i) => c.includes(i))
-    );
+    const eqRoles = [];
+
+    roles.forEach((element) => {
+        if (user.role[0][element]) {
+            eqRoles.push(user.role[0][element]);
+        }
+    });
 
     return (
         <Route
@@ -22,6 +26,7 @@ const PrivateRoute = ({ component: Component, roles, ...rest }) => {
                 if (!isAuthenticated) {
                     history.push("/login");
                 }
+
                 if (eqRoles.length == 0) {
                     enqueueSnackbar(
                         t(

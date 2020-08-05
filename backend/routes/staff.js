@@ -4,14 +4,15 @@ const User = require("../models/user.model");
 const passport = require("passport");
 const JWT = require("jsonwebtoken");
 const roleTitle = "staff";
+const title = "Staff";
 
 // get all items
 router
     .route("/")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 User.find()
                     .then((data) => {
                         res.json(data);
@@ -22,8 +23,8 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
-                User.find({ created_user: req.user._id })
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
+                User.find({ _id: req.user._id })
                     .then((data) => {
                         res.json(data);
                     })
@@ -51,8 +52,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".create")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "create"]) {
                     new User(req.body)
                         .save()
 
@@ -85,8 +86,8 @@ router
     .route("/:id")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 User.findById(req.params.id)
                     .then((data) => res.json(data))
                     .catch((err) =>
@@ -95,7 +96,7 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 User.findOne({
                     _id: req.params.id,
                     created_user: req.user._id,
@@ -135,8 +136,8 @@ router
     .route("/:id")
     .delete(passport.authenticate("jwt", { session: false }), (req, res) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".remove")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "remove"]) {
                 User.findByIdAndDelete(req.params.id)
                     .then((data) =>
                         res.json({
@@ -150,7 +151,7 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 User.deleteOne({
                     _id: req.params.id,
                     created_user: req.user._id,
@@ -195,8 +196,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".edit")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "edit"]) {
                     User.findByIdAndUpdate(req.params.id, req.body)
                         .then(() =>
                             res.json({
@@ -210,7 +211,7 @@ router
                                 variant: "error",
                             })
                         );
-                } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+                } else if (rolesControl[roleTitle + "onlyyou"]) {
                     User.findOneAndUpdate(
                         { _id: req.params.id, created_user: req.user._id },
                         req.body
