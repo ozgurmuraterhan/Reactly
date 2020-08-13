@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Route } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 import { useSnackbar } from "notistack";
@@ -12,10 +12,11 @@ const PrivateRoute = ({ component: Component, roles, ...rest }) => {
     const history = useHistory();
     const { enqueueSnackbar } = useSnackbar();
     const eqRoles = [];
-
     roles.forEach((element) => {
-        if (user.role[0][element]) {
-            eqRoles.push(user.role[0][element]);
+        if (user.username != "") {
+            if (user.role[0][element]) {
+                eqRoles.push(user.role[0][element]);
+            }
         }
     });
 

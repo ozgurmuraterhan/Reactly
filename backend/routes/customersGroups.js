@@ -12,8 +12,8 @@ router
     .route("/")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 CustomersGroups.find()
                     .then((data) => {
                         res.json(data);
@@ -24,8 +24,8 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
-                CustomersGroups.find({ created_user: req.user._id })
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
+                CustomersGroups.find({ "created_user.id": `${req.user._id}` })
                     .then((data) => {
                         res.json(data);
                     })
@@ -53,8 +53,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".create")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "create"]) {
                     new CustomersGroups(req.body)
                         .save()
                         .then(() =>
@@ -86,8 +86,8 @@ router
     .route("/:id")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 CustomersGroups.findById(req.params.id)
                     .then((data) => res.json(data))
                     .catch((err) =>
@@ -96,10 +96,10 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 CustomersGroups.findOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((data) => {
                         if (data) {
@@ -136,8 +136,8 @@ router
     .route("/:id")
     .delete(passport.authenticate("jwt", { session: false }), (req, res) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".remove")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "delete"]) {
                 Customer.updateMany(
                     {},
                     { $pull: { group_id: { value: req.params.id } } },
@@ -156,7 +156,7 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 Customer.updateMany(
                     {},
                     { $pull: { group_id: { value: req.params.id } } },
@@ -164,7 +164,7 @@ router
                 ).catch((err) => console.log(err));
                 CustomersGroups.deleteOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((resdata) => {
                         if (resdata.deletedCount > 0) {
@@ -206,8 +206,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".edit")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "edit"]) {
                     //Customers collection group_id update by id
                     Customer.updateMany(
                         { "group_id.value": req.params.id },
@@ -228,7 +228,7 @@ router
                                 variant: "error",
                             })
                         );
-                } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+                } else if (rolesControl[roleTitle + "onlyyou"]) {
                     //Customers collection group_id update by id
                     Customer.updateMany(
                         { "group_id.value": req.params.id },
@@ -238,7 +238,7 @@ router
                     //customersGroup update
                     CustomersGroups.findOneAndUpdate({
                         _id: req.params.id,
-                        created_user: req.user._id,
+                        "created_user.id": `${req.user._id}`,
                     })
                         .then((resdata) => {
                             if (resdata) {

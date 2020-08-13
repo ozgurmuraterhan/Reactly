@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import axios from 'axios';
-import TextField from '@material-ui/core/TextField';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import axios from "axios";
+import TextField from "@material-ui/core/TextField";
 
 import {
     LinkButtons,
@@ -13,15 +13,15 @@ import {
     forgotButton,
     inputStyle,
     SubmitButtons,
-} from './components';
+} from "./components";
 
 const loading = {
-    margin: '1em',
-    fontSize: '24px',
+    margin: "1em",
+    fontSize: "24px",
 };
 
 const title = {
-    pageTitle: 'Password Reset Screen',
+    pageTitle: "Password Reset Screen",
 };
 
 export default class ResetPassword extends Component {
@@ -29,8 +29,8 @@ export default class ResetPassword extends Component {
         super();
 
         this.state = {
-            username: '',
-            password: '',
+            username: "",
+            password: "",
             updated: false,
             isLoading: true,
             error: false,
@@ -38,25 +38,23 @@ export default class ResetPassword extends Component {
     }
 
     async componentDidMount() {
-
-
-
         const {
             match: {
                 params: { token },
             },
         } = this.props;
 
-        console.log("this.props.params")
-        console.log(this.props.params)
         try {
-            const response = await axios.get('http://localhost:5000/user/reset', {
-                params: {
-                    resetPasswordToken: token,
-                },
-            });
+            const response = await axios.get(
+                "http://localhost:5000/user/reset",
+                {
+                    params: {
+                        resetPasswordToken: token,
+                    },
+                }
+            );
             console.log(response);
-            if (response.data.message === 'password reset link a-ok') {
+            if (response.data.message === "password reset link a-ok") {
                 this.setState({
                     username: response.data.username,
                     updated: false,
@@ -65,7 +63,6 @@ export default class ResetPassword extends Component {
                 });
             }
         } catch (error) {
-
             this.setState({
                 updated: false,
                 isLoading: false,
@@ -74,7 +71,7 @@ export default class ResetPassword extends Component {
         }
     }
 
-    handleChange = name => (event) => {
+    handleChange = (name) => (event) => {
         this.setState({
             [name]: event.target.value,
         });
@@ -91,18 +88,15 @@ export default class ResetPassword extends Component {
 
         try {
             const response = await axios.put(
-                'http://localhost:5000/user/updatePasswordViaEmail',
+                "http://localhost:5000/user/updatePasswordViaEmail",
                 {
                     username,
                     password,
                     resetPasswordToken: token,
-                },
+                }
             );
-            console.log("response.data");
-            console.log(response.data);
-            console.log("response.data");
 
-            if (response.data.message === 'password updated') {
+            if (response.data.message === "password updated") {
                 this.setState({
                     updated: true,
                     error: false,
@@ -119,16 +113,17 @@ export default class ResetPassword extends Component {
     };
 
     render() {
-        const {
-            password, error, isLoading, updated
-        } = this.state;
+        const { password, error, isLoading, updated } = this.state;
 
         if (error) {
             return (
                 <div>
                     <HeaderBar title={title} />
                     <div style={loading}>
-                        <h4>Problem resetting password. Please send another reset link.</h4>
+                        <h4>
+                            Problem resetting password. Please send another
+                            reset link.
+                        </h4>
                         <LinkButtons
                             buttonText="Go Home"
                             buttonStyle={homeButton}
@@ -159,7 +154,7 @@ export default class ResetPassword extends Component {
                         style={inputStyle}
                         id="password"
                         label="password"
-                        onChange={this.handleChange('password')}
+                        onChange={this.handleChange("password")}
                         value={password}
                         type="password"
                     />
@@ -172,9 +167,9 @@ export default class ResetPassword extends Component {
                 {updated && (
                     <div>
                         <p>
-                            Your password has been successfully reset, please try logging in
-                            again.
-            </p>
+                            Your password has been successfully reset, please
+                            try logging in again.
+                        </p>
                         <LinkButtons
                             buttonStyle={loginButton}
                             buttonText="Login"
@@ -182,7 +177,11 @@ export default class ResetPassword extends Component {
                         />
                     </div>
                 )}
-                <LinkButtons buttonText="Go Home" buttonStyle={homeButton} link="/" />
+                <LinkButtons
+                    buttonText="Go Home"
+                    buttonStyle={homeButton}
+                    link="/"
+                />
             </div>
         );
     }

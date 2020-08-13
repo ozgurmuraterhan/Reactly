@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useSnackbar } from 'notistack';
-import { useHistory } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import { useSnackbar } from "notistack";
+import { useHistory } from "react-router-dom";
 
-import Select from 'react-select';
+import Select from "react-select";
 import {
     ValidatorForm,
     TextValidator,
     SelectValidator,
-} from 'react-material-ui-form-validator';
-import { useTranslation } from 'react-i18next';
+} from "react-material-ui-form-validator";
+import { useTranslation } from "react-i18next";
+import { AuthContext } from "../../Context/AuthContext";
 
 import {
     FormControl,
@@ -32,7 +33,7 @@ import {
     DialogTitle,
     FormLabel,
     Grid,
-} from '@material-ui/core';
+} from "@material-ui/core";
 
 import {
     AddBox,
@@ -41,15 +42,15 @@ import {
     GroupAdd,
     ContactMail,
     Save,
-} from '@material-ui/icons';
+} from "@material-ui/icons";
 
-import '../../assets/css/style.css';
+import "../../assets/css/style.css";
 
 export default function CustomerCreate() {
     const getRandomPass = (length) => {
-        let result = '';
+        let result = "";
         const characters =
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         const charactersLength = characters.length;
         for (let i = 0; i < length; i++) {
             result += characters.charAt(
@@ -62,9 +63,10 @@ export default function CustomerCreate() {
     const [t] = useTranslation();
     const history = useHistory();
     const { enqueueSnackbar } = useSnackbar();
+    const { user } = useContext(AuthContext);
 
     const [gropBoxOpen, seTgropBoxOpen] = useState(false);
-    const [changeNewGroupNameJust, seTchangeNewGroupNameJust] = useState('');
+    const [changeNewGroupNameJust, seTchangeNewGroupNameJust] = useState("");
     const [dataPayments, seTdataPayments] = useState([]);
     const [findCustomersGroup, seTfindCustomersGroup] = useState([]);
     const [dataCountry, seTdataCountry] = useState([]);
@@ -74,46 +76,46 @@ export default function CustomerCreate() {
         selectedbillingAddressStateArray: [],
         selectedshippingAddressState2Array: [],
         selectedDefaultState: [
-            { label: 'Not Selected', value: 'Not Selected' },
+            { label: "Not Selected", value: "Not Selected" },
         ],
         selectedDefaultCountry: [
-            { label: 'Not Selected', value: 'Not Selected' },
+            { label: "Not Selected", value: "Not Selected" },
         ],
         selectedbillingAddressCountry: [
-            { label: 'Not Selected', value: 'Not Selected' },
+            { label: "Not Selected", value: "Not Selected" },
         ],
         selectedbillingAddressState: [
-            { label: 'Not Selected', value: 'Not Selected' },
+            { label: "Not Selected", value: "Not Selected" },
         ],
         selectedshippingAddressCountry2: [
-            { label: 'Not Selected', value: 'Not Selected' },
+            { label: "Not Selected", value: "Not Selected" },
         ],
         selectedshippingAddressState2: [
-            { label: 'Not Selected', value: 'Not Selected' },
+            { label: "Not Selected", value: "Not Selected" },
         ],
         selectedGroupItems: [],
-        selected1Zipcode: '',
-        selected2Zipcode: '',
-        selected3Zipcode: '',
-        selected1Town: '',
-        selected2Town: '',
-        selected3Town: '',
-        company: '',
-        email: '',
+        selected1Zipcode: "",
+        selected2Zipcode: "",
+        selected3Zipcode: "",
+        selected1Town: "",
+        selected2Town: "",
+        selected3Town: "",
+        company: "",
+        email: "",
         password: getRandomPass(8),
-        taxoffice: '',
-        taxnumber: '',
-        ssn: '',
-        executive: '',
-        phone: '',
-        fax: '',
-        default_payment_method: '',
+        taxoffice: "",
+        taxnumber: "",
+        ssn: "",
+        executive: "",
+        phone: "",
+        fax: "",
+        default_payment_method: "",
         risk: 80,
-        selected2Address: '',
-        selected1Address: '',
-        selected3Address: '',
-        fax: '',
-        fax: '',
+        selected2Address: "",
+        selected1Address: "",
+        selected3Address: "",
+        fax: "",
+        fax: "",
     });
 
     // default adress func
@@ -185,15 +187,15 @@ export default function CustomerCreate() {
         };
 
         axios
-            .post('/customersgroups/add', data)
+            .post("/customersgroups/add", data)
             .then((res) => {
-                if (res.data.variant == 'error') {
+                if (res.data.variant == "error") {
                     enqueueSnackbar(
-                        t('customersGroupNotAdded') + res.data.messagge,
+                        t("customersGroupNotAdded") + res.data.messagge,
                         { variant: res.data.variant }
                     );
                 } else {
-                    enqueueSnackbar(t('customersGroupAdded'), {
+                    enqueueSnackbar(t("customersGroupAdded"), {
                         variant: res.data.variant,
                     });
                 }
@@ -209,7 +211,7 @@ export default function CustomerCreate() {
 
     function getCountryF() {
         axios
-            .get('/country')
+            .get("/country")
             .then((response) => {
                 if (response.data.length > 0) {
                     const details = [];
@@ -230,7 +232,7 @@ export default function CustomerCreate() {
 
     function getPaymentsF() {
         axios
-            .get('/payments')
+            .get("/payments")
             .then((response) => {
                 if (response.data.length > 0) {
                     const details = [];
@@ -248,7 +250,7 @@ export default function CustomerCreate() {
 
     function getCustomersGroup() {
         axios
-            .get('/customersgroups/')
+            .get("/customersgroups/")
             .then((res) => {
                 if (res.data.length > 0) {
                     const details = [];
@@ -300,6 +302,7 @@ export default function CustomerCreate() {
     const onSubmit = (e) => {
         e.preventDefault();
         const Customers = {
+            created_user: { name: user.name, id: user.id },
             company: state.company,
             email: state.email,
             password: state.password,
@@ -335,17 +338,17 @@ export default function CustomerCreate() {
             shippingAddress_address: state.selected3Address,
         };
 
-        axios.post('/customers/add', Customers).then((res) => {
-            if (res.data.variant == 'error') {
-                enqueueSnackbar(t('customerNotAdded') + res.data.messagge, {
+        axios.post("/customers/add", Customers).then((res) => {
+            if (res.data.variant == "error") {
+                enqueueSnackbar(t("customerNotAdded") + res.data.messagge, {
                     variant: res.data.variant,
                 });
             } else {
-                enqueueSnackbar(t('customerAdded'), {
+                enqueueSnackbar(t("customerAdded"), {
                     variant: res.data.variant,
                 });
                 // navigate
-                history.push('/customerslist');
+                history.push("/customerslist");
             }
         });
     };
@@ -366,14 +369,14 @@ export default function CustomerCreate() {
                                 noWrap
                                 className="typography"
                             >
-                                {t('customersCreate')}
+                                {t("customersCreate")}
                             </Typography>
                             <Grid item container sm={12}>
                                 <Grid container item sm={4} spacing={0}>
                                     <FormGroup className="FormGroup">
                                         <FormControl>
                                             <TextValidator
-                                                label={t('company')}
+                                                label={t("company")}
                                                 value={state.company}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -384,7 +387,7 @@ export default function CustomerCreate() {
                                                 required
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaCompanyName')}
+                                                {t("youNeedaCompanyName")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -395,7 +398,7 @@ export default function CustomerCreate() {
                                         <FormControl>
                                             <TextValidator
                                                 required
-                                                label={t('email')}
+                                                label={t("email")}
                                                 value={state.email}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -403,13 +406,13 @@ export default function CustomerCreate() {
                                                         email: e.target.value,
                                                     });
                                                 }}
-                                                validators={['isEmail']}
+                                                validators={["isEmail"]}
                                                 errorMessages={[
-                                                    t('emailIsNotValid'),
+                                                    t("emailIsNotValid"),
                                                 ]}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaEmail')}
+                                                {t("youNeedaEmail")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -419,7 +422,7 @@ export default function CustomerCreate() {
                                         <FormControl>
                                             <TextValidator
                                                 required
-                                                label={t('password')}
+                                                label={t("password")}
                                                 value={state.password}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -430,21 +433,21 @@ export default function CustomerCreate() {
                                                 }}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaPassword')}
+                                                {t("youNeedaPassword")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
                                 </Grid>
                                 <Grid container item sm={4} spacing={0}>
                                     <Grid container item sm={1} spacing={0}>
-                                        <Tooltip title={t('addNewGroupName')}>
+                                        <Tooltip title={t("addNewGroupName")}>
                                             <AddBox
                                                 onClick={() => {
                                                     seTgropBoxOpen(true);
                                                 }}
                                                 fontSize="large"
                                                 style={{
-                                                    margin: '25px 10px 0 5px',
+                                                    margin: "25px 10px 0 5px",
                                                 }}
                                             />
                                         </Tooltip>
@@ -454,9 +457,9 @@ export default function CustomerCreate() {
                                             <InputLabel
                                                 htmlFor="group_id"
                                                 className="InputLabel"
-                                                style={{ margin: '5px' }}
+                                                style={{ margin: "5px" }}
                                             >
-                                                {' '}
+                                                {" "}
                                             </InputLabel>
                                             <FormControl>
                                                 <Select
@@ -466,20 +469,20 @@ export default function CustomerCreate() {
                                                             base
                                                         ) => ({
                                                             ...base,
-                                                            color: 'white',
+                                                            color: "white",
                                                         }),
                                                         control: (base) => ({
                                                             ...base,
-                                                            color: 'white',
-                                                            width: '100%',
+                                                            color: "white",
+                                                            width: "100%",
                                                             border: 0,
                                                             borderBottom:
-                                                                '1px solid #949494',
+                                                                "1px solid #949494",
                                                             borderRadius: 0,
                                                         }),
                                                     }}
                                                     placeholder={t(
-                                                        'selectGropName'
+                                                        "selectGropName"
                                                     )}
                                                     value={
                                                         state.selectedGroupItems
@@ -502,7 +505,7 @@ export default function CustomerCreate() {
                                     <FormGroup className="FormGroup">
                                         <FormControl>
                                             <TextValidator
-                                                label={t('taxNumber')}
+                                                label={t("taxNumber")}
                                                 value={state.taxnumber}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -511,13 +514,13 @@ export default function CustomerCreate() {
                                                             e.target.value,
                                                     });
                                                 }}
-                                                validators={['isNumber']}
+                                                validators={["isNumber"]}
                                                 errorMessages={[
-                                                    t('thisIsNotNumber'),
+                                                    t("thisIsNotNumber"),
                                                 ]}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaTaxnumber')}
+                                                {t("youNeedaTaxnumber")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -529,7 +532,7 @@ export default function CustomerCreate() {
                                                 htmlFor="taxoffice"
                                                 className="InputLabel"
                                             >
-                                                {t('taxOffice')}
+                                                {t("taxOffice")}
                                             </InputLabel>
                                             <Input
                                                 id="taxoffice"
@@ -543,7 +546,7 @@ export default function CustomerCreate() {
                                                 }}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaTaxOfficeName')}
+                                                {t("youNeedaTaxOfficeName")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -552,7 +555,7 @@ export default function CustomerCreate() {
                                     <FormGroup className="FormGroup">
                                         <FormControl>
                                             <TextValidator
-                                                label={t('SSN')}
+                                                label={t("SSN")}
                                                 value={state.ssn}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -560,13 +563,13 @@ export default function CustomerCreate() {
                                                         ssn: e.target.value,
                                                     });
                                                 }}
-                                                validators={['isNumber']}
+                                                validators={["isNumber"]}
                                                 errorMessages={[
-                                                    t('thisIsNotNumber'),
+                                                    t("thisIsNotNumber"),
                                                 ]}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaSSN')}
+                                                {t("youNeedaSSN")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -578,7 +581,7 @@ export default function CustomerCreate() {
                                                 htmlFor="executive"
                                                 className="InputLabel"
                                             >
-                                                {t('executive')}
+                                                {t("executive")}
                                             </InputLabel>
                                             <Input
                                                 id="executive"
@@ -592,7 +595,7 @@ export default function CustomerCreate() {
                                                 }}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaExecutiveName')}
+                                                {t("youNeedaExecutiveName")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -602,7 +605,7 @@ export default function CustomerCreate() {
                                         <FormControl>
                                             <TextValidator
                                                 required
-                                                label={t('phone')}
+                                                label={t("phone")}
                                                 value={state.phone}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -610,13 +613,13 @@ export default function CustomerCreate() {
                                                         phone: e.target.value,
                                                     });
                                                 }}
-                                                validators={['isNumber']}
+                                                validators={["isNumber"]}
                                                 errorMessages={[
-                                                    t('thisIsNotNumber'),
+                                                    t("thisIsNotNumber"),
                                                 ]}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaPhone')}
+                                                {t("youNeedaPhone")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -625,7 +628,7 @@ export default function CustomerCreate() {
                                     <FormGroup className="FormGroup">
                                         <FormControl>
                                             <TextValidator
-                                                label={t('fax')}
+                                                label={t("fax")}
                                                 value={state.fax}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -633,13 +636,13 @@ export default function CustomerCreate() {
                                                         fax: e.target.value,
                                                     });
                                                 }}
-                                                validators={['isNumber']}
+                                                validators={["isNumber"]}
                                                 errorMessages={[
-                                                    t('thisIsNotNumber'),
+                                                    t("thisIsNotNumber"),
                                                 ]}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaFax')}
+                                                {t("youNeedaFax")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -651,7 +654,7 @@ export default function CustomerCreate() {
                                                 htmlFor="web"
                                                 className="InputLabel"
                                             >
-                                                {t('webSite')}
+                                                {t("webSite")}
                                             </InputLabel>
                                             <Input
                                                 id="web"
@@ -664,7 +667,7 @@ export default function CustomerCreate() {
                                                 }}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaWebSiteUrl')}
+                                                {t("youNeedaWebSiteUrl")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -674,15 +677,15 @@ export default function CustomerCreate() {
                                         <InputLabel
                                             htmlFor="group_id"
                                             className="InputLabel"
-                                            style={{ margin: '5px' }}
+                                            style={{ margin: "5px" }}
                                         >
-                                            {' '}
+                                            {" "}
                                         </InputLabel>
 
                                         <FormControl>
                                             <Select
                                                 label={t(
-                                                    'defaultPaymentMethod'
+                                                    "defaultPaymentMethod"
                                                 )}
                                                 value={
                                                     state.default_payment_method
@@ -690,11 +693,11 @@ export default function CustomerCreate() {
                                                 styles={{
                                                     control: (base) => ({
                                                         ...base,
-                                                        color: 'white',
-                                                        width: '100%',
+                                                        color: "white",
+                                                        width: "100%",
                                                         border: 0,
                                                         borderBottom:
-                                                            '1px solid #949494',
+                                                            "1px solid #949494",
                                                         borderRadius: 0,
                                                     }),
                                                 }}
@@ -708,7 +711,7 @@ export default function CustomerCreate() {
                                             />
                                             <FormHelperText>
                                                 {t(
-                                                    'youNeedaDefaultPaymentMethod'
+                                                    "youNeedaDefaultPaymentMethod"
                                                 )}
                                             </FormHelperText>
                                         </FormControl>
@@ -717,13 +720,13 @@ export default function CustomerCreate() {
                                 <Grid container item sm={12}>
                                     <FormGroup
                                         className="FormGroup"
-                                        style={{ margin: '50px' }}
+                                        style={{ margin: "50px" }}
                                     >
                                         <InputLabel
                                             htmlFor="risk"
                                             className="InputLabel"
                                         >
-                                            {t('riskSource')}
+                                            {t("riskSource")}
                                         </InputLabel>
                                         <FormControl>
                                             <Slider
@@ -743,7 +746,7 @@ export default function CustomerCreate() {
                                                 max={100}
                                             />
                                             <FormHelperText>
-                                                {t('pleaseSelectRiskSource')}
+                                                {t("pleaseSelectRiskSource")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -754,9 +757,9 @@ export default function CustomerCreate() {
                             <Button type="submit" className="glow-on-hover">
                                 <Save
                                     fontSize="small"
-                                    style={{ marginRight: '15px' }}
-                                />{' '}
-                                {t('save')}
+                                    style={{ marginRight: "15px" }}
+                                />{" "}
+                                {t("save")}
                             </Button>
                         </div>
                     </Grid>
@@ -766,7 +769,7 @@ export default function CustomerCreate() {
                         </Card>
                         <Card
                             className="listViewPaper"
-                            style={{ marginBottom: '0' }}
+                            style={{ marginBottom: "0" }}
                         >
                             <Typography
                                 component="h5"
@@ -775,7 +778,7 @@ export default function CustomerCreate() {
                                 noWrap
                                 className="typography"
                             >
-                                {t('addresses')}
+                                {t("addresses")}
                             </Typography>
                             <Grid
                                 item
@@ -788,7 +791,7 @@ export default function CustomerCreate() {
                                     className="addressFormControll"
                                 >
                                     <FormLabel component="legend">
-                                        {t('defaultAddress')}
+                                        {t("defaultAddress")}
                                     </FormLabel>
                                     <FormGroup>
                                         <TextField
@@ -796,13 +799,13 @@ export default function CustomerCreate() {
                                                 shrink: true,
                                             }}
                                             id="outlined-textarea"
-                                            label={t('address')}
+                                            label={t("address")}
                                             multiline
                                             margin="normal"
                                             variant="outlined"
                                             style={{
-                                                width: '100%',
-                                                float: 'left',
+                                                width: "100%",
+                                                float: "left",
                                             }}
                                             value={state.selected1Address}
                                             onChange={(e) => {
@@ -814,16 +817,16 @@ export default function CustomerCreate() {
                                             }}
                                         />
                                         <FormHelperText>
-                                            {t('youNeedaAddress')}
+                                            {t("youNeedaAddress")}
                                         </FormHelperText>
                                         <FormGroup className="FormGroupAddress">
                                             <FormControl>
                                                 <label className="selectLabel">
-                                                    {t('country')}
+                                                    {t("country")}
                                                 </label>
                                                 <Select
                                                     placeholder={t(
-                                                        'selectCountry'
+                                                        "selectCountry"
                                                     )}
                                                     value={
                                                         state.selectedDefaultCountry
@@ -834,18 +837,18 @@ export default function CustomerCreate() {
                                                     }
                                                 />
                                                 <FormHelperText>
-                                                    {t('youNeedaCauntryName')}
+                                                    {t("youNeedaCauntryName")}
                                                 </FormHelperText>
                                             </FormControl>
                                         </FormGroup>
                                         <FormGroup className="FormGroupAddress">
                                             <FormControl>
                                                 <label className="selectLabel">
-                                                    {t('state')}
+                                                    {t("state")}
                                                 </label>
                                                 <Select
                                                     placeholder={t(
-                                                        'selectState'
+                                                        "selectState"
                                                     )}
                                                     value={
                                                         state.selectedDefaultState
@@ -863,14 +866,14 @@ export default function CustomerCreate() {
                                                     }}
                                                 />
                                                 <FormHelperText>
-                                                    {t('youNeedaStateName')}
+                                                    {t("youNeedaStateName")}
                                                 </FormHelperText>
                                             </FormControl>
                                         </FormGroup>
                                         <FormGroup className="FormGroupAddress">
                                             <FormControl>
                                                 <TextValidator
-                                                    label={t('zipcode')}
+                                                    label={t("zipcode")}
                                                     InputLabelProps={{
                                                         shrink: true,
                                                     }}
@@ -886,20 +889,20 @@ export default function CustomerCreate() {
                                                                 e.target.value,
                                                         });
                                                     }}
-                                                    validators={['isNumber']}
+                                                    validators={["isNumber"]}
                                                     errorMessages={[
-                                                        t('thisIsNotNumber'),
+                                                        t("thisIsNotNumber"),
                                                     ]}
                                                 />
                                                 <FormHelperText>
-                                                    {t('youNeedaZipcode')}
+                                                    {t("youNeedaZipcode")}
                                                 </FormHelperText>
                                             </FormControl>
                                         </FormGroup>
                                         <FormGroup className="FormGroupAddress">
                                             <FormControl>
                                                 <TextField
-                                                    label={t('town')}
+                                                    label={t("town")}
                                                     id="town"
                                                     margin="dense"
                                                     variant="outlined"
@@ -916,7 +919,7 @@ export default function CustomerCreate() {
                                                     }}
                                                 />
                                                 <FormHelperText>
-                                                    {t('youNeedaTownName')}
+                                                    {t("youNeedaTownName")}
                                                 </FormHelperText>
                                             </FormControl>
                                         </FormGroup>
@@ -924,10 +927,10 @@ export default function CustomerCreate() {
                                 </FormControl>
                             </Grid>
                         </Card>
-                        <Grid item container sm={12} style={{ float: 'left' }}>
+                        <Grid item container sm={12} style={{ float: "left" }}>
                             <div className="copyAddressPlace">
                                 <Tooltip
-                                    title={t('copyDefaultAdress')}
+                                    title={t("copyDefaultAdress")}
                                     placement="left"
                                 >
                                     <FileCopy
@@ -935,25 +938,25 @@ export default function CustomerCreate() {
                                             onCopyDefaultAdressTObillingAdress
                                         }
                                         fontSize="large"
-                                        style={{ marginBottom: '-5px' }}
+                                        style={{ marginBottom: "-5px" }}
                                     />
                                 </Tooltip>
                             </div>
-                            <ExpansionPanel style={{ width: '100%' }}>
+                            <ExpansionPanel style={{ width: "100%" }}>
                                 <ExpansionPanelSummary
                                     expandIcon={<ExpandMore />}
                                 >
-                                    <Typography style={{ paddingLeft: '15px' }}>
-                                        {' '}
-                                        {t('billingAddress')}
+                                    <Typography style={{ paddingLeft: "15px" }}>
+                                        {" "}
+                                        {t("billingAddress")}
                                     </Typography>
                                 </ExpansionPanelSummary>
                                 <ExpansionPanelDetails
-                                    style={{ padding: '9px', width: '100%' }}
+                                    style={{ padding: "9px", width: "100%" }}
                                 >
                                     <FormControl
                                         component="fieldset"
-                                        style={{ width: '95%' }}
+                                        style={{ width: "95%" }}
                                     >
                                         <FormLabel component="legend" />
                                         <FormGroup>
@@ -962,13 +965,13 @@ export default function CustomerCreate() {
                                                     shrink: true,
                                                 }}
                                                 id="outlined-textarea"
-                                                label={t('address')}
+                                                label={t("address")}
                                                 multiline
                                                 margin="normal"
                                                 variant="outlined"
                                                 style={{
-                                                    width: '100%',
-                                                    float: 'left',
+                                                    width: "100%",
+                                                    float: "left",
                                                 }}
                                                 value={state.selected2Address}
                                                 onChange={(e) => {
@@ -980,16 +983,16 @@ export default function CustomerCreate() {
                                                 }}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaBillingAddress')}
+                                                {t("youNeedaBillingAddress")}
                                             </FormHelperText>
                                             <FormGroup className="FormGroupAddress">
                                                 <FormControl>
                                                     <label className="selectLabel">
-                                                        {t('country')}
+                                                        {t("country")}
                                                     </label>
                                                     <Select
                                                         placeholder={t(
-                                                            'selectCountry'
+                                                            "selectCountry"
                                                         )}
                                                         value={
                                                             state.selectedbillingAddressCountry
@@ -1001,7 +1004,7 @@ export default function CustomerCreate() {
                                                     />
                                                     <FormHelperText>
                                                         {t(
-                                                            'youNeedaCountryName'
+                                                            "youNeedaCountryName"
                                                         )}
                                                     </FormHelperText>
                                                 </FormControl>
@@ -1009,11 +1012,11 @@ export default function CustomerCreate() {
                                             <FormGroup className="FormGroupAddress">
                                                 <FormControl>
                                                     <label className="selectLabel">
-                                                        {t('state')}
+                                                        {t("state")}
                                                     </label>
                                                     <Select
                                                         placeholder={t(
-                                                            'selectState'
+                                                            "selectState"
                                                         )}
                                                         value={
                                                             state.selectedbillingAddressState
@@ -1031,14 +1034,14 @@ export default function CustomerCreate() {
                                                         }}
                                                     />
                                                     <FormHelperText>
-                                                        {t('youNeedaStateName')}
+                                                        {t("youNeedaStateName")}
                                                     </FormHelperText>
                                                 </FormControl>
                                             </FormGroup>
                                             <FormGroup className="FormGroupAddress">
                                                 <FormControl>
                                                     <TextValidator
-                                                        label={t('zipcode')}
+                                                        label={t("zipcode")}
                                                         InputLabelProps={{
                                                             shrink: true,
                                                         }}
@@ -1056,16 +1059,16 @@ export default function CustomerCreate() {
                                                             });
                                                         }}
                                                         validators={[
-                                                            'isNumber',
+                                                            "isNumber",
                                                         ]}
                                                         errorMessages={[
                                                             t(
-                                                                'thisIsNotNumber'
+                                                                "thisIsNotNumber"
                                                             ),
                                                         ]}
                                                     />
                                                     <FormHelperText>
-                                                        {t('youNeedaZipcode')}
+                                                        {t("youNeedaZipcode")}
                                                     </FormHelperText>
                                                 </FormControl>
                                             </FormGroup>
@@ -1077,7 +1080,7 @@ export default function CustomerCreate() {
                                                         InputLabelProps={{
                                                             shrink: true,
                                                         }}
-                                                        label={t('town')}
+                                                        label={t("town")}
                                                         id="town"
                                                         value={
                                                             state.selected2Town
@@ -1092,7 +1095,7 @@ export default function CustomerCreate() {
                                                         }}
                                                     />
                                                     <FormHelperText>
-                                                        {t('youNeedaTownName')}
+                                                        {t("youNeedaTownName")}
                                                     </FormHelperText>
                                                 </FormControl>
                                             </FormGroup>
@@ -1101,10 +1104,10 @@ export default function CustomerCreate() {
                                 </ExpansionPanelDetails>
                             </ExpansionPanel>
                         </Grid>
-                        <Grid item container sm={12} style={{ float: 'left' }}>
+                        <Grid item container sm={12} style={{ float: "left" }}>
                             <div className="copyAddressPlace">
                                 <Tooltip
-                                    title={t('copyBillingAdress')}
+                                    title={t("copyBillingAdress")}
                                     placement="left"
                                 >
                                     <FileCopy
@@ -1112,24 +1115,24 @@ export default function CustomerCreate() {
                                             onCopyBillingAdressTOshippingAdress
                                         }
                                         fontSize="large"
-                                        style={{ marginBottom: '-5px' }}
+                                        style={{ marginBottom: "-5px" }}
                                     />
                                 </Tooltip>
                             </div>
-                            <ExpansionPanel style={{ width: '100%' }}>
+                            <ExpansionPanel style={{ width: "100%" }}>
                                 <ExpansionPanelSummary
                                     expandIcon={<ExpandMore />}
                                 >
-                                    <Typography style={{ paddingLeft: '15px' }}>
-                                        {t('shippingAddress')}
+                                    <Typography style={{ paddingLeft: "15px" }}>
+                                        {t("shippingAddress")}
                                     </Typography>
                                 </ExpansionPanelSummary>
                                 <ExpansionPanelDetails
-                                    style={{ padding: '9px', width: '95%' }}
+                                    style={{ padding: "9px", width: "95%" }}
                                 >
                                     <FormControl
                                         component="fieldset"
-                                        style={{ width: '100%' }}
+                                        style={{ width: "100%" }}
                                     >
                                         <FormGroup>
                                             <TextField
@@ -1137,13 +1140,13 @@ export default function CustomerCreate() {
                                                     shrink: true,
                                                 }}
                                                 id="outlined-textarea"
-                                                label={t('address')}
+                                                label={t("address")}
                                                 multiline
                                                 margin="normal"
                                                 variant="outlined"
                                                 style={{
-                                                    width: '100%',
-                                                    float: 'left',
+                                                    width: "100%",
+                                                    float: "left",
                                                 }}
                                                 value={state.selected3Address}
                                                 onChange={(e) => {
@@ -1155,16 +1158,16 @@ export default function CustomerCreate() {
                                                 }}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaShippingAddress')}
+                                                {t("youNeedaShippingAddress")}
                                             </FormHelperText>
                                             <FormGroup className="FormGroupAddress">
                                                 <FormControl>
                                                     <label className="selectLabel">
-                                                        {t('country')}
+                                                        {t("country")}
                                                     </label>
                                                     <Select
                                                         placeholder={t(
-                                                            'selectCountry'
+                                                            "selectCountry"
                                                         )}
                                                         value={
                                                             state.selectedshippingAddressCountry2
@@ -1176,7 +1179,7 @@ export default function CustomerCreate() {
                                                     />
                                                     <FormHelperText>
                                                         {t(
-                                                            'youNeedaCauntryName'
+                                                            "youNeedaCauntryName"
                                                         )}
                                                     </FormHelperText>
                                                 </FormControl>
@@ -1184,14 +1187,14 @@ export default function CustomerCreate() {
                                             <FormGroup className="FormGroupAddress">
                                                 <FormControl>
                                                     <label className="selectLabel">
-                                                        {t('state')}
+                                                        {t("state")}
                                                     </label>
                                                     <Select
                                                         placeholder={t(
-                                                            'selectState'
+                                                            "selectState"
                                                         )}
                                                         style={{
-                                                            width: '100%',
+                                                            width: "100%",
                                                         }}
                                                         value={
                                                             state.selectedshippingAddressState2
@@ -1209,14 +1212,14 @@ export default function CustomerCreate() {
                                                         }}
                                                     />
                                                     <FormHelperText>
-                                                        {t('youNeedaStateName')}
+                                                        {t("youNeedaStateName")}
                                                     </FormHelperText>
                                                 </FormControl>
                                             </FormGroup>
                                             <FormGroup className="FormGroupAddress">
                                                 <FormControl>
                                                     <TextValidator
-                                                        label={t('zipcode')}
+                                                        label={t("zipcode")}
                                                         margin="dense"
                                                         variant="outlined"
                                                         InputLabelProps={{
@@ -1234,16 +1237,16 @@ export default function CustomerCreate() {
                                                             });
                                                         }}
                                                         validators={[
-                                                            'isNumber',
+                                                            "isNumber",
                                                         ]}
                                                         errorMessages={[
                                                             t(
-                                                                'thisIsNotNumber'
+                                                                "thisIsNotNumber"
                                                             ),
                                                         ]}
                                                     />
                                                     <FormHelperText>
-                                                        {t('youNeedaZipcode')}
+                                                        {t("youNeedaZipcode")}
                                                     </FormHelperText>
                                                 </FormControl>
                                             </FormGroup>
@@ -1251,7 +1254,7 @@ export default function CustomerCreate() {
                                                 <FormControl>
                                                     <TextField
                                                         id="town"
-                                                        label={t('town')}
+                                                        label={t("town")}
                                                         margin="dense"
                                                         variant="outlined"
                                                         InputLabelProps={{
@@ -1270,7 +1273,7 @@ export default function CustomerCreate() {
                                                         }}
                                                     />
                                                     <FormHelperText>
-                                                        {t('youNeedaTownName')}
+                                                        {t("youNeedaTownName")}
                                                     </FormHelperText>
                                                 </FormControl>
                                             </FormGroup>
@@ -1290,14 +1293,14 @@ export default function CustomerCreate() {
                     seTgropBoxOpen(false);
                 }}
             >
-                <DialogTitle>{t('addNewCustomerGroupName')}</DialogTitle>
+                <DialogTitle>{t("addNewCustomerGroupName")}</DialogTitle>
                 <DialogContent>
                     <FormControl
                         className="FormControl"
-                        style={{ width: '100%' }}
+                        style={{ width: "100%" }}
                     >
                         <InputLabel htmlFor="group">
-                            {t('addGroupName')}
+                            {t("addGroupName")}
                         </InputLabel>
                         <Input
                             id="group"
@@ -1305,7 +1308,7 @@ export default function CustomerCreate() {
                                 seTchangeNewGroupNameJust(e.target.value);
                             }}
                         />
-                        <FormHelperText>{t('addNewGroupName')}</FormHelperText>
+                        <FormHelperText>{t("addNewGroupName")}</FormHelperText>
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
@@ -1315,12 +1318,12 @@ export default function CustomerCreate() {
                         }}
                         color="primary"
                     >
-                        {' '}
-                        {t('cancel')}{' '}
+                        {" "}
+                        {t("cancel")}{" "}
                     </Button>
                     <Button onClick={saveHandleNewGroup} color="primary">
-                        {' '}
-                        {t('save')}{' '}
+                        {" "}
+                        {t("save")}{" "}
                     </Button>
                 </DialogActions>
             </Dialog>

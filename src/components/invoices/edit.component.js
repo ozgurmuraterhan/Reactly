@@ -1,15 +1,15 @@
-import React, { forwardRef, useState, useEffect } from 'react';
-import axios from 'axios';
-import { useSnackbar } from 'notistack';
-import { useHistory } from 'react-router-dom';
-import Select from 'react-select';
-import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { useTranslation } from 'react-i18next';
+import React, { forwardRef, useState, useEffect } from "react";
+import axios from "axios";
+import { useSnackbar } from "notistack";
+import { useHistory } from "react-router-dom";
+import Select from "react-select";
+import { ValidatorForm, TextValidator } from "react-material-ui-form-validator";
+import { useTranslation } from "react-i18next";
 
-import Moment from 'moment';
+import Moment from "moment";
 
-import MaterialTable from 'material-table';
-import Select2 from '@material-ui/core/Select';
+import MaterialTable from "material-table";
+import Select2 from "@material-ui/core/Select";
 
 import {
     FormControl,
@@ -32,7 +32,7 @@ import {
     Table,
     MenuItem,
     Grid,
-} from '@material-ui/core';
+} from "@material-ui/core";
 
 import {
     AddBox,
@@ -54,15 +54,15 @@ import {
     ViewColumn,
     Receipt,
     Save,
-} from '@material-ui/icons';
+} from "@material-ui/icons";
 
 import {
     MuiPickersUtilsProvider,
     KeyboardDatePicker,
-} from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
+} from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
 
-import '../../assets/css/style.css';
+import "../../assets/css/style.css";
 
 export default function InvoiceEdit(props) {
     const [t] = useTranslation();
@@ -80,7 +80,7 @@ export default function InvoiceEdit(props) {
         selectedshippingAddressStateArray,
         seTselectedshippingAddressStateArray,
     ] = useState([]);
-    const [dataBankAccount, seTdataBankAccount] = useState('');
+    const [dataBankAccount, seTdataBankAccount] = useState("");
     const [paid, seTpaid] = useState(false);
     const [focus, seTfocus] = useState({
         focus1: true,
@@ -91,11 +91,11 @@ export default function InvoiceEdit(props) {
 
     const [selectedDefaultProduct, seTselectedDefaultProduct] = useState([]);
     const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState([]);
-    const [dataPayments, seTdataPayments] = useState('');
+    const [dataPayments, seTdataPayments] = useState("");
 
     const [product, seTproduct] = useState({
-        product_description: '',
-        product_name: '',
+        product_description: "",
+        product_name: "",
         sale_price: 0,
         product_vat: 0,
         product_discount: 0,
@@ -103,8 +103,8 @@ export default function InvoiceEdit(props) {
     });
 
     const [quantity, seTquantity] = useState(1);
-    const [unit, seTunit] = useState('');
-    const [quantity_name, seTquantity_name] = useState(t('Qty'));
+    const [unit, seTunit] = useState("");
+    const [quantity_name, seTquantity_name] = useState(t("Qty"));
     const [items, seTitems] = useState([]);
     const [anyAmount, seTanyAmount] = useState(0);
 
@@ -112,31 +112,31 @@ export default function InvoiceEdit(props) {
         total: 0,
         subtotal: 0,
         taxtotal: 0,
-        discountType: '%',
+        discountType: "%",
         discount: 0,
         discountValue: 0,
     });
 
     const [state, seTstate] = useState({
-        serie: 'A',
-        no: '',
+        serie: "A",
+        no: "",
         created: Date.now(),
-        bank_account: '',
-        due_note: '',
+        bank_account: "",
+        due_note: "",
         due_date: Date.now(),
         paid_date: Date.now(),
 
-        selectedbillingAddressState: [{ label: '', value: '' }],
-        selectedbillingAddressCountry: [{ label: '', value: '' }],
-        selectedshippingAddressState: [{ label: '', value: '' }],
-        selectedshippingAddressCountry: [{ label: '', value: '' }],
-        selected2Address: '',
-        selected2Town: '',
-        selected2Zipcode: '',
-        selected3Address: '',
-        selected3Town: '',
-        selected3Zipcode: '',
-        default_payment_method: '',
+        selectedbillingAddressState: [{ label: "", value: "" }],
+        selectedbillingAddressCountry: [{ label: "", value: "" }],
+        selectedshippingAddressState: [{ label: "", value: "" }],
+        selectedshippingAddressCountry: [{ label: "", value: "" }],
+        selected2Address: "",
+        selected2Town: "",
+        selected2Zipcode: "",
+        selected3Address: "",
+        selected3Town: "",
+        selected3Zipcode: "",
+        default_payment_method: "",
     });
 
     const [edit1Address, seTedit1Address] = useState(true);
@@ -144,8 +144,8 @@ export default function InvoiceEdit(props) {
 
     const columns = [
         {
-            title: t('productName'),
-            field: 'product_name',
+            title: t("productName"),
+            field: "product_name",
             editComponent: (props) => (
                 <TextValidator
                     multiline
@@ -160,8 +160,8 @@ export default function InvoiceEdit(props) {
             ),
         },
         {
-            title: t('productDescription'),
-            field: 'product_description',
+            title: t("productDescription"),
+            field: "product_description",
             editComponent: (props) => (
                 <TextValidator
                     multiline
@@ -174,9 +174,9 @@ export default function InvoiceEdit(props) {
             ),
         },
         {
-            title: t('quantity'),
-            field: 'quantity',
-            type: 'numeric',
+            title: t("quantity"),
+            field: "quantity",
+            type: "numeric",
             render: (rowData) => (
                 <div>
                     {`${rowData.quantity} ${rowData.quantity_name} ${rowData.unit}`}
@@ -206,15 +206,15 @@ export default function InvoiceEdit(props) {
                             focus4: false,
                         });
                     }}
-                    validators={['isNumber']}
-                    errorMessages={[t('thisIsNotNumber')]}
+                    validators={["isNumber"]}
+                    errorMessages={[t("thisIsNotNumber")]}
                 />
             ),
         },
         {
-            title: t('salePrice'),
-            field: 'price',
-            type: 'numeric',
+            title: t("salePrice"),
+            field: "price",
+            type: "numeric",
             editComponent: (props) => (
                 <TextValidator
                     margin="dense"
@@ -239,15 +239,15 @@ export default function InvoiceEdit(props) {
                             focus4: false,
                         });
                     }}
-                    validators={['isNumber']}
-                    errorMessages={[t('thisIsNotNumber')]}
+                    validators={["isNumber"]}
+                    errorMessages={[t("thisIsNotNumber")]}
                 />
             ),
         },
         {
-            title: t('Discount'),
-            field: 'discount',
-            type: 'numeric',
+            title: t("Discount"),
+            field: "discount",
+            type: "numeric",
             render: (rowData) => <div>{`${rowData.discount} %`}</div>,
             editComponent: (props) => (
                 <TextValidator
@@ -274,15 +274,15 @@ export default function InvoiceEdit(props) {
                             focus4: false,
                         });
                     }}
-                    validators={['isNumber']}
-                    errorMessages={[t('thisIsNotNumber')]}
+                    validators={["isNumber"]}
+                    errorMessages={[t("thisIsNotNumber")]}
                 />
             ),
         },
         {
-            title: t('productVat'),
-            field: 'tax',
-            type: 'numeric',
+            title: t("productVat"),
+            field: "tax",
+            type: "numeric",
             render: (rowData) => <div>{`${rowData.tax} %`}</div>,
             editComponent: (props) => (
                 <TextValidator
@@ -309,15 +309,15 @@ export default function InvoiceEdit(props) {
                             focus4: true,
                         });
                     }}
-                    validators={['isNumber']}
-                    errorMessages={[t('thisIsNotNumber')]}
+                    validators={["isNumber"]}
+                    errorMessages={[t("thisIsNotNumber")]}
                 />
             ),
         },
         {
-            title: t('amount'),
-            field: 'amount',
-            type: 'numeric',
+            title: t("amount"),
+            field: "amount",
+            type: "numeric",
             editComponent: (props) => (
                 <TextValidator
                     margin="dense"
@@ -325,8 +325,8 @@ export default function InvoiceEdit(props) {
                     disabled
                     value={anyAmount ? anyAmount.toFixed(0) : props.value}
                     onChange={(e) => props.onChange(e.target.value)}
-                    validators={['isNumber']}
-                    errorMessages={[t('thisIsNotNumber')]}
+                    validators={["isNumber"]}
+                    errorMessages={[t("thisIsNotNumber")]}
                 />
             ),
         },
@@ -370,7 +370,7 @@ export default function InvoiceEdit(props) {
 
     function getCustomersF() {
         axios
-            .get('/customers')
+            .get("/customers")
             .then((response) => {
                 if (response.data.length > 0) {
                     const details = [];
@@ -394,21 +394,21 @@ export default function InvoiceEdit(props) {
                     ...state,
                     selectedbillingAddressState: [
                         {
-                            label: response.data.billingAddress_state_id || '',
-                            value: response.data.billingAddress_state_id || '',
+                            label: response.data.billingAddress_state_id || "",
+                            value: response.data.billingAddress_state_id || "",
                         },
                     ],
                     selectedbillingAddressCountry: [
                         {
                             label:
-                                response.data.billingAddress_country_id || '',
+                                response.data.billingAddress_country_id || "",
                             value:
-                                response.data.billingAddress_country_id || '',
+                                response.data.billingAddress_country_id || "",
                         },
                     ],
                     selected2Address:
-                        response.data.billingAddress_address || '',
-                    selected2Town: response.data.billingAddress_town || '',
+                        response.data.billingAddress_address || "",
+                    selected2Town: response.data.billingAddress_town || "",
                     selected2Zipcode: response.data.billingAddress_zipcode || 0,
                     selectedshippingAddressState: [
                         {
@@ -423,8 +423,8 @@ export default function InvoiceEdit(props) {
                         },
                     ],
                     selected3Address:
-                        response.data.shippingAddress_address || '',
-                    selected3Town: response.data.shippingAddress_town || '',
+                        response.data.shippingAddress_address || "",
+                    selected3Town: response.data.shippingAddress_town || "",
                     selected3Zipcode:
                         response.data.shippingAddress_zipcode || 0,
                     default_payment_method:
@@ -442,7 +442,7 @@ export default function InvoiceEdit(props) {
     };
 
     const handleChangeDiscountType = (selectedOption) => {
-        if (selectedOption.target.value === '%') {
+        if (selectedOption.target.value === "%") {
             seTtotalAll({
                 ...totalAll,
                 discountValue:
@@ -517,7 +517,7 @@ export default function InvoiceEdit(props) {
 
     function getPaymentsF() {
         axios
-            .get('/payments')
+            .get("/payments")
             .then((response) => {
                 if (response.data.length > 0) {
                     const details = [];
@@ -535,7 +535,7 @@ export default function InvoiceEdit(props) {
 
     function getBankAccountF() {
         axios
-            .get('/bankaccounts')
+            .get("/bankaccounts")
             .then((response) => {
                 if (response.data.length > 0) {
                     const details = [];
@@ -578,7 +578,7 @@ export default function InvoiceEdit(props) {
 
     function getProductsF() {
         axios
-            .get('/products')
+            .get("/products")
             .then((response) => {
                 if (response.data.length > 0) {
                     const details = [];
@@ -634,7 +634,7 @@ export default function InvoiceEdit(props) {
     const onChangeFdiscount = (e) => {
         totalCebirItems();
 
-        if (totalAll.discountType === '%') {
+        if (totalAll.discountType === "%") {
             seTtotalAll({
                 ...totalAll,
                 discountValue:
@@ -708,7 +708,7 @@ export default function InvoiceEdit(props) {
 
         seTitems(items2);
 
-        if (totalAll.discountType === '%') {
+        if (totalAll.discountType === "%") {
             seTtotalAll({
                 ...totalAll,
                 taxtotal: taxtotal2,
@@ -738,7 +738,7 @@ export default function InvoiceEdit(props) {
 
     function getCountryF() {
         axios
-            .get('/country')
+            .get("/country")
             .then((response) => {
                 if (response.data.length > 0) {
                     const details = [];
@@ -943,20 +943,19 @@ export default function InvoiceEdit(props) {
             shippingAddress_address: state.selected3Address,
         };
 
-        console.log(Invoices);
         axios
             .post(`/invoices/${props.match.params.id}`, Invoices)
             .then((res) => {
-                if (res.data.variant === 'error') {
-                    enqueueSnackbar(t('invoiceNotAdded') + res.data.messagge, {
+                if (res.data.variant === "error") {
+                    enqueueSnackbar(t("invoiceNotAdded") + res.data.messagge, {
                         variant: res.data.variant,
                     });
                 } else {
-                    enqueueSnackbar(t('invoiceAdded') + res.data.messagge, {
+                    enqueueSnackbar(t("invoiceAdded") + res.data.messagge, {
                         variant: res.data.variant,
                     });
                     // navigate
-                    history.push('/invoiceslist');
+                    history.push("/invoiceslist");
                 }
             })
             .catch((err) => console.log(err));
@@ -978,10 +977,10 @@ export default function InvoiceEdit(props) {
                                 noWrap
                                 className="typography"
                             >
-                                {t('invoiceCreate')}
+                                {t("invoiceCreate")}
                             </Typography>
                             <FormControlLabel
-                                style={{ float: 'right' }}
+                                style={{ float: "right" }}
                                 control={
                                     <Switch
                                         checked={paid}
@@ -991,7 +990,7 @@ export default function InvoiceEdit(props) {
                                         color="primary"
                                     />
                                 }
-                                label={t('paid')}
+                                label={t("paid")}
                             />
 
                             <Grid item container sm={12}>
@@ -999,19 +998,19 @@ export default function InvoiceEdit(props) {
                                     <FormGroup className="FormGroup">
                                         <FormControl>
                                             <label className="selectLabel">
-                                                {t('customer')}
+                                                {t("customer")}
                                             </label>
                                             <Select
                                                 required
                                                 placeholder={t(
-                                                    'selectCustomer'
+                                                    "selectCustomer"
                                                 )}
                                                 value={selectedDefaultCustomer}
                                                 options={dataCustomers}
                                                 onChange={handleChangeCustomer}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaCustomerName')}
+                                                {t("youNeedaCustomerName")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -1021,7 +1020,7 @@ export default function InvoiceEdit(props) {
                                         <FormControl>
                                             <TextValidator
                                                 required
-                                                label={t('serie')}
+                                                label={t("serie")}
                                                 variant="outlined"
                                                 margin="dense"
                                                 value={state.serie}
@@ -1033,7 +1032,7 @@ export default function InvoiceEdit(props) {
                                                 }}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaSerieName')}
+                                                {t("youNeedaSerieName")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -1043,7 +1042,7 @@ export default function InvoiceEdit(props) {
                                         <FormControl>
                                             <TextValidator
                                                 required
-                                                label={t('invoiceNumber')}
+                                                label={t("invoiceNumber")}
                                                 variant="outlined"
                                                 margin="dense"
                                                 value={state.no}
@@ -1053,13 +1052,13 @@ export default function InvoiceEdit(props) {
                                                         no: e.target.value,
                                                     });
                                                 }}
-                                                validators={['isNumber']}
+                                                validators={["isNumber"]}
                                                 errorMessages={[
-                                                    t('thisIsNotNumber'),
+                                                    t("thisIsNotNumber"),
                                                 ]}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaInvoiceNumber')}
+                                                {t("youNeedaInvoiceNumber")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -1074,7 +1073,7 @@ export default function InvoiceEdit(props) {
                                                     inputVariant="outlined"
                                                     margin="dense"
                                                     id="date-picker-dialog"
-                                                    label={t('createdDate')}
+                                                    label={t("createdDate")}
                                                     format="dd/MM/yyyy"
                                                     value={state.created}
                                                     onChange={(date) =>
@@ -1084,13 +1083,13 @@ export default function InvoiceEdit(props) {
                                                         })
                                                     }
                                                     KeyboardButtonProps={{
-                                                        'aria-label':
-                                                            'change date',
+                                                        "aria-label":
+                                                            "change date",
                                                     }}
                                                 />
                                             </MuiPickersUtilsProvider>
                                             <FormHelperText>
-                                                {t('youNeedaCreatedDate')}
+                                                {t("youNeedaCreatedDate")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -1101,13 +1100,13 @@ export default function InvoiceEdit(props) {
                                     item
                                     sm={6}
                                     spacing={0}
-                                    style={{ display: paid ? 'none' : 'flex' }}
+                                    style={{ display: paid ? "none" : "flex" }}
                                 >
                                     <FormGroup className="FormGroup">
                                         <FormControl>
                                             <TextValidator
                                                 multiline
-                                                label={t('duenote')}
+                                                label={t("duenote")}
                                                 variant="outlined"
                                                 margin="dense"
                                                 value={state.due_note}
@@ -1120,7 +1119,7 @@ export default function InvoiceEdit(props) {
                                                 }}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaDueNote')}
+                                                {t("youNeedaDueNote")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -1130,16 +1129,16 @@ export default function InvoiceEdit(props) {
                                     item
                                     sm={3}
                                     spacing={0}
-                                    style={{ display: paid ? 'none' : 'flex' }}
+                                    style={{ display: paid ? "none" : "flex" }}
                                 >
                                     <FormGroup className="FormGroup">
                                         <FormControl>
                                             <label className="selectLabel">
-                                                {t('defaultPaymentMethod')}
+                                                {t("defaultPaymentMethod")}
                                             </label>
                                             <Select
                                                 placeholder={t(
-                                                    'defaultPaymentMethod'
+                                                    "defaultPaymentMethod"
                                                 )}
                                                 value={
                                                     state.default_payment_method
@@ -1154,7 +1153,7 @@ export default function InvoiceEdit(props) {
                                             />
                                             <FormHelperText>
                                                 {t(
-                                                    'youNeedaDefaultPaymentMethod'
+                                                    "youNeedaDefaultPaymentMethod"
                                                 )}
                                             </FormHelperText>
                                         </FormControl>
@@ -1165,7 +1164,7 @@ export default function InvoiceEdit(props) {
                                     item
                                     sm={3}
                                     spacing={0}
-                                    style={{ display: paid ? 'none' : 'flex' }}
+                                    style={{ display: paid ? "none" : "flex" }}
                                 >
                                     <FormGroup className="FormGroup">
                                         <FormControl>
@@ -1176,7 +1175,7 @@ export default function InvoiceEdit(props) {
                                                     inputVariant="outlined"
                                                     margin="dense"
                                                     id="date-picker-dialog"
-                                                    label={t('dueDate')}
+                                                    label={t("dueDate")}
                                                     format="dd/MM/yyyy"
                                                     value={state.due_date}
                                                     onChange={(date) => {
@@ -1186,13 +1185,13 @@ export default function InvoiceEdit(props) {
                                                         });
                                                     }}
                                                     KeyboardButtonProps={{
-                                                        'aria-label':
-                                                            'change date',
+                                                        "aria-label":
+                                                            "change date",
                                                     }}
                                                 />
                                             </MuiPickersUtilsProvider>
                                             <FormHelperText>
-                                                {t('youNeedaDueDate')}
+                                                {t("youNeedaDueDate")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -1202,21 +1201,21 @@ export default function InvoiceEdit(props) {
                                     item
                                     sm={6}
                                     spacing={0}
-                                    style={{ display: paid ? 'flex' : 'none' }}
+                                    style={{ display: paid ? "flex" : "none" }}
                                 >
                                     <FormGroup className="FormGroup">
                                         <FormControl>
                                             <label className="selectLabel">
-                                                {t('selectBankAccount')}
+                                                {t("selectBankAccount")}
                                             </label>
                                             <Select
                                                 placeholder={t(
-                                                    'selectBankAccount'
+                                                    "selectBankAccount"
                                                 )}
                                                 value={state.bank_account}
                                                 style={{
-                                                    width: '100%',
-                                                    marginTop: '-6px',
+                                                    width: "100%",
+                                                    marginTop: "-6px",
                                                 }}
                                                 options={dataBankAccount}
                                                 onChange={(selectedOption) => {
@@ -1227,7 +1226,7 @@ export default function InvoiceEdit(props) {
                                                 }}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaselectBankAccount')}
+                                                {t("youNeedaselectBankAccount")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -1237,7 +1236,7 @@ export default function InvoiceEdit(props) {
                                     item
                                     sm={6}
                                     spacing={0}
-                                    style={{ display: paid ? 'flex' : 'none' }}
+                                    style={{ display: paid ? "flex" : "none" }}
                                 >
                                     <FormGroup className="FormGroup">
                                         <FormControl>
@@ -1248,7 +1247,7 @@ export default function InvoiceEdit(props) {
                                                     inputVariant="outlined"
                                                     margin="dense"
                                                     id="date-picker-dialog"
-                                                    label={t('paidDate')}
+                                                    label={t("paidDate")}
                                                     format="dd/MM/yyyy"
                                                     value={state.paid_date}
                                                     onChange={(date) => {
@@ -1258,8 +1257,8 @@ export default function InvoiceEdit(props) {
                                                         });
                                                     }}
                                                     KeyboardButtonProps={{
-                                                        'aria-label':
-                                                            'change date',
+                                                        "aria-label":
+                                                            "change date",
                                                     }}
                                                     InputLabelProps={{
                                                         shrink: true,
@@ -1267,7 +1266,7 @@ export default function InvoiceEdit(props) {
                                                 />
                                             </MuiPickersUtilsProvider>
                                             <FormHelperText>
-                                                {t('youNeedaDueDate')}
+                                                {t("youNeedaDueDate")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -1278,8 +1277,8 @@ export default function InvoiceEdit(props) {
                                     sm={12}
                                     spacing={0}
                                     style={{
-                                        borderTop: '1px solid #ddd',
-                                        margin: '15px 0',
+                                        borderTop: "1px solid #ddd",
+                                        margin: "15px 0",
                                     }}
                                 >
                                     <Grid item container sm={3} spacing={0}>
@@ -1287,7 +1286,7 @@ export default function InvoiceEdit(props) {
                                             <FormControl>
                                                 <Select
                                                     placeholder={t(
-                                                        'addProduct'
+                                                        "addProduct"
                                                     )}
                                                     value={
                                                         selectedDefaultProduct
@@ -1299,18 +1298,18 @@ export default function InvoiceEdit(props) {
                                                     styles={{
                                                         control: (base) => ({
                                                             ...base,
-                                                            color: 'white',
-                                                            width: '100%',
+                                                            color: "white",
+                                                            width: "100%",
                                                             border: 0,
                                                             borderBottom:
-                                                                '1px solid #949494',
+                                                                "1px solid #949494",
                                                             borderRadius: 0,
-                                                            marginTop: '10px',
+                                                            marginTop: "10px",
                                                         }),
                                                     }}
                                                 />
                                                 <FormHelperText>
-                                                    {t('youNeedaProductName')}
+                                                    {t("youNeedaProductName")}
                                                 </FormHelperText>
                                             </FormControl>
                                         </FormGroup>
@@ -1329,12 +1328,12 @@ export default function InvoiceEdit(props) {
                                         >
                                             <label
                                                 style={{
-                                                    marginTop: '31px',
-                                                    marginRight: '10px',
+                                                    marginTop: "31px",
+                                                    marginRight: "10px",
                                                 }}
                                             >
-                                                {' '}
-                                                {t('showQuantityAs')} :{' '}
+                                                {" "}
+                                                {t("showQuantityAs")} :{" "}
                                             </label>
                                             <FormControlLabel
                                                 value="Qty"
@@ -1359,20 +1358,20 @@ export default function InvoiceEdit(props) {
                                         sm={12}
                                         spacing={0}
                                         style={{
-                                            borderTop: '1px solid #ddd',
-                                            marginBottom: '25px',
+                                            borderTop: "1px solid #ddd",
+                                            marginBottom: "25px",
                                         }}
                                     />
                                     <Grid container item sm={3} spacing={0}>
                                         <FormControl
                                             style={{
-                                                width: '90%',
-                                                paddingLeft: '25px',
+                                                width: "90%",
+                                                paddingLeft: "25px",
                                             }}
                                         >
                                             <TextValidator
                                                 multiline
-                                                label={t('productName')}
+                                                label={t("productName")}
                                                 value={product.product_name}
                                                 onChange={(e) => {
                                                     seTproduct({
@@ -1385,10 +1384,10 @@ export default function InvoiceEdit(props) {
                                         </FormControl>
                                     </Grid>
                                     <Grid container item sm={2} spacing={0}>
-                                        <FormControl style={{ width: '90%' }}>
+                                        <FormControl style={{ width: "90%" }}>
                                             <TextValidator
                                                 multiline
-                                                label={t('description')}
+                                                label={t("description")}
                                                 value={
                                                     product.product_description
                                                 }
@@ -1403,7 +1402,7 @@ export default function InvoiceEdit(props) {
                                         </FormControl>
                                     </Grid>
                                     <Grid container item sm={1} spacing={0}>
-                                        <FormControl style={{ width: '90%' }}>
+                                        <FormControl style={{ width: "90%" }}>
                                             <TextValidator
                                                 type="number"
                                                 label={t(quantity_name)}
@@ -1413,9 +1412,9 @@ export default function InvoiceEdit(props) {
                                         </FormControl>
                                     </Grid>
                                     <Grid container item sm={1} spacing={0}>
-                                        <FormControl style={{ width: '90%' }}>
+                                        <FormControl style={{ width: "90%" }}>
                                             <TextValidator
-                                                label={t('unit')}
+                                                label={t("unit")}
                                                 value={unit}
                                                 onChange={(e) => {
                                                     seTunit(e.target.value);
@@ -1425,25 +1424,25 @@ export default function InvoiceEdit(props) {
                                 }}*/
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaProductUnit')}
+                                                {t("youNeedaProductUnit")}
                                             </FormHelperText>
                                         </FormControl>
                                     </Grid>
                                     <Grid container item sm={1} spacing={0}>
-                                        <FormControl style={{ width: '90%' }}>
+                                        <FormControl style={{ width: "90%" }}>
                                             <TextValidator
                                                 type="number"
-                                                label={t('price')}
+                                                label={t("price")}
                                                 value={product.sale_price}
                                                 onChange={onChangeFprice}
                                             />
                                         </FormControl>
                                     </Grid>
                                     <Grid container item sm={1} spacing={0}>
-                                        <FormControl style={{ width: '90%' }}>
+                                        <FormControl style={{ width: "90%" }}>
                                             <TextValidator
                                                 type="number"
-                                                label={t('Discount')}
+                                                label={t("Discount")}
                                                 value={product.product_discount}
                                                 onChange={
                                                     onChangeFproduct_discount
@@ -1457,16 +1456,16 @@ export default function InvoiceEdit(props) {
                                                 }}
                                             />
                                             <FormHelperText>
-                                                {t('Before Tax')}
+                                                {t("Before Tax")}
                                             </FormHelperText>
                                         </FormControl>
                                     </Grid>
 
                                     <Grid container item sm={1} spacing={0}>
-                                        <FormControl style={{ width: '90%' }}>
+                                        <FormControl style={{ width: "90%" }}>
                                             <TextValidator
                                                 type="number"
-                                                label={t('tax')}
+                                                label={t("tax")}
                                                 value={product.product_vat}
                                                 onChange={onChangeFproduct_vat}
                                                 InputProps={{
@@ -1480,11 +1479,11 @@ export default function InvoiceEdit(props) {
                                         </FormControl>
                                     </Grid>
                                     <Grid container item sm={1} spacing={0}>
-                                        <FormControl style={{ width: '90%' }}>
+                                        <FormControl style={{ width: "90%" }}>
                                             <TextValidator
                                                 disabled
                                                 type="number"
-                                                label={t('amount')}
+                                                label={t("amount")}
                                                 value={product.amount}
                                             />
                                         </FormControl>
@@ -1497,7 +1496,7 @@ export default function InvoiceEdit(props) {
                                                 disabled={!product.amount}
                                             >
                                                 <Tooltip
-                                                    title={t('Add Product')}
+                                                    title={t("Add Product")}
                                                 >
                                                     <PlaylistAddCheck fontSize="large" />
                                                 </Tooltip>
@@ -1512,9 +1511,9 @@ export default function InvoiceEdit(props) {
                                         data={items}
                                         icons={tableIcons}
                                         style={{
-                                            width: '100%',
+                                            width: "100%",
                                             boxShadow:
-                                                '1px -2px 5px 0px #0000000f',
+                                                "1px -2px 5px 0px #0000000f",
                                         }}
                                         components={{
                                             Toolbar: (props) => <div />,
@@ -1563,7 +1562,7 @@ export default function InvoiceEdit(props) {
                                 <Grid container item sm={6} spacing={0} />
                                 <Grid container item sm={6} spacing={0}>
                                     <Table
-                                        style={{ marginTop: '20px' }}
+                                        style={{ marginTop: "20px" }}
                                         aria-label="spanning table"
                                     >
                                         <TableBody>
@@ -1589,23 +1588,23 @@ export default function InvoiceEdit(props) {
                                                     align="right"
                                                     className="textRight"
                                                 >
-                                                    {' '}
+                                                    {" "}
                                                     {totalAll.taxtotal.toFixed(
                                                         2
-                                                    )}{' '}
+                                                    )}{" "}
                                                 </TableCell>
                                             </TableRow>
                                             <TableRow>
                                                 <TableCell>
-                                                    Discount (After Tax){' '}
+                                                    Discount (After Tax){" "}
                                                 </TableCell>
                                                 <TableCell>
                                                     <TextValidator
                                                         margin="dense"
                                                         type="number"
                                                         style={{
-                                                            width: '100px',
-                                                            marginLeft: '70px',
+                                                            width: "100px",
+                                                            marginLeft: "70px",
                                                         }}
                                                         value={
                                                             totalAll.discount
@@ -1626,14 +1625,14 @@ export default function InvoiceEdit(props) {
                                                             handleChangeDiscountType
                                                         }
                                                         style={{
-                                                            marginTop: '5px',
+                                                            marginTop: "5px",
                                                         }}
                                                     >
                                                         <MenuItem value="%">
                                                             %
                                                         </MenuItem>
                                                         <MenuItem value="eksi">
-                                                            {t('fixedAmount')}
+                                                            {t("fixedAmount")}
                                                         </MenuItem>
                                                     </Select2>
                                                 </TableCell>
@@ -1641,7 +1640,7 @@ export default function InvoiceEdit(props) {
                                                     align="right"
                                                     className="textRight"
                                                 >
-                                                    {' '}
+                                                    {" "}
                                                     {Number(
                                                         totalAll.discountValue
                                                     ).toFixed(2)}
@@ -1649,13 +1648,13 @@ export default function InvoiceEdit(props) {
                                             </TableRow>
                                             <TableRow>
                                                 <TableCell colSpan={2}>
-                                                    {t('Total')}
+                                                    {t("Total")}
                                                 </TableCell>
                                                 <TableCell
                                                     align="right"
                                                     className="textRight"
                                                 >
-                                                    {' '}
+                                                    {" "}
                                                     {Number(
                                                         totalAll.total
                                                     ).toFixed(2)}
@@ -1670,9 +1669,9 @@ export default function InvoiceEdit(props) {
                             <Button type="submit" className="glow-on-hover">
                                 <Save
                                     fontSize="small"
-                                    style={{ marginRight: '15px' }}
+                                    style={{ marginRight: "15px" }}
                                 />
-                                {t('save')}
+                                {t("save")}
                             </Button>
                         </div>
                     </Grid>
@@ -1682,7 +1681,7 @@ export default function InvoiceEdit(props) {
                         </Card>
                         <Card
                             className="listViewPaper"
-                            style={{ marginBottom: '0' }}
+                            style={{ marginBottom: "0" }}
                         >
                             <Typography
                                 component="h5"
@@ -1691,7 +1690,7 @@ export default function InvoiceEdit(props) {
                                 noWrap
                                 className="typography"
                             >
-                                {t('addresses')}
+                                {t("addresses")}
                             </Typography>
                             <Grid
                                 item
@@ -1705,14 +1704,14 @@ export default function InvoiceEdit(props) {
                                 >
                                     <FormLabel
                                         component="legend"
-                                        style={{ width: '100%' }}
+                                        style={{ width: "100%" }}
                                     >
-                                        {t('billingAddress')}
+                                        {t("billingAddress")}
                                         <Button
                                             style={{
-                                                float: 'right',
-                                                padding: '5px',
-                                                minWidth: '0',
+                                                float: "right",
+                                                padding: "5px",
+                                                minWidth: "0",
                                             }}
                                             onClick={() => {
                                                 seTedit1Address(!edit1Address);
@@ -1723,28 +1722,28 @@ export default function InvoiceEdit(props) {
                                     </FormLabel>
                                     <div
                                         style={{
-                                            fontSize: '9pt',
-                                            marginTop: '15px',
+                                            fontSize: "9pt",
+                                            marginTop: "15px",
                                         }}
                                     >
                                         {state.selected2Address ||
-                                            ' ------------------------------------------------------------------------ '}
+                                            " ------------------------------------------------------------------------ "}
                                         {` ${state.selected2Zipcode} ` ||
-                                            ' ------------ '}
+                                            " ------------ "}
                                         {state.selected2Town ||
-                                            ' ------------ '}
+                                            " ------------ "}
                                         <br />
                                         {state.selectedbillingAddressState[0]
-                                            .label || ' ------------ '}{' '}
-                                        /{' '}
+                                            .label || " ------------ "}{" "}
+                                        /{" "}
                                         {state.selectedbillingAddressCountry[0]
-                                            .label || ' ------------ '}
+                                            .label || " ------------ "}
                                     </div>
                                     <div
                                         style={{
                                             display: edit1Address
-                                                ? 'none'
-                                                : 'flex',
+                                                ? "none"
+                                                : "flex",
                                         }}
                                     >
                                         <FormLabel component="legend" />
@@ -1754,13 +1753,13 @@ export default function InvoiceEdit(props) {
                                                     shrink: true,
                                                 }}
                                                 id="outlined-textarea"
-                                                label={t('address')}
+                                                label={t("address")}
                                                 multiline
                                                 margin="normal"
                                                 variant="outlined"
                                                 style={{
-                                                    width: '100%',
-                                                    float: 'left',
+                                                    width: "100%",
+                                                    float: "left",
                                                 }}
                                                 value={state.selected2Address}
                                                 onChange={(e) => {
@@ -1772,16 +1771,16 @@ export default function InvoiceEdit(props) {
                                                 }}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaBillingAddress')}
+                                                {t("youNeedaBillingAddress")}
                                             </FormHelperText>
                                             <FormGroup className="FormGroupAddress">
                                                 <FormControl>
                                                     <label className="selectLabel">
-                                                        {t('country')}
+                                                        {t("country")}
                                                     </label>
                                                     <Select
                                                         placeholder={t(
-                                                            'selectCountry'
+                                                            "selectCountry"
                                                         )}
                                                         value={
                                                             state.selectedbillingAddressCountry
@@ -1793,7 +1792,7 @@ export default function InvoiceEdit(props) {
                                                     />
                                                     <FormHelperText>
                                                         {t(
-                                                            'youNeedaCountryName'
+                                                            "youNeedaCountryName"
                                                         )}
                                                     </FormHelperText>
                                                 </FormControl>
@@ -1801,11 +1800,11 @@ export default function InvoiceEdit(props) {
                                             <FormGroup className="FormGroupAddress">
                                                 <FormControl>
                                                     <label className="selectLabel">
-                                                        {t('state')}
+                                                        {t("state")}
                                                     </label>
                                                     <Select
                                                         placeholder={t(
-                                                            'selectState'
+                                                            "selectState"
                                                         )}
                                                         value={
                                                             state.selectedbillingAddressState
@@ -1825,14 +1824,14 @@ export default function InvoiceEdit(props) {
                                                         }}
                                                     />
                                                     <FormHelperText>
-                                                        {t('youNeedaStateName')}
+                                                        {t("youNeedaStateName")}
                                                     </FormHelperText>
                                                 </FormControl>
                                             </FormGroup>
                                             <FormGroup className="FormGroupAddress">
                                                 <FormControl>
                                                     <TextValidator
-                                                        label={t('zipcode')}
+                                                        label={t("zipcode")}
                                                         InputLabelProps={{
                                                             shrink: true,
                                                         }}
@@ -1850,16 +1849,16 @@ export default function InvoiceEdit(props) {
                                                             });
                                                         }}
                                                         validators={[
-                                                            'isNumber',
+                                                            "isNumber",
                                                         ]}
                                                         errorMessages={[
                                                             t(
-                                                                'thisIsNotNumber'
+                                                                "thisIsNotNumber"
                                                             ),
                                                         ]}
                                                     />
                                                     <FormHelperText>
-                                                        {t('youNeedaZipcode')}
+                                                        {t("youNeedaZipcode")}
                                                     </FormHelperText>
                                                 </FormControl>
                                             </FormGroup>
@@ -1871,7 +1870,7 @@ export default function InvoiceEdit(props) {
                                                         InputLabelProps={{
                                                             shrink: true,
                                                         }}
-                                                        label={t('town')}
+                                                        label={t("town")}
                                                         id="town"
                                                         value={
                                                             state.selected2Town
@@ -1886,7 +1885,7 @@ export default function InvoiceEdit(props) {
                                                         }}
                                                     />
                                                     <FormHelperText>
-                                                        {t('youNeedaTownName')}
+                                                        {t("youNeedaTownName")}
                                                     </FormHelperText>
                                                 </FormControl>
                                             </FormGroup>
@@ -1895,18 +1894,18 @@ export default function InvoiceEdit(props) {
                                 </FormControl>
                                 <FormControl
                                     component="fieldset"
-                                    style={{ width: '100%', marginTop: '25px' }}
+                                    style={{ width: "100%", marginTop: "25px" }}
                                 >
                                     <FormLabel
                                         component="legend"
-                                        style={{ width: '100%' }}
+                                        style={{ width: "100%" }}
                                     >
-                                        {t('shippingAddress')}
+                                        {t("shippingAddress")}
                                         <Button
                                             style={{
-                                                float: 'right',
-                                                padding: '5px',
-                                                minWidth: '0',
+                                                float: "right",
+                                                padding: "5px",
+                                                minWidth: "0",
                                             }}
                                             onClick={() => {
                                                 seTedit2Address(!edit2Address);
@@ -1917,28 +1916,28 @@ export default function InvoiceEdit(props) {
                                     </FormLabel>
                                     <div
                                         style={{
-                                            fontSize: '9pt',
-                                            marginTop: '15px',
+                                            fontSize: "9pt",
+                                            marginTop: "15px",
                                         }}
                                     >
                                         {state.selected3Address ||
-                                            ' ------------------------------------------------------------------------ '}
+                                            " ------------------------------------------------------------------------ "}
                                         {` ${state.selected3Zipcode} ` ||
-                                            ' ------------ '}{' '}
+                                            " ------------ "}{" "}
                                         {state.selected3Town ||
-                                            ' ------------ '}
+                                            " ------------ "}
                                         <br />
                                         {state.selectedshippingAddressState[0]
-                                            .label || ' ------------ '}{' '}
-                                        /{' '}
+                                            .label || " ------------ "}{" "}
+                                        /{" "}
                                         {state.selectedshippingAddressCountry[0]
-                                            .label || ' ------------ '}
+                                            .label || " ------------ "}
                                     </div>
                                     <div
                                         style={{
                                             display: edit2Address
-                                                ? 'none'
-                                                : 'flex',
+                                                ? "none"
+                                                : "flex",
                                         }}
                                     >
                                         <FormGroup>
@@ -1947,13 +1946,13 @@ export default function InvoiceEdit(props) {
                                                     shrink: true,
                                                 }}
                                                 id="outlined-textarea"
-                                                label={t('address')}
+                                                label={t("address")}
                                                 multiline
                                                 margin="normal"
                                                 variant="outlined"
                                                 style={{
-                                                    width: '100%',
-                                                    float: 'left',
+                                                    width: "100%",
+                                                    float: "left",
                                                 }}
                                                 value={state.selected3Address}
                                                 onChange={(e) => {
@@ -1965,16 +1964,16 @@ export default function InvoiceEdit(props) {
                                                 }}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaShippingAddress')}
+                                                {t("youNeedaShippingAddress")}
                                             </FormHelperText>
                                             <FormGroup className="FormGroupAddress">
                                                 <FormControl>
                                                     <label className="selectLabel">
-                                                        {t('country')}
+                                                        {t("country")}
                                                     </label>
                                                     <Select
                                                         placeholder={t(
-                                                            'selectCountry'
+                                                            "selectCountry"
                                                         )}
                                                         value={
                                                             state.selectedshippingAddressCountry
@@ -1986,7 +1985,7 @@ export default function InvoiceEdit(props) {
                                                     />
                                                     <FormHelperText>
                                                         {t(
-                                                            'youNeedaCauntryName'
+                                                            "youNeedaCauntryName"
                                                         )}
                                                     </FormHelperText>
                                                 </FormControl>
@@ -1994,14 +1993,14 @@ export default function InvoiceEdit(props) {
                                             <FormGroup className="FormGroupAddress">
                                                 <FormControl>
                                                     <label className="selectLabel">
-                                                        {t('state')}
+                                                        {t("state")}
                                                     </label>
                                                     <Select
                                                         placeholder={t(
-                                                            'selectState'
+                                                            "selectState"
                                                         )}
                                                         style={{
-                                                            width: '100%',
+                                                            width: "100%",
                                                         }}
                                                         value={
                                                             state.selectedshippingAddressState
@@ -2021,14 +2020,14 @@ export default function InvoiceEdit(props) {
                                                         }}
                                                     />
                                                     <FormHelperText>
-                                                        {t('youNeedaStateName')}
+                                                        {t("youNeedaStateName")}
                                                     </FormHelperText>
                                                 </FormControl>
                                             </FormGroup>
                                             <FormGroup className="FormGroupAddress">
                                                 <FormControl>
                                                     <TextValidator
-                                                        label={t('zipcode')}
+                                                        label={t("zipcode")}
                                                         margin="dense"
                                                         variant="outlined"
                                                         InputLabelProps={{
@@ -2046,16 +2045,16 @@ export default function InvoiceEdit(props) {
                                                             });
                                                         }}
                                                         validators={[
-                                                            'isNumber',
+                                                            "isNumber",
                                                         ]}
                                                         errorMessages={[
                                                             t(
-                                                                'thisIsNotNumber'
+                                                                "thisIsNotNumber"
                                                             ),
                                                         ]}
                                                     />
                                                     <FormHelperText>
-                                                        {t('youNeedaZipcode')}
+                                                        {t("youNeedaZipcode")}
                                                     </FormHelperText>
                                                 </FormControl>
                                             </FormGroup>
@@ -2063,7 +2062,7 @@ export default function InvoiceEdit(props) {
                                                 <FormControl>
                                                     <TextField
                                                         id="town"
-                                                        label={t('town')}
+                                                        label={t("town")}
                                                         margin="dense"
                                                         variant="outlined"
                                                         InputLabelProps={{
@@ -2082,7 +2081,7 @@ export default function InvoiceEdit(props) {
                                                         }}
                                                     />
                                                     <FormHelperText>
-                                                        {t('youNeedaTownName')}
+                                                        {t("youNeedaTownName")}
                                                     </FormHelperText>
                                                 </FormControl>
                                             </FormGroup>

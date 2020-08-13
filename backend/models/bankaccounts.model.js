@@ -5,7 +5,7 @@ const BankAccountsSchema = new Schema(
     {
         created_user: {
             required: true,
-            type: String,
+            type: Object,
         },
         name: {
             required: true,

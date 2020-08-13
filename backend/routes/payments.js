@@ -12,8 +12,8 @@ router
     .route("/")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 Payments.find()
                     .then((data) => {
                         res.json(data);
@@ -24,8 +24,8 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
-                Payments.find({ created_user: req.user._id })
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
+                Payments.find({ "created_user.id": `${req.user._id}` })
                     .then((data) => {
                         res.json(data);
                     })
@@ -53,8 +53,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".create")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "create"]) {
                     new Payments(req.body)
                         .save()
                         .then(() =>
@@ -86,8 +86,8 @@ router
     .route("/statistic")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 Payments.aggregate([
                     { $unwind: "$group_id" },
                     {
@@ -106,8 +106,8 @@ router
     .route("/:id")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 Payments.findById(req.params.id)
                     .then((data) => res.json(data))
                     .catch((err) =>
@@ -116,10 +116,10 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 Payments.findOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((data) => {
                         if (data) {
@@ -156,8 +156,8 @@ router
     .route("/:id")
     .delete(passport.authenticate("jwt", { session: false }), (req, res) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".remove")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "delete"]) {
                 Payments.findByIdAndDelete(req.params.id)
                     .then((data) =>
                         res.json({
@@ -171,10 +171,10 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 Payments.deleteOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((resdata) => {
                         if (resdata.deletedCount > 0) {
@@ -216,8 +216,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".edit")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "edit"]) {
                     Payments.findByIdAndUpdate(req.params.id, req.body)
                         .then(() =>
                             res.json({
@@ -231,9 +231,12 @@ router
                                 variant: "error",
                             })
                         );
-                } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+                } else if (rolesControl[roleTitle + "onlyyou"]) {
                     Payments.findOneAndUpdate(
-                        { _id: req.params.id, created_user: req.user._id },
+                        {
+                            _id: req.params.id,
+                            "created_user.id": `${req.user._id}`,
+                        },
                         req.body
                     )
                         .then((resdata) => {

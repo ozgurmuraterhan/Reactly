@@ -3,6 +3,11 @@ const router = express.Router();
 const User = require("../models/user.model");
 const passport = require("passport");
 const JWT = require("jsonwebtoken");
+
+const crypto = require("crypto");
+const bcrypt = require("bcrypt");
+const BCRYPT_SALT_ROUNDS = 10;
+
 const roleTitle = "staff";
 const title = "Staff";
 
@@ -24,7 +29,12 @@ router
                         })
                     );
             } else if (rolesControl[roleTitle + "onlyyou"]) {
-                User.find({ _id: req.user._id })
+                User.find({
+                    $or: [
+                        { _id: req.user._id },
+                        { "created_user.id": `${req.user._id}` },
+                    ],
+                })
                     .then((data) => {
                         res.json(data);
                     })
@@ -98,8 +108,10 @@ router
                     );
             } else if (rolesControl[roleTitle + "onlyyou"]) {
                 User.findOne({
-                    _id: req.params.id,
-                    created_user: req.user._id,
+                    $or: [
+                        { _id: req.params.id },
+                        { "created_user.id": `${req.user._id}` },
+                    ],
                 })
                     .then((data) => {
                         if (data) {
@@ -137,7 +149,15 @@ router
     .delete(passport.authenticate("jwt", { session: false }), (req, res) => {
         User.find({ username: req.user.username }).then((data) => {
             const rolesControl = data[0].role[0];
-            if (rolesControl[roleTitle + "remove"]) {
+
+            if (req.params.id == req.user._id) {
+                return res.json({
+                    messagge: " Can not delete yourself.",
+                    variant: "error",
+                });
+            }
+
+            if (rolesControl[roleTitle + "delete"]) {
                 User.findByIdAndDelete(req.params.id)
                     .then((data) =>
                         res.json({
@@ -154,7 +174,7 @@ router
             } else if (rolesControl[roleTitle + "onlyyou"]) {
                 User.deleteOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((resdata) => {
                         if (resdata.deletedCount > 0) {
@@ -164,11 +184,8 @@ router
                             });
                         } else {
                             res.status(403).json({
-                                message: {
-                                    messagge:
-                                        "You are not authorized, go away!",
-                                    variant: "error",
-                                },
+                                messagge: "You are not authorized, go away!",
+                                variant: "error",
                             });
                         }
                     })
@@ -180,15 +197,64 @@ router
                     );
             } else {
                 res.status(403).json({
-                    message: {
-                        messagge: "You are not authorized, go away!",
-                        variant: "error",
-                    },
+                    messagge: "You are not authorized, go away!",
+                    variant: "error",
                 });
             }
         });
     });
-
+router.post(
+    "/updatePasswordSuperadmin",
+    passport.authenticate("jwt", { session: false }),
+    (req, res) => {
+        User.find({ username: req.user.username }).then((data) => {
+            const rolesControl = data[0].role[0];
+            if (rolesControl["superadmin"] || req.body._id == req.user._id) {
+                User.findOne({
+                    _id: req.body._id,
+                }).then((user) => {
+                    if (user != null) {
+                        console.log("user exists in db");
+                        bcrypt
+                            .hash(req.body.password, BCRYPT_SALT_ROUNDS)
+                            .then((hashedPassword) => {
+                                User.findOneAndUpdate(
+                                    {
+                                        _id: req.body._id,
+                                    },
+                                    {
+                                        password: hashedPassword,
+                                    }
+                                )
+                                    .then(() => {
+                                        res.json({
+                                            messagge:
+                                                title + " Password Update",
+                                            variant: "success",
+                                        });
+                                    })
+                                    .catch((err) => {
+                                        console.log(err);
+                                        res.json({
+                                            messagge: "Error: " + err,
+                                            variant: "error",
+                                        });
+                                    });
+                            });
+                    } else {
+                        console.error("no user exists in db to update");
+                        res.status(401).json("no user exists in db to update");
+                    }
+                });
+            } else {
+                res.json({
+                    messagge: " You are not authorized, go away!",
+                    variant: "error",
+                });
+            }
+        });
+    }
+);
 // update data by id
 router
     .route("/:id")
@@ -213,7 +279,10 @@ router
                         );
                 } else if (rolesControl[roleTitle + "onlyyou"]) {
                     User.findOneAndUpdate(
-                        { _id: req.params.id, created_user: req.user._id },
+                        {
+                            _id: req.params.id,
+                            "created_user.id": `${req.user._id}`,
+                        },
                         req.body
                     )
                         .then((resdata) => {

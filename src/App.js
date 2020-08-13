@@ -120,6 +120,12 @@ export default function App() {
                                         path="/forgotPassword"
                                         component={ForgotPassword}
                                     />
+                                    <UnPrivateRoute
+                                        path="/forgotPassword"
+                                        component={ForgotPassword}
+                                    />
+
+                                    <Route component={Login} />
                                 </div>
                             </main>
                         </>

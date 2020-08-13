@@ -4,6 +4,7 @@ import axios from "axios";
 
 import MaterialTable, { MTableToolbar } from "material-table";
 import { useTranslation } from "react-i18next";
+import Moment from "moment";
 
 import { Doughnut } from "react-chartjs-2";
 
@@ -76,7 +77,23 @@ export default function InvoicesList(props) {
     const [open, seTopen] = useState(false);
     const [customergroups, seTcustomergroups] = useState([]);
     const [data, seTdata] = useState([]);
+    const [payments, seTpayments] = useState([]);
+    const [payment_id, seTpayment_id] = useState(0);
 
+    const payments_label = [
+        { title: t("Amount"), field: "amount" },
+        {
+            title: t("Paid Date"),
+            field: "paid_date",
+            render: (rowData) => {
+                return (
+                    <div>
+                        {Moment(rowData.paid_date).format("DD/MM/YYYY HH:MM")}
+                    </div>
+                );
+            },
+        },
+    ];
     const columns = [
         {
             title: t("no"),
@@ -84,30 +101,75 @@ export default function InvoicesList(props) {
         },
         {
             title: t("customer"),
-            render: (rowData) => rowData.customer_id[0].label,
+            field: "created_user.name",
         },
-
         {
-            title: t("groupName"),
+            title: t("Billing Date"),
+            field: "created",
             render: (rowData) => {
-                const group_label = [];
-                for (const i in rowData.group_id) {
-                    group_label.push(
-                        <button key={i}>{rowData.group_id[i].label}</button>
-                    );
-                }
-                return group_label;
+                return (
+                    <div>{Moment(rowData.due_date).format("DD/MM/YYYY")}</div>
+                );
+            },
+        },
+        {
+            title: t("Due Date"),
+            field: "due_date",
+            render: (rowData) => {
+                return (
+                    <div>{Moment(rowData.due_date).format("DD/MM/YYYY")}</div>
+                );
+            },
+        },
+        {
+            title: t("Add Payments"),
+            render: (rowData) => {
+                return (
+                    <div onClick={() => getPaymentsData(rowData._id)}>
+                        Add Payments
+                    </div>
+                );
             },
         },
 
         {
-            title: t("country"),
-            field: "defaultAddress_country_id",
+            title: t("Status"),
+            render: (rowData) => {
+                if (rowData.payments.length > 0) {
+                    let payment_amount = 0;
+                    for (const i in rowData.payments) {
+                        payment_amount =
+                            parseFloat(payment_amount) +
+                            parseFloat(rowData.payments[i].amount);
+                    }
+
+                    let duadate = Date.parse(rowData.due_date);
+                    let nowdate = parseFloat(Date.now());
+
+                    if (rowData.total == payment_amount) {
+                        return (
+                            <span className="invoice_paid">{t("PAID")}</span>
+                        );
+                    } else if (
+                        rowData.total > payment_amount &&
+                        duadate < nowdate
+                    ) {
+                        return (
+                            <span className="invoice_unpaid">
+                                {t("UNPAID")}
+                            </span>
+                        );
+                    } else if (rowData.total > payment_amount > 0) {
+                        return (
+                            <span className="invoice_partical">
+                                {t("PARTICAL")}
+                            </span>
+                        );
+                    }
+                }
+            },
         },
-        {
-            title: t("state"),
-            field: "defaultAddress_state_id",
-        },
+
         {
             title: t("actions"),
             field: "_id",
@@ -157,6 +219,15 @@ export default function InvoicesList(props) {
         )),
     };
 
+    const getPaymentsData = (id) => {
+        seTpayment_id(id);
+        handleClickOpen();
+        axios.get("/invoices/payments/" + id).then((response) => {
+            console.log(response.data[0].payments);
+            seTpayments(response.data[0].payments);
+        });
+    };
+
     const getInvoicesData = () => {
         axios.get("/invoices").then((response) => {
             if (response.data.length > 0) {
@@ -172,8 +243,87 @@ export default function InvoicesList(props) {
         getInvoicesData();
     }, []);
 
+    const handleClickOpen = () => {
+        seTopen(true);
+    };
+
+    const handleClose = () => {
+        getInvoicesData();
+        seTopen(false);
+    };
+
     return (
         <>
+            <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
+                <DialogContent style={{ padding: "0" }}>
+                    <MaterialTable
+                        title={t("Payments")}
+                        icons={tableIcons}
+                        columns={payments_label}
+                        data={payments}
+                        options={{
+                            exportButton: true,
+                        }}
+                        editable={{
+                            onRowAdd: (newData) =>
+                                new Promise((resolve, reject) => {
+                                    axios
+                                        .post(
+                                            `/invoices/addpayments/${payment_id}`,
+                                            {
+                                                amount: newData.amount,
+                                            }
+                                        )
+                                        .then((response) => {
+                                            payments.push(newData);
+                                            seTpayments(payments);
+                                            getInvoicesData();
+                                        });
+                                    resolve();
+                                }),
+                            onRowUpdate: (newData, oldData) =>
+                                new Promise((resolve, reject) => {
+                                    axios
+                                        .post(
+                                            `/invoices/editpayments/${newData._id}`,
+                                            { amount: newData.amount }
+                                        )
+                                        .then((response) => {
+                                            const index = payments.indexOf(
+                                                oldData
+                                            );
+                                            payments[index] = newData;
+                                            console.log(payments);
+                                            seTpayments(payments);
+                                            getInvoicesData();
+                                        });
+                                    resolve();
+                                }),
+                            onRowDelete: (oldData) =>
+                                new Promise((resolve, reject) => {
+                                    axios
+                                        .delete(
+                                            `/invoices/deletepayments/${oldData._id}`
+                                        )
+                                        .then((response) => {
+                                            const index = payments.indexOf(
+                                                oldData
+                                            );
+                                            payments.splice(index, 1);
+                                            seTpayments(payments);
+                                            getInvoicesData();
+                                        });
+                                    resolve();
+                                }),
+                        }}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        {t("okey")}
+                    </Button>
+                </DialogActions>
+            </Dialog>
             <div className="containerP">
                 <Grid item container spacing={3}>
                     <Grid container item md={12} className="panelGridRelative">

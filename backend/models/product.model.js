@@ -5,7 +5,7 @@ const ProductSchema = new Schema(
     {
         created_user: {
             required: true,
-            type: String,
+            type: Object,
         },
         product_name: {
             type: String,

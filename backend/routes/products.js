@@ -12,21 +12,9 @@ router
     .route("/")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
-                Product.aggregate([
-                    {
-                        $project: {
-                            company: 1,
-                            email: 1,
-                            phone: 1,
-                            _id: 1,
-                            group_id: 1,
-                            defaultAddress_country_id: 1,
-                            defaultAddress_state_id: 1,
-                        },
-                    },
-                ])
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
+                Product.find()
                     .then((data) => {
                         res.json(data);
                     })
@@ -36,21 +24,10 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
-                Product.aggregate([
-                    {
-                        $and: { created_user: req.user._id },
-                        $project: {
-                            company: 1,
-                            email: 1,
-                            phone: 1,
-                            _id: 1,
-                            group_id: 1,
-                            defaultAddress_country_id: 1,
-                            defaultAddress_state_id: 1,
-                        },
-                    },
-                ])
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
+                Product.find({
+                    "created_user.id": `${req.user._id}`,
+                })
                     .then((data) => {
                         res.json(data);
                     })
@@ -78,8 +55,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".create")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "create"]) {
                     new Product(req.body)
                         .save()
 
@@ -112,13 +89,13 @@ router
     .route("/statistic")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 Product.aggregate([
-                    { $unwind: "$group_id" },
+                    { $unwind: "$category_id" },
                     {
                         $group: {
-                            _id: "$group_id.label",
+                            _id: "$category_id.label",
                             count: { $sum: 1 },
                         },
                     },
@@ -132,8 +109,8 @@ router
     .route("/:id")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 Product.findById(req.params.id)
                     .then((data) => res.json(data))
                     .catch((err) =>
@@ -142,10 +119,10 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 Product.findOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((data) => {
                         if (data) {
@@ -182,8 +159,8 @@ router
     .route("/:id")
     .delete(passport.authenticate("jwt", { session: false }), (req, res) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".remove")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "delete"]) {
                 Product.findByIdAndDelete(req.params.id)
                     .then((data) =>
                         res.json({
@@ -197,10 +174,10 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 Product.deleteOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((resdata) => {
                         if (resdata.deletedCount > 0) {
@@ -242,8 +219,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".edit")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "edit"]) {
                     Product.findByIdAndUpdate(req.params.id, req.body)
                         .then(() =>
                             res.json({
@@ -257,9 +234,12 @@ router
                                 variant: "error",
                             })
                         );
-                } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+                } else if (rolesControl[roleTitle + "onlyyou"]) {
                     Product.findOneAndUpdate(
-                        { _id: req.params.id, created_user: req.user._id },
+                        {
+                            _id: req.params.id,
+                            "created_user.id": `${req.user._id}`,
+                        },
                         req.body
                     )
                         .then((resdata) => {

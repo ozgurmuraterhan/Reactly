@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from "react";
+import React, { Component, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { withSnackbar, useSnackbar } from "notistack";
 import { useHistory } from "react-router-dom";
@@ -6,6 +6,8 @@ import Select from "react-select";
 import { ValidatorForm, TextValidator } from "react-material-ui-form-validator";
 import { withNamespaces, useTranslation } from "react-i18next";
 import ImageUploader from "react-images-upload";
+
+import { AuthContext } from "../../Context/AuthContext";
 
 import {
     FormControl,
@@ -37,6 +39,7 @@ export default function ProductEdit(props) {
     const history = useHistory();
     const { enqueueSnackbar } = useSnackbar();
     const [openalert, seTopenalert] = useState(false);
+    const { isAuthenticated, user } = useContext(AuthContext);
 
     const [state, seTstate] = useState({
         username: "",
@@ -105,16 +108,36 @@ export default function ProductEdit(props) {
             seTstate({
                 ...state,
                 username: response.data.username,
-                username: response.data.username,
                 name: response.data.name,
                 surname: response.data.surname,
-                password: response.data.password,
                 phone: response.data.phone,
                 _id: response.data._id,
             });
 
             seTpermissions(response.data.role);
         });
+    }
+
+    function updatePassword() {
+        const { _id, password } = state;
+
+        axios
+            .post(`/staff/updatePasswordSuperadmin`, { _id, password })
+            .then((res) => {
+                if (res.data.variant == "success") {
+                    enqueueSnackbar(t("Password Updated "), {
+                        variant: "success",
+                    });
+                } else {
+                    enqueueSnackbar(
+                        t("Password Not Updated ") + res.data.messagge,
+                        {
+                            variant: "error",
+                        }
+                    );
+                }
+            })
+            .catch((err) => console.log(err));
     }
 
     // componentDidMount = useEffect
@@ -124,15 +147,37 @@ export default function ProductEdit(props) {
 
     const onSubmit = (e) => {
         e.preventDefault();
-        const Product = {
+
+        const Staff = {
             username: state.username,
             name: state.name,
             surname: state.surname,
             phone: state.phone,
             role: permissions,
         };
+        if (user.role[0]["superadmin"]) {
+            const Staff = {
+                username: state.username,
+                name: state.name,
+                surname: state.surname,
+                phone: state.phone,
+                role: permissions,
+            };
+        } else {
+            const Staff = {
+                username: state.username,
+                name: state.name,
+                surname: state.surname,
+                phone: state.phone,
+            };
+        }
+
+        if (state.password) {
+            updatePassword();
+        }
+
         axios
-            .post(`/staff/${props.match.params.id}`, Product)
+            .post(`/staff/${props.match.params.id}`, Staff)
             .then((res) => {
                 if (res.data.variant == "error") {
                     enqueueSnackbar(
@@ -151,7 +196,7 @@ export default function ProductEdit(props) {
 
     const deleteData = (id) => {
         axios.delete(`/staff/${id}`).then((res) => {
-            enqueueSnackbar(t("Staf Deleted"), {
+            enqueueSnackbar(res.data.messagge, {
                 variant: res.data.variant,
             });
             history.push("/stafflist");
@@ -176,6 +221,18 @@ export default function ProductEdit(props) {
                                 className="typography"
                             >
                                 {t("Edit User")}
+
+                                <div
+                                    style={{
+                                        fontSize: "10pt",
+                                        display: permissions[0].superadmin
+                                            ? "block"
+                                            : "none",
+                                    }}
+                                >
+                                    You are Süperadmin
+                                </div>
+
                                 <Tooltip title={t("Delete User")}>
                                     <Button
                                         variant="outlined"
@@ -183,6 +240,9 @@ export default function ProductEdit(props) {
                                         style={{
                                             float: "right",
                                             marginRight: "115px",
+                                            display: permissions[0].superadmin
+                                                ? "none"
+                                                : "block",
                                         }}
                                         onClick={() => {
                                             seTopenalert(true);
@@ -346,7 +406,7 @@ export default function ProductEdit(props) {
                                                 variant="outlined"
                                                 margin="dense"
                                                 label={t("Password")}
-                                                value=""
+                                                value={state.password}
                                                 onChange={(e) => {
                                                     seTstate({
                                                         ...state,
@@ -379,799 +439,862 @@ export default function ProductEdit(props) {
                             </Button>
                         </div>
                     </Grid>
-                    <Grid item container md={5} className="panelGridRelative">
-                        <div className="listViewPaperPadding">
-                            <Typography
-                                component="h1"
-                                variant="h6"
-                                color="inherit"
-                                noWrap
-                                style={{ width: "100%" }}
-                            >
-                                {t("Permissions")}
-                            </Typography>
-                            <Grid
-                                item
-                                container
-                                sm={12}
-                                className="permissions"
-                            >
-                                <div className="permissions_div">
-                                    <b>{t("Staff")}</b>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].staffonlyyou
-                                                }
-                                                onChange={(e, val) => {
-                                                    const deg = [
-                                                        ...permissions,
-                                                    ];
-                                                    deg[0].staffonlyyou = val;
-                                                    seTpermissions(deg);
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Own)")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].stafflist
-                                                }
-                                                onChange={(e, val) => {
-                                                    const deg = [
-                                                        ...permissions,
-                                                    ];
-                                                    deg[0].stafflist = val;
-                                                    seTpermissions(deg);
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Global)")}
-                                    />
+                    {user.role[0]["superadmin"] ? (
+                        <Grid
+                            item
+                            container
+                            md={5}
+                            className="panelGridRelative"
+                            style={{
+                                display: permissions[0].superadmin
+                                    ? "none"
+                                    : "block",
+                            }}
+                        >
+                            <div className="listViewPaperPadding">
+                                <Typography
+                                    component="h1"
+                                    variant="h6"
+                                    color="inherit"
+                                    noWrap
+                                    style={{ width: "100%" }}
+                                >
+                                    {t("Permissions")}
+                                </Typography>
+                                <Grid
+                                    item
+                                    container
+                                    sm={12}
+                                    className="permissions"
+                                >
+                                    <div className="permissions_div">
+                                        <b>{t("Staff")}</b>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].staffcreate
-                                                }
-                                                onChange={(e, val) => {
-                                                    const deg = [
-                                                        ...permissions,
-                                                    ];
-                                                    deg[0].staffcreate = val;
-                                                    seTpermissions(deg);
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Create")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].staffedit
-                                                }
-                                                onChange={(e, val) => {
-                                                    const deg = [
-                                                        ...permissions,
-                                                    ];
-                                                    deg[0].staffedit = val;
-                                                    seTpermissions(deg);
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Edit")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].staffdelete
-                                                }
-                                                onChange={(e, val) => {
-                                                    const deg = [
-                                                        ...permissions,
-                                                    ];
-                                                    deg[0].staffdelete = val;
-                                                    seTpermissions(deg);
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Delete")}
-                                    />
-                                </div>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .staffonlyyou
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].staffonlyyou = val;
+                                                        deg[0].stafflist = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Own)")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0].stafflist
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].stafflist = val;
+                                                        deg[0].staffonlyyou = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Global)")}
+                                        />
 
-                                <div className="permissions_div">
-                                    <b>{t("Customers")}</b>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .staffcreate
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].staffcreate = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Create")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0].staffedit
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].staffedit = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Edit")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .staffdelete
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].staffdelete = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Delete")}
+                                        />
+                                    </div>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .customersonlyyou
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        customersonlyyou: val,
-                                                        customerslist: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Own)")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].customerslist
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        customerslist: val,
-                                                        customersonlyyou: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Global)")}
-                                    />
+                                    <div className="permissions_div">
+                                        <b>{t("Customers")}</b>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .customerscreate
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        customerscreate: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Create")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].customersedit
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        customersedit: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Edit")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .customersdelete
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        customersdelete: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Delete")}
-                                    />
-                                </div>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .customersonlyyou
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].customersonlyyou = val;
+                                                        deg[0].customerslist = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Own)")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .customerslist
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].customerslist = val;
+                                                        deg[0].customersonlyyou = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Global)")}
+                                        />
 
-                                <div className="permissions_div">
-                                    <b>{t("Products")}</b>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .customerscreate
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].customerscreate = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Create")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .customersedit
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].customersedit = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Edit")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .customersdelete
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].customersdelete = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Delete")}
+                                        />
+                                    </div>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .productsonlyyou
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        productsonlyyou: val,
-                                                        productslist: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Own)")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].productslist
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        productslist: val,
-                                                        productsonlyyou: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Global)")}
-                                    />
+                                    <div className="permissions_div">
+                                        <b>{t("Products")}</b>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .productscreate
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        productscreate: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Create")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].productsedit
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        productsedit: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Edit")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .productsdelete
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        productsdelete: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Delete")}
-                                    />
-                                </div>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .productsonlyyou
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].productsonlyyou = val;
+                                                        deg[0].productslist = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Own)")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .productslist
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].productslist = val;
+                                                        deg[0].productsonlyyou = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Global)")}
+                                        />
 
-                                <div className="permissions_div">
-                                    <b>{t("Bank Accounts")}</b>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .productscreate
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].productscreate = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Create")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .productsedit
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].productsedit = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Edit")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .productsdelete
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].productsdelete = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Delete")}
+                                        />
+                                    </div>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .bankaccountsonlyyou
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        bankaccountsonlyyou: val,
-                                                        bankaccountslist: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Own)")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .bankaccountslist
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        bankaccountslist: val,
-                                                        bankaccountsonlyyou: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Global)")}
-                                    />
+                                    <div className="permissions_div">
+                                        <b>{t("Bank Accounts")}</b>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .bankaccountscreate
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        bankaccountscreate: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Create")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .bankaccountsedit
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        bankaccountsedit: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Edit")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .bankaccountsdelete
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        bankaccountsdelete: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Delete")}
-                                    />
-                                </div>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .bankaccountsonlyyou
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].bankaccountsonlyyou = val;
+                                                        deg[0].bankaccountslist = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Own)")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .bankaccountslist
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].bankaccountslist = val;
+                                                        deg[0].bankaccountsonlyyou = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Global)")}
+                                        />
 
-                                <div className="permissions_div">
-                                    <b>{t("Customers Group")}</b>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .bankaccountscreate
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].bankaccountscreate = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Create")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .bankaccountsedit
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].bankaccountsedit = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Edit")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .bankaccountsdelete
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].bankaccountsdelete = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Delete")}
+                                        />
+                                    </div>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .customersgrouponlyyou
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        customersgrouponlyyou: val,
-                                                        customersgrouplist: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Own)")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .customersgrouplist
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        customersgrouplist: val,
-                                                        customersgrouponlyyou: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Global)")}
-                                    />
+                                    <div className="permissions_div">
+                                        <b>{t("Customers Group")}</b>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .customersgroupcreate
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        customersgroupcreate: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Create")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .customersgroupedit
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        customersgroupedit: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Edit")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .customersgroupdelete
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        customersgroupdelete: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Delete")}
-                                    />
-                                </div>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .customersgrouponlyyou
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].customersgrouponlyyou = val;
+                                                        deg[0].customersgrouplist = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Own)")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .customersgrouplist
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].customersgrouplist = val;
+                                                        deg[0].customersgrouponlyyou = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Global)")}
+                                        />
 
-                                <div className="permissions_div">
-                                    <b>{t("Invoices")}</b>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .customersgroupcreate
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].customersgroupcreate = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Create")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .customersgroupedit
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].customersgroupedit = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Edit")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .customersgroupdelete
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].customersgroupdelete = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Delete")}
+                                        />
+                                    </div>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .invoicesonlyyou
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        invoicesonlyyou: val,
-                                                        invoiceslist: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Own)")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].invoiceslist
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        invoiceslist: val,
-                                                        invoicesonlyyou: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Global)")}
-                                    />
+                                    <div className="permissions_div">
+                                        <b>{t("Invoices")}</b>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .invoicescreate
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        invoicescreate: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Create")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].invoicesedit
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        invoicesedit: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Edit")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .invoicesdelete
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        invoicesdelete: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Delete")}
-                                    />
-                                </div>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .invoicesonlyyou
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].invoicesonlyyou = val;
+                                                        deg[0].invoiceslist = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Own)")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .invoiceslist
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].invoiceslist = val;
+                                                        deg[0].invoicesonlyyou = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Global)")}
+                                        />
 
-                                <div className="permissions_div">
-                                    <b>{t("Payments")}</b>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .invoicescreate
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].invoicescreate = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Create")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .invoicesedit
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].invoicesedit = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Edit")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .invoicesdelete
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].invoicesdelete = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Delete")}
+                                        />
+                                    </div>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .paymentsonlyyou
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        paymentsonlyyou: val,
-                                                        paymentslist: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Own)")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].paymentslist
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        list: val,
-                                                        paymentslist: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Global)")}
-                                    />
+                                    <div className="permissions_div">
+                                        <b>{t("Payments")}</b>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .paymentscreate
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        paymentscreate: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Create")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0].paymentsedit
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        paymentsedit: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Edit")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .paymentsdelete
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        paymentsdelete: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Delete")}
-                                    />
-                                </div>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .paymentsonlyyou
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].paymentsonlyyou = val;
+                                                        deg[0].paymentslist = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Own)")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .paymentslist
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].paymentslist = val;
+                                                        deg[0].paymentsonlyyou = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Global)")}
+                                        />
 
-                                <div className="permissions_div">
-                                    <b>{t("Products Categories")}</b>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .paymentscreate
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].paymentscreate = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Create")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .paymentsedit
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].paymentsedit = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Edit")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .paymentsdelete
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].paymentsdelete = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Delete")}
+                                        />
+                                    </div>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .productsCategoriesonlyyou
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        productsCategoriesonlyyou: val,
-                                                        productsCategorieslist: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Own)")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .productsCategorieslist
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        productsCategorieslist: val,
-                                                        productsCategoriesonlyyou: false,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("View (Global)")}
-                                    />
+                                    <div className="permissions_div">
+                                        <b>{t("Products Categories")}</b>
 
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .productsCategoriescreate
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        productsCategoriescreate: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Create")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .productsCategoriesedit
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        productsCategoriesedit: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Edit")}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    permissions[0]
-                                                        .productsCategoriesdelete
-                                                }
-                                                onChange={(e, val) => {
-                                                    seTpermissions({
-                                                        ...permissions,
-                                                        productsCategoriesdelete: val,
-                                                    });
-                                                }}
-                                                color="primary"
-                                            />
-                                        }
-                                        label={t("Delete")}
-                                    />
-                                </div>
-                            </Grid>
-                        </div>
-                    </Grid>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .productsCategoriesonlyyou
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].productsCategoriesonlyyou = val;
+                                                        deg[0].productsCategorieslist = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Own)")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .productsCategorieslist
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].productsCategorieslist = val;
+                                                        deg[0].productsCategoriesonlyyou = false;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("View (Global)")}
+                                        />
+
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .productsCategoriescreate
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].productsCategoriescreate = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Create")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .productsCategoriesedit
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].productsCategoriesedit = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Edit")}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        permissions[0]
+                                                            .productsCategoriesdelete
+                                                    }
+                                                    onChange={(e, val) => {
+                                                        const deg = [
+                                                            ...permissions,
+                                                        ];
+                                                        deg[0].productsCategoriesdelete = val;
+                                                        seTpermissions(deg);
+                                                    }}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={t("Delete")}
+                                        />
+                                    </div>
+                                </Grid>
+                            </div>
+                        </Grid>
+                    ) : (
+                        <div></div>
+                    )}
                 </Grid>
             </ValidatorForm>
         </div>

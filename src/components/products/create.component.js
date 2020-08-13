@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useSnackbar } from 'notistack';
-import { useHistory } from 'react-router-dom';
-import Select from 'react-select';
+import React, { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import { useSnackbar } from "notistack";
+import { useHistory } from "react-router-dom";
+import Select from "react-select";
 import {
     ValidatorForm,
     TextValidator,
     SelectValidator,
-} from 'react-material-ui-form-validator';
-import { useTranslation } from 'react-i18next';
+} from "react-material-ui-form-validator";
+import { useTranslation } from "react-i18next";
 
 import {
     FormControl,
@@ -26,22 +26,24 @@ import {
     DialogContent,
     DialogTitle,
     Grid,
-} from '@material-ui/core';
+} from "@material-ui/core";
 
-import { AddBox, GroupAdd, Save } from '@material-ui/icons';
+import { AddBox, GroupAdd, Save } from "@material-ui/icons";
+import { AuthContext } from "../../Context/AuthContext";
 
 export default function ProductCreate() {
     const [t] = useTranslation();
     const history = useHistory();
     const { enqueueSnackbar } = useSnackbar();
     const [gropBoxOpen, seTgropBoxOpen] = useState(false);
+    const { user } = useContext(AuthContext);
 
     const [state, seTstate] = useState({
         selectedCategoryItems: [],
         changeNewCategoryNameJust: [],
-        product_name: '',
-        product_code: '',
-        product_description: '',
+        product_name: "",
+        product_code: "",
+        product_description: "",
         purchase_price: 0,
         sale_price: 0,
         product_vat: 0,
@@ -56,15 +58,15 @@ export default function ProductCreate() {
         };
 
         axios
-            .post('/productcategories/add', data)
+            .post("/productcategories/add", data)
             .then((res) => {
-                if (res.data.variant == 'error') {
+                if (res.data.variant == "error") {
                     enqueueSnackbar(
-                        t('productCategoryNotAdded') + res.data.messagge,
+                        t("productCategoryNotAdded") + res.data.messagge,
                         { variant: res.data.variant }
                     );
                 } else {
-                    enqueueSnackbar(t('productCategoryAdded'), {
+                    enqueueSnackbar(t("productCategoryAdded"), {
                         variant: res.data.variant,
                     });
                 }
@@ -87,7 +89,7 @@ export default function ProductCreate() {
 
     function getProductCategories() {
         axios
-            .get('/productcategories/')
+            .get("/productcategories/")
             .then((res) => {
                 if (res.data.length > 0) {
                     const details = [];
@@ -106,11 +108,13 @@ export default function ProductCreate() {
     // componentDidMount = useEffect
     useEffect(() => {
         getProductCategories();
+        console.log(user);
     }, []);
 
     const onSubmit = (e) => {
         e.preventDefault();
         const Product = {
+            created_user: { name: user.name, id: user.id },
             product_name: state.product_name,
             category_id: state.selectedCategoryItems,
             product_code: state.product_code,
@@ -121,17 +125,17 @@ export default function ProductCreate() {
             product_stock: state.product_stock,
         };
 
-        axios.post('/products/add', Product).then((res) => {
-            if (res.data.variant == 'error') {
-                enqueueSnackbar(t('productNotAdded') + res.data.messagge, {
+        axios.post("/products/add", Product).then((res) => {
+            if (res.data.variant == "error") {
+                enqueueSnackbar(t("productNotAdded") + res.data.messagge, {
                     variant: res.data.variant,
                 });
             } else {
-                enqueueSnackbar(t('productAdded'), {
+                enqueueSnackbar(t("productAdded"), {
                     variant: res.data.variant,
                 });
                 // navigate
-                history.push('/productslist');
+                history.push("/productslist");
             }
         });
     };
@@ -139,7 +143,7 @@ export default function ProductCreate() {
     return (
         <div className="containerP">
             <ValidatorForm autoComplete="off" onSubmit={onSubmit}>
-                <Grid item container spacing={3} style={{ display: 'flex' }}>
+                <Grid item container spacing={3} style={{ display: "flex" }}>
                     <Grid item container md={9} className="panelGridRelative">
                         <Card className="panelLargeIcon">
                             <GroupAdd fontSize="large" />
@@ -152,7 +156,7 @@ export default function ProductCreate() {
                                 noWrap
                                 className="typography"
                             >
-                                {t('productCreate')}
+                                {t("productCreate")}
                             </Typography>
                             <Grid item container sm={12}>
                                 <Grid container item sm={4} spacing={0}>
@@ -161,7 +165,7 @@ export default function ProductCreate() {
                                             <TextValidator
                                                 variant="outlined"
                                                 margin="dense"
-                                                label={t('productName')}
+                                                label={t("productName")}
                                                 value={state.product_name}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -173,7 +177,7 @@ export default function ProductCreate() {
                                                 required
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaProductName')}
+                                                {t("youNeedaProductName")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -185,7 +189,7 @@ export default function ProductCreate() {
                                             <TextValidator
                                                 variant="outlined"
                                                 margin="dense"
-                                                label={t('productCode')}
+                                                label={t("productCode")}
                                                 value={state.product_code}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -197,19 +201,19 @@ export default function ProductCreate() {
                                                 required
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaProductCode')}
+                                                {t("youNeedaProductCode")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
                                 </Grid>
                                 <Grid container item sm={4} spacing={0}>
                                     <Grid container item sm={1} spacing={0}>
-                                        <Tooltip title={t('addNewCategory')}>
+                                        <Tooltip title={t("addNewCategory")}>
                                             <AddBox
                                                 onClick={handleClickOpenGroup}
                                                 fontSize="large"
                                                 style={{
-                                                    margin: '20px 10px 0 5px',
+                                                    margin: "20px 10px 0 5px",
                                                 }}
                                             />
                                         </Tooltip>
@@ -217,8 +221,8 @@ export default function ProductCreate() {
                                     <Grid container item sm={11} spacing={0}>
                                         <div
                                             style={{
-                                                marginTop: '0px',
-                                                clear: 'both',
+                                                marginTop: "0px",
+                                                clear: "both",
                                             }}
                                         />
                                         <FormGroup className="FormGroup">
@@ -226,7 +230,7 @@ export default function ProductCreate() {
                                                 <Select
                                                     isMulti
                                                     placeholder={t(
-                                                        'selectCategory'
+                                                        "selectCategory"
                                                     )}
                                                     value={
                                                         state.selectedCategoryItems
@@ -245,7 +249,7 @@ export default function ProductCreate() {
                                                 />
                                                 <FormHelperText>
                                                     {t(
-                                                        'youNeedSelectCategories'
+                                                        "youNeedSelectCategories"
                                                     )}
                                                 </FormHelperText>
                                             </FormControl>
@@ -258,7 +262,7 @@ export default function ProductCreate() {
                                             <TextValidator
                                                 variant="outlined"
                                                 margin="dense"
-                                                label={t('purchasePrice')}
+                                                label={t("purchasePrice")}
                                                 value={state.purchase_price}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -269,13 +273,13 @@ export default function ProductCreate() {
                                                 }}
                                                 required
                                                 type="number"
-                                                validators={['isNumber']}
+                                                validators={["isNumber"]}
                                                 errorMessages={[
-                                                    t('thisIsNotNumber'),
+                                                    t("thisIsNotNumber"),
                                                 ]}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaPurchasePrice')}
+                                                {t("youNeedaPurchasePrice")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -287,7 +291,7 @@ export default function ProductCreate() {
                                             <TextValidator
                                                 variant="outlined"
                                                 margin="dense"
-                                                label={t('salePrice')}
+                                                label={t("salePrice")}
                                                 value={state.sale_price}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -298,13 +302,13 @@ export default function ProductCreate() {
                                                 }}
                                                 required
                                                 type="number"
-                                                validators={['isNumber']}
+                                                validators={["isNumber"]}
                                                 errorMessages={[
-                                                    t('thisIsNotNumber'),
+                                                    t("thisIsNotNumber"),
                                                 ]}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaSalePrice')}
+                                                {t("youNeedaSalePrice")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -316,7 +320,7 @@ export default function ProductCreate() {
                                             <TextValidator
                                                 variant="outlined"
                                                 margin="dense"
-                                                label={t('productStock')}
+                                                label={t("productStock")}
                                                 value={state.product_stock}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -327,13 +331,13 @@ export default function ProductCreate() {
                                                 }}
                                                 required
                                                 type="number"
-                                                validators={['isNumber']}
+                                                validators={["isNumber"]}
                                                 errorMessages={[
-                                                    t('thisIsNotNumber'),
+                                                    t("thisIsNotNumber"),
                                                 ]}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaProductStock')}
+                                                {t("youNeedaProductStock")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -345,7 +349,7 @@ export default function ProductCreate() {
                                             <TextValidator
                                                 variant="outlined"
                                                 margin="dense"
-                                                label={t('productVat')}
+                                                label={t("productVat")}
                                                 value={state.product_vat}
                                                 onChange={(e) => {
                                                     seTstate({
@@ -356,13 +360,13 @@ export default function ProductCreate() {
                                                 }}
                                                 required
                                                 type="number"
-                                                validators={['isNumber']}
+                                                validators={["isNumber"]}
                                                 errorMessages={[
-                                                    t('thisIsNotNumber'),
+                                                    t("thisIsNotNumber"),
                                                 ]}
                                             />
                                             <FormHelperText>
-                                                {t('youNeedaProductVat')}
+                                                {t("youNeedaProductVat")}
                                             </FormHelperText>
                                         </FormControl>
                                     </FormGroup>
@@ -373,7 +377,7 @@ export default function ProductCreate() {
                                         <FormControl>
                                             <TextField
                                                 variant="outlined"
-                                                label={t('productDescription')}
+                                                label={t("productDescription")}
                                                 multiline
                                                 margin="normal"
                                                 value={
@@ -389,7 +393,7 @@ export default function ProductCreate() {
                                             />
                                             <FormHelperText>
                                                 {t(
-                                                    'youNeedaProductDescription'
+                                                    "youNeedaProductDescription"
                                                 )}
                                             </FormHelperText>
                                         </FormControl>
@@ -401,9 +405,9 @@ export default function ProductCreate() {
                             <Button type="submit" className="glow-on-hover">
                                 <Save
                                     fontSize="small"
-                                    style={{ marginRight: '15px' }}
-                                />{' '}
-                                {t('save')}
+                                    style={{ marginRight: "15px" }}
+                                />{" "}
+                                {t("save")}
                             </Button>
                         </div>
                     </Grid>
@@ -422,14 +426,14 @@ export default function ProductCreate() {
                 open={gropBoxOpen}
                 onClose={handleCategoryBoxClose}
             >
-                <DialogTitle>{t('addNewProductCategoryName')}</DialogTitle>
+                <DialogTitle>{t("addNewProductCategoryName")}</DialogTitle>
                 <DialogContent>
                     <FormControl
                         className="FormControl"
-                        style={{ width: '100%' }}
+                        style={{ width: "100%" }}
                     >
                         <InputLabel htmlFor="group">
-                            {t('addCategoryName')}
+                            {t("addCategoryName")}
                         </InputLabel>
                         <Input
                             id="group"
@@ -441,15 +445,15 @@ export default function ProductCreate() {
                                 });
                             }}
                         />
-                        <FormHelperText>{t('addCategoryName')}</FormHelperText>
+                        <FormHelperText>{t("addCategoryName")}</FormHelperText>
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCategoryBoxClose} color="primary">
-                        {t('cancel')}
+                        {t("cancel")}
                     </Button>
                     <Button onClick={saveHandleNewCategory} color="primary">
-                        {t('save')}
+                        {t("save")}
                     </Button>
                 </DialogActions>
             </Dialog>

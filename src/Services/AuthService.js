@@ -11,7 +11,7 @@ export default {
             else
                 return {
                     isAuthenticated: false,
-                    user: { username: "", role: "" },
+                    user: { username: "", role: "", id: "", name: "" },
                 };
         });
     },
@@ -37,7 +37,7 @@ export default {
             else
                 return {
                     isAuthenticated: false,
-                    user: { username: "", role: "" },
+                    user: { username: "", role: "", id: "", name: "" },
                 };
         });
     },

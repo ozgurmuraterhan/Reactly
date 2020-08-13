@@ -3,6 +3,7 @@ const passport = require("passport");
 const JWT = require("jsonwebtoken");
 let Invoice = require("../models/invoice.model");
 let User = require("../models/user.model");
+let ObjectId = require("mongodb").ObjectId;
 
 const title = "Invoice";
 const roleTitle = "invoices";
@@ -12,8 +13,8 @@ router
     .route("/")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 Invoice.find()
                     .then((data) => {
                         res.json(data);
@@ -24,8 +25,8 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
-                Invoice.find({ created_user: req.user._id })
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
+                Invoice.find({ "created_user.id": `${req.user._id}` })
                     .then((data) => {
                         res.json(data);
                     })
@@ -53,8 +54,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".create")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "create"]) {
                     new Invoice(req.body)
                         .save()
                         .then(() =>
@@ -81,13 +82,41 @@ router
         }
     );
 
+// payments list
+router
+    .route("/payments/:id")
+    .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
+        User.find({ username: req.user.username }).then((data) => {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
+                Invoice.find({ _id: req.params.id })
+                    .then((data2) => {
+                        res.json(data2);
+                    })
+                    .catch((err) =>
+                        res.json({
+                            messagge: " Error: " + err,
+                            variant: "error",
+                        })
+                    );
+            } else {
+                res.status(403).json({
+                    message: {
+                        messagge: "You are not authorized, go away!",
+                        variant: "error",
+                    },
+                });
+            }
+        });
+    });
+
 // statistic
 router
     .route("/statistic")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 Invoice.aggregate([
                     { $unwind: "$group_id" },
                     {
@@ -106,8 +135,8 @@ router
     .route("/:id")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 Invoice.findById(req.params.id)
                     .then((data) => res.json(data))
                     .catch((err) =>
@@ -116,10 +145,10 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 Invoice.findOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((data) => {
                         if (data) {
@@ -156,8 +185,8 @@ router
     .route("/:id")
     .delete(passport.authenticate("jwt", { session: false }), (req, res) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".remove")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "remove"]) {
                 Invoice.findByIdAndDelete(req.params.id)
                     .then((data) =>
                         res.json({
@@ -171,10 +200,10 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 Invoice.deleteOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((resdata) => {
                         if (resdata.deletedCount > 0) {
@@ -216,8 +245,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".edit")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "edit"]) {
                     Invoice.findByIdAndUpdate(req.params.id, req.body)
                         .then(() =>
                             res.json({
@@ -231,9 +260,12 @@ router
                                 variant: "error",
                             })
                         );
-                } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+                } else if (rolesControl[roleTitle + "onlyyou"]) {
                     Invoice.findOneAndUpdate(
-                        { _id: req.params.id, created_user: req.user._id },
+                        {
+                            _id: req.params.id,
+                            "created_user.id": `${req.user._id}`,
+                        },
                         req.body
                     )
                         .then((resdata) => {
@@ -256,6 +288,33 @@ router
                                 variant: "error",
                             })
                         );
+                } else {
+                    res.status(403).json({
+                        message: {
+                            messagge: "You are not authorized, go away!",
+                            variant: "error",
+                        },
+                    });
+                }
+            });
+        }
+    );
+
+// update datapayments by id
+router
+    .route("/editpayments/:id")
+    .post(
+        passport.authenticate("jwt", { session: false }),
+        (req, res, next) => {
+            User.find({ username: req.user.username }).then((data) => {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "edit"]) {
+                    Invoice.updateMany(
+                        {
+                            "payments._id": ObjectId(req.params.id),
+                        },
+                        { $set: { "payments.$.amount": req.body.amount } }
+                    ).catch((err) => console.log(err));
                 } else {
                     res.status(403).json({
                         message: {

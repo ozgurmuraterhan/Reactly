@@ -358,6 +358,21 @@ body {
     background-color: #fff;
 }
 
+.invoice_partical {
+    background: #ff7300;
+    padding: 5px;
+}
+
+.invoice_unpaid {
+    padding: 5px;
+    background: #ff0000;
+}
+
+.invoice_paid {
+    padding: 5px;
+    background: #48ff00;
+}
+
 @media only screen and (max-width: 600px) {
     .loginBanner {
         display: none;

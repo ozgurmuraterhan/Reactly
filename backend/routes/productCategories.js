@@ -6,14 +6,14 @@ let Product = require("../models/product.model");
 let User = require("../models/user.model");
 
 const title = "Products Group";
-const roleTitle = "productsgroup";
+const roleTitle = "productsCategories";
 // get all items
 router
     .route("/")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 ProductCatagories.find()
                     .then((data) => {
                         res.json(data);
@@ -24,8 +24,9 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
-                ProductCatagories.find({ created_user: req.user._id })
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
+                ProductCatagories.find({ "created_user.id": `${req.user._id}` })
+
                     .then((data) => {
                         res.json(data);
                     })
@@ -53,8 +54,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".create")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "create"]) {
                     new ProductCatagories(req.body)
                         .save()
                         .then(() =>
@@ -86,8 +87,8 @@ router
     .route("/:id")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 ProductCatagories.findById(req.params.id)
                     .then((data) => res.json(data))
                     .catch((err) =>
@@ -96,10 +97,10 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 ProductCatagories.findOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((data) => {
                         if (data) {
@@ -136,8 +137,8 @@ router
     .route("/:id")
     .delete(passport.authenticate("jwt", { session: false }), (req, res) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".remove")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "delete"]) {
                 Product.updateMany(
                     {},
                     { $pull: { group_id: { value: req.params.id } } },
@@ -156,7 +157,7 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 Product.updateMany(
                     {},
                     { $pull: { group_id: { value: req.params.id } } },
@@ -164,7 +165,7 @@ router
                 ).catch((err) => console.log(err));
                 ProductCatagories.deleteOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((resdata) => {
                         if (resdata.deletedCount > 0) {
@@ -206,8 +207,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".edit")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "edit"]) {
                     //Products collection group_id update by id
                     Product.updateMany(
                         { "group_id.value": req.params.id },
@@ -228,7 +229,7 @@ router
                                 variant: "error",
                             })
                         );
-                } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+                } else if (rolesControl[roleTitle + "onlyyou"]) {
                     //Products collection group_id update by id
                     Product.updateMany(
                         { "group_id.value": req.params.id },
@@ -238,7 +239,7 @@ router
                     //ProductsGroup update
                     ProductCatagories.findOneAndUpdate({
                         _id: req.params.id,
-                        created_user: req.user._id,
+                        "created_user.id": `${req.user._id}`,
                     })
                         .then((resdata) => {
                             if (resdata) {

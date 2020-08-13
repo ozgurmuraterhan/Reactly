@@ -12,21 +12,9 @@ router
     .route("/")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
-                Customer.aggregate([
-                    {
-                        $project: {
-                            company: 1,
-                            email: 1,
-                            phone: 1,
-                            _id: 1,
-                            group_id: 1,
-                            defaultAddress_country_id: 1,
-                            defaultAddress_state_id: 1,
-                        },
-                    },
-                ])
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
+                Customer.find()
                     .then((data) => {
                         res.json(data);
                     })
@@ -36,21 +24,9 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
-                Customer.aggregate([
-                    {
-                        $and: { created_user: req.user._id },
-                        $project: {
-                            company: 1,
-                            email: 1,
-                            phone: 1,
-                            _id: 1,
-                            group_id: 1,
-                            defaultAddress_country_id: 1,
-                            defaultAddress_state_id: 1,
-                        },
-                    },
-                ])
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
+                Customer.find({ "created_user.id": `${req.user._id}` })
+
                     .then((data) => {
                         res.json(data);
                     })
@@ -78,8 +54,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".create")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "create"]) {
                     new Customer(req.body)
                         .save()
 
@@ -112,8 +88,8 @@ router
     .route("/statistic")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 Customer.aggregate([
                     { $unwind: "$group_id" },
                     {
@@ -132,8 +108,8 @@ router
     .route("/:id")
     .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".list")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "list"]) {
                 Customer.findById(req.params.id)
                     .then((data) => res.json(data))
                     .catch((err) =>
@@ -142,10 +118,10 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 Customer.findOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((data) => {
                         if (data) {
@@ -182,8 +158,8 @@ router
     .route("/:id")
     .delete(passport.authenticate("jwt", { session: false }), (req, res) => {
         User.find({ username: req.user.username }).then((data) => {
-            const rolesControl = data[0].role;
-            if (rolesControl.includes(roleTitle + ".remove")) {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "delete"]) {
                 Customer.findByIdAndDelete(req.params.id)
                     .then((data) =>
                         res.json({
@@ -197,10 +173,10 @@ router
                             variant: "error",
                         })
                     );
-            } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+            } else if (rolesControl[roleTitle + "onlyyou"]) {
                 Customer.deleteOne({
                     _id: req.params.id,
-                    created_user: req.user._id,
+                    "created_user.id": `${req.user._id}`,
                 })
                     .then((resdata) => {
                         if (resdata.deletedCount > 0) {
@@ -242,8 +218,8 @@ router
         passport.authenticate("jwt", { session: false }),
         (req, res, next) => {
             User.find({ username: req.user.username }).then((data) => {
-                const rolesControl = data[0].role;
-                if (rolesControl.includes(roleTitle + ".edit")) {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "edit"]) {
                     Customer.findByIdAndUpdate(req.params.id, req.body)
                         .then(() =>
                             res.json({
@@ -257,9 +233,12 @@ router
                                 variant: "error",
                             })
                         );
-                } else if (rolesControl.includes(roleTitle + ".onlyyou")) {
+                } else if (rolesControl[roleTitle + "onlyyou"]) {
                     Customer.findOneAndUpdate(
-                        { _id: req.params.id, created_user: req.user._id },
+                        {
+                            _id: req.params.id,
+                            "created_user.id": `${req.user._id}`,
+                        },
                         req.body
                     )
                         .then((resdata) => {
