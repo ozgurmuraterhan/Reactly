@@ -1,11 +1,11 @@
-import React, { useState, useContext, useEffect } from 'react';
-import AuthService from '../../Services/AuthService';
-import { AuthContext } from '../../Context/AuthContext';
+import React, { useState, useContext, useEffect } from "react";
+import AuthService from "../../Services/AuthService";
+import { AuthContext } from "../../Context/AuthContext";
 
-import { useSnackbar } from 'notistack';
-import { useHistory } from 'react-router-dom';
-import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { useTranslation } from 'react-i18next';
+import { useSnackbar } from "notistack";
+import { useHistory } from "react-router-dom";
+import { ValidatorForm, TextValidator } from "react-material-ui-form-validator";
+import { useTranslation } from "react-i18next";
 
 import {
     FormControl,
@@ -16,13 +16,13 @@ import {
     Container,
     InputAdornment,
     Typography,
-} from '@material-ui/core';
+} from "@material-ui/core";
 
-import { ContactMail } from '@material-ui/icons';
-import '../../assets/css/style.css';
+import { ContactMail } from "@material-ui/icons";
+import "../../assets/css/style.css";
 
 const Login = (props) => {
-    const [user, setUser] = useState({ username: '', password: '' });
+    const [user, setUser] = useState({ username: "", password: "" });
     const [message, setMessage] = useState(null);
     const authContext = useContext(AuthContext);
 
@@ -41,56 +41,67 @@ const Login = (props) => {
             if (isAuthenticated) {
                 authContext.setUser(user);
                 authContext.setIsAuthenticated(isAuthenticated);
-                enqueueSnackbar(t('Login Successfully'), {
-                    variant: 'success',
+                enqueueSnackbar(t("Login Successfully"), {
+                    variant: "success",
                 });
-                props.history.push('/dashboard');
+                props.history.push("/dashboard");
             } else {
-                enqueueSnackbar(t('Login information is incorrect. Try again.'), { variant: 'error', });
+                enqueueSnackbar(
+                    t("Login information is incorrect. Try again."),
+                    { variant: "error" }
+                );
             }
         });
     };
 
     return (
-
-        <ValidatorForm autoComplete="off" onSubmit={onSubmit} style={{ height: '100%' }}>
-            <Grid item container sm={12} style={{ height: '100%' }}>
-                <Grid container item md={6} spacing={0} sm={6} className="loginMobilImg">
+        <ValidatorForm
+            autoComplete="off"
+            onSubmit={onSubmit}
+            style={{ height: "100%" }}
+        >
+            <Grid item container sm={12} style={{ height: "100%" }}>
+                <Grid
+                    container
+                    item
+                    md={6}
+                    spacing={0}
+                    sm={6}
+                    className="loginMobilImg"
+                >
                     <Container maxWidth="sm">
                         <Typography
                             variant="h2"
                             style={{
-                                textAlign: 'center',
-                                marginTop: '100px',
+                                textAlign: "center",
+                                marginTop: "100px",
                             }}
                         >
                             ReactLY
-                                </Typography>
+                        </Typography>
                         <Typography
                             variant="caption"
                             display="block"
                             gutterBottom
                             style={{
-                                textAlign: 'center',
-                                marginBottom: '100px',
+                                textAlign: "center",
+                                marginBottom: "100px",
                             }}
                         >
                             Fortune favors the bold.
-                                </Typography>
+                        </Typography>
                         <FormGroup className="FormGroupLogin">
                             <FormControl>
                                 <TextValidator
                                     variant="outlined"
                                     required
-                                    label={t('E-mail')}
+                                    label={t("E-mail")}
                                     name="username"
                                     onChange={onChange}
                                 />
 
                                 <FormHelperText>
-                                    {t(
-                                        'You need a E-mail.'
-                                    )}
+                                    {t("You need a E-mail.")}
                                 </FormHelperText>
                             </FormControl>
                         </FormGroup>
@@ -99,13 +110,13 @@ const Login = (props) => {
                                 <TextValidator
                                     required
                                     variant="outlined"
-                                    label={t('Password')}
+                                    label={t("Password")}
                                     name="password"
                                     type="password"
                                     onChange={onChange}
                                 />
                                 <FormHelperText>
-                                    {t('You need a Password')}
+                                    {t("You need a Password")}
                                 </FormHelperText>
                             </FormControl>
                         </FormGroup>
@@ -114,36 +125,41 @@ const Login = (props) => {
                                 <Button
                                     type="submit"
                                     variant="outlined"
-
                                     color="primary"
                                 >
                                     Log in
-                                        </Button>
+                                </Button>
                             </FormControl>
                         </FormGroup>
-                        <Button>{t('Forgot Passport ?')}</Button>
+                        <Button onClick={() => history.push("/forgotPassword")}>
+                            {t("Forgot Passport ?")}
+                        </Button>
                         <Typography
                             variant="caption"
                             display="block"
                             gutterBottom
                             style={{
-                                textAlign: 'center',
-                                margin: '10px 0',
+                                textAlign: "center",
+                                margin: "10px 0",
                             }}
                         >
                             © 2020 Murat Erhan All Rights Reserved
-
-
-                                </Typography>
+                        </Typography>
                     </Container>
                 </Grid>
 
-                <Grid container item md={6} sm={6} spacing={0} style={{ position: 'relative' }}>
+                <Grid
+                    container
+                    item
+                    md={6}
+                    sm={6}
+                    spacing={0}
+                    style={{ position: "relative" }}
+                >
                     <div className="loginBanner"></div>
                 </Grid>
             </Grid>
         </ValidatorForm>
-
     );
 };
 

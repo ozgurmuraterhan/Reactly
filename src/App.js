@@ -109,10 +109,6 @@ export default function App() {
                                         component={Login}
                                     />
                                     <UnPrivateRoute
-                                        path="/register"
-                                        component={Register}
-                                    />
-                                    <UnPrivateRoute
                                         path="/reset/:token"
                                         component={ResetPassword}
                                     />
@@ -120,12 +116,6 @@ export default function App() {
                                         path="/forgotPassword"
                                         component={ForgotPassword}
                                     />
-                                    <UnPrivateRoute
-                                        path="/forgotPassword"
-                                        component={ForgotPassword}
-                                    />
-
-                                    <Route component={Login} />
                                 </div>
                             </main>
                         </>
@@ -341,10 +331,6 @@ export default function App() {
                                     <UnPrivateRoute
                                         path="/login"
                                         component={Login}
-                                    />
-                                    <UnPrivateRoute
-                                        path="/register"
-                                        component={Register}
                                     />
                                 </div>
                             </main>

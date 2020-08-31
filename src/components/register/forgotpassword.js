@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import React, { Component } from 'react';
-import TextField from '@material-ui/core/TextField';
-import axios from 'axios';
+import React, { Component } from "react";
+import TextField from "@material-ui/core/TextField";
+import axios from "axios";
 import {
     LinkButtons,
     SubmitButtons,
@@ -10,10 +10,10 @@ import {
     forgotButton,
     inputStyle,
     HeaderBar,
-} from './components';
+} from "./components";
 
 const title = {
-    pageTitle: 'Forgot Password Screen',
+    pageTitle: "Forgot Password Screen",
 };
 
 class ForgotPassword extends Component {
@@ -21,14 +21,14 @@ class ForgotPassword extends Component {
         super();
 
         this.state = {
-            username: '',
+            username: "",
             showError: false,
-            messageFromServer: '',
+            messageFromServer: "",
             showNullError: false,
         };
     }
 
-    handleChange = name => (event) => {
+    handleChange = (name) => (event) => {
         this.setState({
             [name]: event.target.value,
         });
@@ -37,34 +37,34 @@ class ForgotPassword extends Component {
     sendEmail = async (e) => {
         e.preventDefault();
         const { username } = this.state;
-        if (username === '') {
+        if (username === "") {
             this.setState({
                 showError: false,
-                messageFromServer: '',
+                messageFromServer: "",
                 showNullError: true,
             });
         } else {
             try {
                 const response = await axios.post(
-                    'http://localhost:5000/user/forgotPassword',
+                    "http://localhost:5000/user/forgotPassword",
                     {
                         username,
-                    },
+                    }
                 );
                 console.log(response.data);
-                if (response.data === 'recovery email sent') {
+                if (response.data === "recovery email sent") {
                     this.setState({
                         showError: false,
-                        messageFromServer: 'recovery email sent',
+                        messageFromServer: "recovery email sent",
                         showNullError: false,
                     });
                 }
             } catch (error) {
-                console.log(error)
-                if (error.response.data === 'email not in db') {
+                console.log(error);
+                if (error.response.data === "email not in db") {
                     this.setState({
                         showError: true,
-                        messageFromServer: '',
+                        messageFromServer: "",
                         showNullError: false,
                     });
                 }
@@ -74,7 +74,10 @@ class ForgotPassword extends Component {
 
     render() {
         const {
-            username, messageFromServer, showNullError, showError
+            username,
+            messageFromServer,
+            showNullError,
+            showError,
         } = this.state;
 
         return (
@@ -86,7 +89,7 @@ class ForgotPassword extends Component {
                         id="email"
                         label="email"
                         value={username}
-                        onChange={this.handleChange('username')}
+                        onChange={this.handleChange("username")}
                         placeholder="Email Address"
                     />
                     <SubmitButtons
@@ -102,22 +105,21 @@ class ForgotPassword extends Component {
                 {showError && (
                     <div>
                         <p>
-                            That email address isn&apos;t recognized. Please try again or
-                            register for a new account.
-            </p>
-                        <LinkButtons
-                            buttonText="Register"
-                            buttonStyle={registerButton}
-                            link="/register"
-                        />
+                            That email address isn&apos;t recognized. Please
+                            contact to your admin.
+                        </p>
                     </div>
                 )}
-                {messageFromServer === 'recovery email sent' && (
+                {messageFromServer === "recovery email sent" && (
                     <div>
                         <h3>Password Reset Email Successfully Sent!</h3>
                     </div>
                 )}
-                <LinkButtons buttonText="Go Home" buttonStyle={homeButton} link="/" />
+                <LinkButtons
+                    buttonText="Go Home"
+                    buttonStyle={homeButton}
+                    link="/"
+                />
             </div>
         );
     }

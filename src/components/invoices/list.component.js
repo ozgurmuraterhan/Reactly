@@ -223,7 +223,7 @@ export default function InvoicesList(props) {
         seTpayment_id(id);
         handleClickOpen();
         axios.get("/invoices/payments/" + id).then((response) => {
-            console.log(response.data[0].payments);
+            console.log(response.data);
             seTpayments(response.data[0].payments);
         });
     };
@@ -267,52 +267,47 @@ export default function InvoicesList(props) {
                         editable={{
                             onRowAdd: (newData) =>
                                 new Promise((resolve, reject) => {
-                                    axios
-                                        .post(
-                                            `/invoices/addpayments/${payment_id}`,
-                                            {
-                                                amount: newData.amount,
-                                            }
-                                        )
-                                        .then((response) => {
-                                            payments.push(newData);
-                                            seTpayments(payments);
-                                            getInvoicesData();
-                                        });
+                                    axios.post(
+                                        `/invoices/addpayments/${payment_id}`,
+                                        {
+                                            amount: newData.amount,
+                                        }
+                                    );
+
+                                    payments.push(newData);
+                                    console.log(payments);
+                                    seTpayments(payments);
+                                    getInvoicesData();
+
                                     resolve();
                                 }),
                             onRowUpdate: (newData, oldData) =>
                                 new Promise((resolve, reject) => {
-                                    axios
-                                        .post(
-                                            `/invoices/editpayments/${newData._id}`,
-                                            { amount: newData.amount }
-                                        )
-                                        .then((response) => {
-                                            const index = payments.indexOf(
-                                                oldData
-                                            );
-                                            payments[index] = newData;
-                                            console.log(payments);
-                                            seTpayments(payments);
-                                            getInvoicesData();
-                                        });
+                                    axios.post(
+                                        `/invoices/editpayments/${newData._id}`,
+                                        { amount: newData.amount }
+                                    );
+
+                                    const index = payments.indexOf(oldData);
+                                    payments[index] = newData;
+                                    console.log(payments);
+                                    seTpayments(payments);
+                                    getInvoicesData();
+
                                     resolve();
                                 }),
                             onRowDelete: (oldData) =>
                                 new Promise((resolve, reject) => {
-                                    axios
-                                        .delete(
-                                            `/invoices/deletepayments/${oldData._id}`
-                                        )
-                                        .then((response) => {
-                                            const index = payments.indexOf(
-                                                oldData
-                                            );
-                                            payments.splice(index, 1);
-                                            seTpayments(payments);
-                                            getInvoicesData();
-                                        });
+                                    axios.get(
+                                        `/invoices/deletepayments/${oldData._id}`
+                                    );
+
+                                    const index = payments.indexOf(oldData);
+                                    payments.splice(index, 1);
+                                    console.log(payments);
+                                    seTpayments(payments);
+                                    getInvoicesData();
+
                                     resolve();
                                 }),
                         }}

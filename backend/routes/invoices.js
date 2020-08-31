@@ -3,7 +3,9 @@ const passport = require("passport");
 const JWT = require("jsonwebtoken");
 let Invoice = require("../models/invoice.model");
 let User = require("../models/user.model");
+const { dateFormat } = require("highcharts");
 let ObjectId = require("mongodb").ObjectId;
+const Moment = require("moment");
 
 const title = "Invoice";
 const roleTitle = "invoices";
@@ -326,5 +328,63 @@ router
             });
         }
     );
+
+// add datapayments by id
+router
+    .route("/addpayments/:id")
+    .post(
+        passport.authenticate("jwt", { session: false }),
+        (req, res, next) => {
+            User.find({ username: req.user.username }).then((data) => {
+                const rolesControl = data[0].role[0];
+                if (rolesControl[roleTitle + "create"]) {
+                    Invoice.updateMany(
+                        {
+                            _id: ObjectId(req.params.id),
+                        },
+                        {
+                            $push: {
+                                payments: {
+                                    amount: req.body.amount,
+                                    paid_data: Moment(Date.now())._d,
+                                    _id: ObjectId(),
+                                },
+                            },
+                        }
+                    ).catch((err) => console.log(err));
+                } else {
+                    res.status(403).json({
+                        message: {
+                            messagge: "You are not authorized, go away!",
+                            variant: "error",
+                        },
+                    });
+                }
+            });
+        }
+    );
+
+// update datapayments by id
+router
+    .route("/deletepayments/:id")
+    .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
+        User.find({ username: req.user.username }).then((data) => {
+            const rolesControl = data[0].role[0];
+            if (rolesControl[roleTitle + "edit"]) {
+                Invoice.updateMany(
+                    {},
+                    { $pull: { payments: { _id: ObjectId(req.params.id) } } },
+                    { multi: true }
+                ).catch((err) => console.log(err));
+            } else {
+                res.status(403).json({
+                    message: {
+                        messagge: "You are not authorized, go away!",
+                        variant: "error",
+                    },
+                });
+            }
+        });
+    });
 
 module.exports = router;
