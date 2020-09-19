@@ -15,15 +15,15 @@ app.use(express.json());
 
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
+   useNewUrlParser: true,
+   useCreateIndex: true,
+   useUnifiedTopology: true,
+   useFindAndModify: false,
 });
 
 const connection = mongoose.connection;
 connection.once("open", () => {
-    console.log("connection MongoDB");
+   console.log("connection MongoDB");
 });
 
 const userRouter = require("./routes/user");
@@ -36,6 +36,7 @@ const productsRouter = require("./routes/products");
 const invoicesRouter = require("./routes/invoices");
 const BankAccountsRouter = require("./routes/bankAccounts");
 const PaymentsRouter = require("./routes/payments");
+const Expensescategories = require("./routes/expensescategories");
 
 app.use(bodyParser.json());
 
@@ -49,7 +50,8 @@ app.use("/products", productsRouter);
 app.use("/invoices", invoicesRouter);
 app.use("/bankaccounts", BankAccountsRouter);
 app.use("/payments", PaymentsRouter);
+app.use("/expensescategories", Expensescategories);
 
 app.listen(port, () => {
-    console.log("sever is runnin port: " + port);
+   console.log("sever is runnin port: " + port);
 });

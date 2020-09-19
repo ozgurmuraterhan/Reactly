@@ -48,6 +48,10 @@ import InvoicesList from "./components/invoices/list.component";
 import InvoicesCreate from "./components/invoices/create.component";
 import InvoicesEdit from "./components/invoices/edit.component";
 
+import ExpensesList from "./components/expenses/list.component";
+import ExpensesCreate from "./components/expenses/create.component";
+import ExpensesEdit from "./components/expenses/edit.component";
+
 import ProductsList from "./components/products/list.component";
 import ProductsCreate from "./components/products/create.component";
 import ProductsEdit from "./components/products/edit.component";
@@ -56,9 +60,7 @@ import UsersList from "./components/users/list.component";
 import UsersCreate from "./components/users/create.component";
 import UsersEdit from "./components/users/edit.component";
 
-import Register from "./components/register/register";
 import Login from "./components/register/login";
-
 import ForgotPassword from "./components/register/forgotpassword";
 import ResetPassword from "./components/register/resetpassword";
 
@@ -176,7 +178,7 @@ export default function App() {
                                         <NavText>Products</NavText>
                                     </NavItem>
 
-                                    <NavItem eventKey="expenses">
+                                    <NavItem eventKey="expenseslist">
                                         <NavIcon>
                                             <MonetizationOn
                                                 fontSize="large"
@@ -286,6 +288,28 @@ export default function App() {
                                         ]}
                                         path="/invoices/edit/:id"
                                         component={InvoicesEdit}
+                                    />
+
+                                    <PrivateRoute
+                                        roles={["expensescreate"]}
+                                        path="/expensecreate"
+                                        component={ExpensesCreate}
+                                    />
+                                    <PrivateRoute
+                                        roles={[
+                                            "expenseslist",
+                                            "expensesonlyyou",
+                                        ]}
+                                        path="/expenseslist"
+                                        component={ExpensesList}
+                                    />
+                                    <PrivateRoute
+                                        roles={[
+                                            "expensesedit",
+                                            "expensesonlyyou",
+                                        ]}
+                                        path="/expenses/edit/:id"
+                                        component={ExpensesEdit}
                                     />
 
                                     <PrivateRoute

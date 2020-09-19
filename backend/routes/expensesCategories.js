@@ -1,22 +1,17 @@
-const express = require("express");
-const router = express.Router();
-const User = require("../models/user.model");
+const router = require("express").Router();
 const passport = require("passport");
 const JWT = require("jsonwebtoken");
+let Expensescategories = require("../models/expensescategories.model");
+let User = require("../models/user.model");
 
-const crypto = require("crypto");
-const bcrypt = require("bcrypt");
-const BCRYPT_SALT_ROUNDS = 10;
-
-const roleTitle = "staff";
-const title = "Staff";
-
+const title = "Products Group";
+const roleTitle = "expensescategories";
 // get all items
 router.route("/").get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         User.find()
+         Expensescategories.find()
             .then((data) => {
                res.json(data);
             })
@@ -27,9 +22,8 @@ router.route("/").get(passport.authenticate("jwt", { session: false }), (req, re
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         User.find({
-            $or: [{ _id: req.user._id }, { "created_user.id": `${req.user._id}` }],
-         })
+         Expensescategories.find({ "created_user.id": `${req.user._id}` })
+
             .then((data) => {
                res.json(data);
             })
@@ -55,9 +49,8 @@ router.route("/add").post(passport.authenticate("jwt", { session: false }), (req
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "create"]) {
-         new User(req.body)
+         new Expensescategories(req.body)
             .save()
-
             .then(() =>
                res.json({
                   messagge: title + " Added",
@@ -86,7 +79,7 @@ router.route("/:id").get(passport.authenticate("jwt", { session: false }), (req,
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         User.findById(req.params.id)
+         Expensescategories.findById(req.params.id)
             .then((data) => res.json(data))
             .catch((err) =>
                res.status(400).json({
@@ -95,8 +88,9 @@ router.route("/:id").get(passport.authenticate("jwt", { session: false }), (req,
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         User.findOne({
-            $or: [{ _id: req.params.id }, { "created_user.id": `${req.user._id}` }],
+         Expensescategories.findOne({
+            _id: req.params.id,
+            "created_user.id": `${req.user._id}`,
          })
             .then((data) => {
                if (data) {
@@ -131,16 +125,9 @@ router.route("/:id").get(passport.authenticate("jwt", { session: false }), (req,
 router.route("/:id").delete(passport.authenticate("jwt", { session: false }), (req, res) => {
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
-
-      if (req.params.id == req.user._id) {
-         return res.json({
-            messagge: " Can not delete yourself.",
-            variant: "error",
-         });
-      }
-
       if (rolesControl[roleTitle + "delete"]) {
-         User.findByIdAndDelete(req.params.id)
+         Product.updateMany({}, { $pull: { group_id: { value: req.params.id } } }, { multi: true }).catch((err) => console.log(err));
+         Expensescategories.findByIdAndDelete(req.params.id)
             .then((data) =>
                res.json({
                   messagge: title + " Deleted",
@@ -148,13 +135,14 @@ router.route("/:id").delete(passport.authenticate("jwt", { session: false }), (r
                })
             )
             .catch((err) =>
-               res.json({
+               res.status(400).json({
                   messagge: "Error: " + err,
                   variant: "error",
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         User.deleteOne({
+         Product.updateMany({}, { $pull: { group_id: { value: req.params.id } } }, { multi: true }).catch((err) => console.log(err));
+         Expensescategories.deleteOne({
             _id: req.params.id,
             "created_user.id": `${req.user._id}`,
          })
@@ -166,96 +154,61 @@ router.route("/:id").delete(passport.authenticate("jwt", { session: false }), (r
                   });
                } else {
                   res.status(403).json({
-                     messagge: "You are not authorized, go away!",
-                     variant: "error",
+                     message: {
+                        messagge: "You are not authorized, go away!",
+                        variant: "error",
+                     },
                   });
                }
             })
             .catch((err) =>
-               res.json({
+               res.status(400).json({
                   messagge: "Error: " + err,
                   variant: "error",
                })
             );
       } else {
          res.status(403).json({
-            messagge: "You are not authorized, go away!",
-            variant: "error",
+            message: {
+               messagge: "You are not authorized, go away!",
+               variant: "error",
+            },
          });
       }
    });
 });
-router.post("/updatePasswordSuperadmin", passport.authenticate("jwt", { session: false }), (req, res) => {
-   User.find({ username: req.user.username }).then((data) => {
-      const rolesControl = data[0].role;
-      if (rolesControl["superadmin"] || req.body._id == req.user._id) {
-         User.findOne({
-            _id: req.body._id,
-         }).then((user) => {
-            if (user != null) {
-               console.log("user exists in db");
-               bcrypt.hash(req.body.password, BCRYPT_SALT_ROUNDS).then((hashedPassword) => {
-                  User.findOneAndUpdate(
-                     {
-                        _id: req.body._id,
-                     },
-                     {
-                        password: hashedPassword,
-                     }
-                  )
-                     .then(() => {
-                        res.json({
-                           messagge: title + " Password Update",
-                           variant: "success",
-                        });
-                     })
-                     .catch((err) => {
-                        console.log(err);
-                        res.json({
-                           messagge: "Error: " + err,
-                           variant: "error",
-                        });
-                     });
-               });
-            } else {
-               console.error("no user exists in db to update");
-               res.status(401).json("no user exists in db to update");
-            }
-         });
-      } else {
-         res.json({
-            messagge: " You are not authorized, go away!",
-            variant: "error",
-         });
-      }
-   });
-});
+
 // update data by id
 router.route("/:id").post(passport.authenticate("jwt", { session: false }), (req, res, next) => {
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "edit"]) {
-         User.findByIdAndUpdate(req.params.id, req.body)
+         //Products collection group_id update by id
+         Product.updateMany({ "group_id.value": req.params.id }, { $set: { "group_id.$.label": req.body.name } }).catch((err) => console.log(err));
+
+         //ProductsGroup update
+         Expensescategories.findByIdAndUpdate(req.params.id, req.body)
             .then(() =>
                res.json({
-                  messagge: title + " Update",
+                  messagge: title + " Updated",
                   variant: "success",
                })
             )
             .catch((err) =>
-               res.json({
+               res.status(400).json({
                   messagge: "Error: " + err,
                   variant: "error",
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         User.findOneAndUpdate(
-            {
-               _id: req.params.id,
-               "created_user.id": `${req.user._id}`,
-            },
-            req.body
-         )
+         //Products collection group_id update by id
+         Product.updateMany({ "group_id.value": req.params.id }, { $set: { "group_id.$.label": req.body.name } }).catch((err) => console.log(err));
+
+         //ProductsGroup update
+         Expensescategories.findOneAndUpdate({
+            _id: req.params.id,
+            "created_user.id": `${req.user._id}`,
+         })
             .then((resdata) => {
                if (resdata) {
                   res.json({
@@ -270,7 +223,7 @@ router.route("/:id").post(passport.authenticate("jwt", { session: false }), (req
                }
             })
             .catch((err) =>
-               res.json({
+               res.status(400).json({
                   messagge: "Error: " + err,
                   variant: "error",
                })
