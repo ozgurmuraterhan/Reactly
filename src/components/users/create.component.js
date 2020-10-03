@@ -106,7 +106,6 @@ export default function ProductEdit(props) {
       expensesedit: false,
       expenseslist: false,
       expensesdelete: false,
-
       expensescategoriesonlyyou: true,
       expensescategoriescreate: false,
       expensescategoriesedit: false,

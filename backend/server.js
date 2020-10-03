@@ -37,6 +37,7 @@ const invoicesRouter = require("./routes/invoices");
 const BankAccountsRouter = require("./routes/bankAccounts");
 const PaymentsRouter = require("./routes/payments");
 const Expensescategories = require("./routes/expensescategories");
+const Expenses = require("./routes/expenses");
 
 app.use(bodyParser.json());
 
@@ -51,6 +52,7 @@ app.use("/invoices", invoicesRouter);
 app.use("/bankaccounts", BankAccountsRouter);
 app.use("/payments", PaymentsRouter);
 app.use("/expensescategories", Expensescategories);
+app.use("/expenses", Expenses);
 
 app.listen(port, () => {
    console.log("sever is runnin port: " + port);

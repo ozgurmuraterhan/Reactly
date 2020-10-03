@@ -4,7 +4,7 @@ const JWT = require("jsonwebtoken");
 let Expensescategories = require("../models/expensescategories.model");
 let User = require("../models/user.model");
 
-const title = "Products Group";
+const title = "Expenses Categories";
 const roleTitle = "expensescategories";
 // get all items
 router.route("/").get(passport.authenticate("jwt", { session: false }), (req, res, next) => {

@@ -463,7 +463,7 @@ export default function ExpenseEdit(props) {
                const details = [];
                for (const i in response.data) {
                   details.push({
-                     label: response.data[i].name,
+                     label: response.data[i].account_name,
                      value: response.data[i]._id,
                   });
                }
@@ -707,8 +707,8 @@ export default function ExpenseEdit(props) {
       });
    };
 
-   function getInvoices() {
-      axios.get(`/invoices/${props.match.params.id}`).then((response) => {
+   function getExpenses() {
+      axios.get(`/expenses/${props.match.params.id}`).then((response) => {
          seTstate({
             no: response.data.no,
             serie: response.data.serie,
@@ -770,7 +770,7 @@ export default function ExpenseEdit(props) {
       getBankAccountF();
       getProductsF();
       getCountryF();
-      getInvoices();
+      getExpenses();
    }, []);
 
    const onSubmit = (e) => {
@@ -821,18 +821,18 @@ export default function ExpenseEdit(props) {
       };
 
       axios
-         .post(`/invoices/${props.match.params.id}`, Invoices)
+         .post(`/expenses/${props.match.params.id}`, Invoices)
          .then((res) => {
             if (res.data.variant === "error") {
-               enqueueSnackbar(t("invoiceNotAdded") + res.data.messagge, {
+               enqueueSnackbar(t("Expense Not Updated") + res.data.messagge, {
                   variant: res.data.variant,
                });
             } else {
-               enqueueSnackbar(t("invoiceAdded") + res.data.messagge, {
+               enqueueSnackbar(t("Expense Updated") + res.data.messagge, {
                   variant: res.data.variant,
                });
                // navigate
-               history.push("/invoiceslist");
+               history.push("/expenseslist");
             }
          })
          .catch((err) => console.log(err));

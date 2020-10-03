@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const InvoiceSchema = new Schema(
+const ExpensesSchema = new Schema(
    {
       created_user: {
          required: true,
@@ -41,10 +41,13 @@ const InvoiceSchema = new Schema(
       due_note: {
          type: String,
       },
-      payments: {
-         type: Array,
-         trim: true,
-      },
+      payments: [
+         {
+            amount: { type: Number, required: true },
+            paid_date: { type: Date, required: true },
+            account_name: { type: Object, required: true },
+         },
+      ],
       subtotal: {
          type: Number,
       },
@@ -120,6 +123,6 @@ const InvoiceSchema = new Schema(
    }
 );
 
-const Invoice = mongoose.model("Invoice", InvoiceSchema);
+const Expenses = mongoose.model("Expenses", ExpensesSchema);
 
-module.exports = Invoice;
+module.exports = Expenses;

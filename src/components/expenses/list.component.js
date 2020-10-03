@@ -104,42 +104,13 @@ export default function ExpensesList(props) {
             return <div>{Moment(rowData.due_date).format("DD/MM/YYYY")}</div>;
          },
       },
-      {
-         title: t("Add Payments"),
-         render: (rowData) => {
-            return <div onClick={() => getPaymentsData(rowData._id)}>Add Payments</div>;
-         },
-      },
-
-      {
-         title: t("Status"),
-         render: (rowData) => {
-            if (rowData.payments.length > 0) {
-               let payment_amount = 0;
-               for (const i in rowData.payments) {
-                  payment_amount = parseFloat(payment_amount) + parseFloat(rowData.payments[i].amount);
-               }
-
-               let duadate = Date.parse(rowData.due_date);
-               let nowdate = parseFloat(Date.now());
-
-               if (rowData.total == payment_amount) {
-                  return <span className="invoice_paid">{t("PAID")}</span>;
-               } else if (rowData.total > payment_amount && duadate < nowdate) {
-                  return <span className="invoice_unpaid">{t("UNPAID")}</span>;
-               } else if (rowData.total > payment_amount > 0) {
-                  return <span className="invoice_partical">{t("PARTICAL")}</span>;
-               }
-            }
-         },
-      },
 
       {
          title: t("actions"),
          field: "_id",
          render: (rowData) => (
             <div>
-               <Link to={`/invoices/edit/${rowData._id}`}>
+               <Link to={`/expenses/edit/${rowData._id}`}>
                   <Edit />
                </Link>
             </div>
@@ -167,17 +138,8 @@ export default function ExpensesList(props) {
       ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
    };
 
-   const getPaymentsData = (id) => {
-      seTpayment_id(id);
-      handleClickOpen();
-      axios.get("/invoices/payments/" + id).then((response) => {
-         console.log(response.data);
-         seTpayments(response.data[0].payments);
-      });
-   };
-
-   const getInvoicesData = () => {
-      axios.get("/invoices").then((response) => {
+   const getData = () => {
+      axios.get("/expenses").then((response) => {
          if (response.data.length > 0) {
             seTdata(response.data);
             // console.log(data)
@@ -188,77 +150,11 @@ export default function ExpensesList(props) {
 
    // componentDidMount = useEffect
    useEffect(() => {
-      getInvoicesData();
+      getData();
    }, []);
-
-   const handleClickOpen = () => {
-      seTopen(true);
-   };
-
-   const handleClose = () => {
-      getInvoicesData();
-      seTopen(false);
-   };
 
    return (
       <>
-         <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-            <DialogContent style={{ padding: "0" }}>
-               <MaterialTable
-                  title={t("Payments")}
-                  icons={tableIcons}
-                  columns={payments_label}
-                  data={payments}
-                  options={{
-                     exportButton: true,
-                  }}
-                  editable={{
-                     onRowAdd: (newData) =>
-                        new Promise((resolve, reject) => {
-                           axios.post(`/invoices/addpayments/${payment_id}`, {
-                              amount: newData.amount,
-                           });
-
-                           payments.push(newData);
-                           console.log(payments);
-                           seTpayments(payments);
-                           getInvoicesData();
-
-                           resolve();
-                        }),
-                     onRowUpdate: (newData, oldData) =>
-                        new Promise((resolve, reject) => {
-                           axios.post(`/invoices/editpayments/${newData._id}`, { amount: newData.amount });
-
-                           const index = payments.indexOf(oldData);
-                           payments[index] = newData;
-                           console.log(payments);
-                           seTpayments(payments);
-                           getInvoicesData();
-
-                           resolve();
-                        }),
-                     onRowDelete: (oldData) =>
-                        new Promise((resolve, reject) => {
-                           axios.get(`/invoices/deletepayments/${oldData._id}`);
-
-                           const index = payments.indexOf(oldData);
-                           payments.splice(index, 1);
-                           console.log(payments);
-                           seTpayments(payments);
-                           getInvoicesData();
-
-                           resolve();
-                        }),
-                  }}
-               />
-            </DialogContent>
-            <DialogActions>
-               <Button onClick={handleClose} color="primary">
-                  {t("okey")}
-               </Button>
-            </DialogActions>
-         </Dialog>
          <div className="containerP">
             <Grid item container spacing={3}>
                <Grid container item md={12} className="panelGridRelative">
@@ -280,10 +176,10 @@ export default function ExpensesList(props) {
                            Toolbar: (props) => (
                               <div>
                                  <Typography component="h5" variant="h6" color="inherit" noWrap className="typography">
-                                    {t("invoicesList")}
+                                    {t("Expenses List")}
                                  </Typography>
-                                 <Link to="/invoicecreate" className="addButtonPlace">
-                                    <Tooltip title={t("createInvoice")}>
+                                 <Link to="/expensecreate" className="addButtonPlace">
+                                    <Tooltip title={t("Expense Create")}>
                                        <AddBox fontSize="large" className="addButtonIcon" />
                                     </Tooltip>
                                  </Link>

@@ -1,21 +1,21 @@
 const router = require("express").Router();
 const passport = require("passport");
 const JWT = require("jsonwebtoken");
-let Invoice = require("../models/invoice.model");
+let Expenses = require("../models/expenses.model");
 let User = require("../models/user.model");
 const { dateFormat } = require("highcharts");
 let ObjectId = require("mongodb").ObjectId;
 const Moment = require("moment");
 
-const title = "Invoice";
-const roleTitle = "invoices";
+const title = "Expenses";
+const roleTitle = "expenses";
 
 // get all items
 router.route("/").get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         Invoice.find()
+         Expenses.find()
             .then((data) => {
                res.json(data);
             })
@@ -26,7 +26,7 @@ router.route("/").get(passport.authenticate("jwt", { session: false }), (req, re
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         Invoice.find({ "created_user.id": `${req.user._id}` })
+         Expenses.find({ "created_user.id": `${req.user._id}` })
             .then((data) => {
                res.json(data);
             })
@@ -52,7 +52,7 @@ router.route("/add").post(passport.authenticate("jwt", { session: false }), (req
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "create"]) {
-         new Invoice(req.body)
+         new Expenses(req.body)
             .save()
             .then(() =>
                res.json({
@@ -82,7 +82,7 @@ router.route("/payments/:id").get(passport.authenticate("jwt", { session: false 
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         Invoice.find({ _id: req.params.id })
+         Expenses.find({ _id: req.params.id })
             .then((data2) => {
                res.json(data2);
             })
@@ -108,7 +108,7 @@ router.route("/statistic").get(passport.authenticate("jwt", { session: false }),
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         Invoice.aggregate([
+         Expenses.aggregate([
             { $unwind: "$group_id" },
             {
                $group: {
@@ -126,7 +126,7 @@ router.route("/:id").get(passport.authenticate("jwt", { session: false }), (req,
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         Invoice.findById(req.params.id)
+         Expenses.findById(req.params.id)
             .then((data) => res.json(data))
             .catch((err) =>
                res.status(400).json({
@@ -135,7 +135,7 @@ router.route("/:id").get(passport.authenticate("jwt", { session: false }), (req,
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         Invoice.findOne({
+         Expenses.findOne({
             _id: req.params.id,
             "created_user.id": `${req.user._id}`,
          })
@@ -173,7 +173,7 @@ router.route("/:id").delete(passport.authenticate("jwt", { session: false }), (r
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "remove"]) {
-         Invoice.findByIdAndDelete(req.params.id)
+         Expenses.findByIdAndDelete(req.params.id)
             .then((data) =>
                res.json({
                   messagge: title + " Deleted",
@@ -187,7 +187,7 @@ router.route("/:id").delete(passport.authenticate("jwt", { session: false }), (r
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         Invoice.deleteOne({
+         Expenses.deleteOne({
             _id: req.params.id,
             "created_user.id": `${req.user._id}`,
          })
@@ -228,7 +228,7 @@ router.route("/:id").post(passport.authenticate("jwt", { session: false }), (req
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "edit"]) {
-         Invoice.findByIdAndUpdate(req.params.id, req.body)
+         Expenses.findByIdAndUpdate(req.params.id, req.body)
             .then(() =>
                res.json({
                   messagge: title + " Update",
@@ -242,7 +242,7 @@ router.route("/:id").post(passport.authenticate("jwt", { session: false }), (req
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         Invoice.findOneAndUpdate(
+         Expenses.findOneAndUpdate(
             {
                _id: req.params.id,
                "created_user.id": `${req.user._id}`,
@@ -284,7 +284,7 @@ router.route("/editpayments/:id").post(passport.authenticate("jwt", { session: f
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "edit"]) {
-         Invoice.updateMany(
+         Expenses.updateMany(
             {
                "payments._id": ObjectId(req.params.id),
             },
@@ -306,7 +306,7 @@ router.route("/addpayments/:id").post(passport.authenticate("jwt", { session: fa
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "create"]) {
-         Invoice.updateMany(
+         Expenses.updateMany(
             {
                _id: ObjectId(req.params.id),
             },
@@ -336,7 +336,7 @@ router.route("/deletepayments/:id").get(passport.authenticate("jwt", { session: 
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "edit"]) {
-         Invoice.updateMany({}, { $pull: { payments: { _id: ObjectId(req.params.id) } } }, { multi: true }).catch((err) => console.log(err));
+         Expenses.updateMany({}, { $pull: { payments: { _id: ObjectId(req.params.id) } } }, { multi: true }).catch((err) => console.log(err));
       } else {
          res.status(403).json({
             message: {

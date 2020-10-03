@@ -33,6 +33,12 @@ import {
    Table,
    MenuItem,
    Grid,
+   InputLabel,
+   Dialog,
+   DialogTitle,
+   Input,
+   DialogContent,
+   DialogActions,
 } from "@material-ui/core";
 
 import {
@@ -71,15 +77,16 @@ export default function ExpenseCreate(props) {
    const [dataCustomers, seTdataCustomers] = useState([]);
    const [dataProducts, seTdataProducts] = useState([]);
    const [dataBankAccount, seTdataBankAccount] = useState("");
-   const [paid, seTpaid] = useState(false);
    const [focus, seTfocus] = useState({
       focus1: true,
       focus2: false,
       focus3: false,
       focus4: false,
    });
+   const [changeNewGroupNameJust, seTchangeNewGroupNameJust] = useState("");
+   const [findCustomersGroup, seTfindCustomersGroup] = useState([]);
+   const [gropBoxOpen, seTgropBoxOpen] = useState(false);
 
-   const [selectedDefaultProduct, seTselectedDefaultProduct] = useState([]);
    const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState([]);
    const [dataPayments, seTdataPayments] = useState("");
 
@@ -112,20 +119,11 @@ export default function ExpenseCreate(props) {
       no: "",
       created: Date.now(),
       bank_account: "",
-      due_note: "",
+      note: "",
       due_date: Date.now(),
       paid_date: Date.now(),
+      selectedGroupItems: [],
 
-      selectedbillingAddressState: [{ label: "", value: "" }],
-      selectedbillingAddressCountry: [{ label: "", value: "" }],
-      selectedshippingAddressState: [{ label: "", value: "" }],
-      selectedshippingAddressCountry: [{ label: "", value: "" }],
-      selected2Address: "",
-      selected2Town: "",
-      selected2Zipcode: "",
-      selected3Address: "",
-      selected3Town: "",
-      selected3Zipcode: "",
       default_payment_method: "",
    });
 
@@ -154,7 +152,7 @@ export default function ExpenseCreate(props) {
          ),
       },
       {
-         title: t("quantity"),
+         title: t("Quantity"),
          field: "quantity",
          type: "numeric",
          render: (rowData) => <div>{`${rowData.quantity} ${rowData.quantity_name} ${rowData.unit}`}</div>,
@@ -167,8 +165,10 @@ export default function ExpenseCreate(props) {
                onChange={(e) => {
                   props.onChange(e.target.value);
                   seTanyAmount(
-                     props.rowData.price * e.target.value * (1 + props.rowData.tax / 100) -
-                        props.rowData.price * e.target.value * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
+                     Number(
+                        props.rowData.price * e.target.value * (1 + props.rowData.tax / 100) -
+                           props.rowData.price * e.target.value * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
+                     ).toFixed(2)
                   );
                   seTfocus({
                      focus1: true,
@@ -183,7 +183,7 @@ export default function ExpenseCreate(props) {
          ),
       },
       {
-         title: t("salePrice"),
+         title: t("Price"),
          field: "price",
          type: "numeric",
          editComponent: (props) => (
@@ -195,8 +195,10 @@ export default function ExpenseCreate(props) {
                onChange={(e) => {
                   props.onChange(e.target.value);
                   seTanyAmount(
-                     e.target.value * props.rowData.quantity * (1 + props.rowData.tax / 100) -
-                        e.target.value * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
+                     Number(
+                        e.target.value * props.rowData.quantity * (1 + props.rowData.tax / 100) -
+                           e.target.value * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
+                     ).tofixed
                   );
                   seTfocus({
                      focus1: false,
@@ -210,38 +212,9 @@ export default function ExpenseCreate(props) {
             />
          ),
       },
-      {
-         title: t("Discount"),
-         field: "discount",
-         type: "numeric",
-         render: (rowData) => <div>{`${rowData.discount} %`}</div>,
-         editComponent: (props) => (
-            <TextValidator
-               margin="dense"
-               type="number"
-               value={props.value}
-               autoFocus={focus.focus3}
-               onChange={(e) => {
-                  props.onChange(e.target.value);
-                  seTanyAmount(
-                     props.rowData.price * props.rowData.quantity * (1 + props.rowData.tax / 100) -
-                        props.rowData.price * props.rowData.quantity * (0 + e.target.value / 100) * (1 + props.rowData.tax / 100)
-                  );
 
-                  seTfocus({
-                     focus1: false,
-                     focus2: false,
-                     focus3: true,
-                     focus4: false,
-                  });
-               }}
-               validators={["isNumber"]}
-               errorMessages={[t("thisIsNotNumber")]}
-            />
-         ),
-      },
       {
-         title: t("productVat"),
+         title: t("Product Tax"),
          field: "tax",
          type: "numeric",
          render: (rowData) => <div>{`${rowData.tax} %`}</div>,
@@ -254,8 +227,10 @@ export default function ExpenseCreate(props) {
                onChange={(e) => {
                   props.onChange(e.target.value);
                   seTanyAmount(
-                     props.rowData.price * props.rowData.quantity * (1 + e.target.value / 100) -
-                        props.rowData.price * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + e.target.value / 100)
+                     Number(
+                        props.rowData.price * props.rowData.quantity * (1 + e.target.value / 100) -
+                           props.rowData.price * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + e.target.value / 100)
+                     ).tofixed(2)
                   );
 
                   seTfocus({
@@ -271,7 +246,7 @@ export default function ExpenseCreate(props) {
          ),
       },
       {
-         title: t("amount"),
+         title: t("Amounth"),
          field: "amount",
          type: "numeric",
          editComponent: (props) => (
@@ -279,7 +254,7 @@ export default function ExpenseCreate(props) {
                margin="dense"
                type="text"
                disabled
-               value={anyAmount ? anyAmount.toFixed(0) : props.value}
+               value={anyAmount ? anyAmount : props.value}
                onChange={(e) => props.onChange(e.target.value)}
                validators={["isNumber"]}
                errorMessages={[t("thisIsNotNumber")]}
@@ -334,27 +309,25 @@ export default function ExpenseCreate(props) {
    };
 
    const onChangeFquantity = (e) => {
-      const amount = (
+      const amount = Number(
          (product.sale_price * e.target.value - product.sale_price * e.target.value * (0 + product.product_discount / 100)) *
-         (1 + product.product_vat / 100)
-      ).toFixed(0);
+            (1 + product.product_vat / 100)
+      ).toFixed(2);
       seTquantity(e.target.value);
       seTproduct({ ...product, amount: amount });
    };
 
    const onChangeFprice = (e) => {
-      const amount = (
-         (e.target.value * quantity - e.target.value * quantity * (0 + product.product_discount / 100)) *
-         (1 + product.product_vat / 100)
-      ).toFixed(0);
+      const amount = Number(
+         (e.target.value * quantity - e.target.value * quantity * (0 + product.product_discount / 100)) * (1 + product.product_vat / 100)
+      ).toFixed(2);
       seTproduct({ ...product, sale_price: e.target.value, amount: amount });
    };
 
    const onChangeFproduct_vat = (e) => {
-      const amount = (
-         (product.sale_price * quantity - product.sale_price * quantity * (0 + product.product_discount / 100)) *
-         (1 + e.target.value / 100)
-      ).toFixed(0);
+      const amount = Number(
+         (product.sale_price * quantity - product.sale_price * quantity * (0 + product.product_discount / 100)) * (1 + e.target.value / 100)
+      ).toFixed(2);
       seTproduct({ ...product, product_vat: e.target.value, amount: amount });
    };
 
@@ -366,51 +339,12 @@ export default function ExpenseCreate(props) {
                const details = [];
                for (const i in response.data) {
                   details.push({
-                     label: response.data[i].name,
+                     label: response.data[i].account_name,
                      value: response.data[i]._id,
                   });
                }
                seTdataBankAccount(details);
-            }
-         })
-         .catch((err) => console.log(err));
-   }
-
-   const handleChangeProduct = (selectedOption) => {
-      axios
-         .get(`/products/${selectedOption.value}`)
-         .then((response) => {
-            const productData = response.data;
-            const amount = productData.sale_price * quantity * (1 + productData.product_vat / 100);
-            seTproduct({
-               ...product,
-               product_description: productData.product_description,
-               product_name: productData.product_name,
-               sale_price: productData.sale_price,
-               product_vat: productData.product_vat,
-               amount: amount,
-            });
-         })
-         .catch((err) => console.log(err));
-      seTselectedDefaultProduct({
-         label: selectedOption.label,
-         value: selectedOption.value,
-      });
-   };
-
-   function getProductsF() {
-      axios
-         .get("/products")
-         .then((response) => {
-            if (response.data.length > 0) {
-               const details = [];
-               for (const i in response.data) {
-                  details.push({
-                     label: response.data[i].product_name,
-                     value: response.data[i]._id,
-                  });
-               }
-               seTdataProducts(details);
+               console.log(details);
             }
          })
          .catch((err) => console.log(err));
@@ -445,6 +379,25 @@ export default function ExpenseCreate(props) {
       totalCebirItems();
    };
 
+   function getExpensesCategories() {
+      axios
+         .get("/expensescategories/")
+         .then((res) => {
+            if (res.data.length > 0) {
+               const details = [];
+               for (const i in res.data) {
+                  details.push({
+                     label: res.data[i].name,
+                     value: res.data[i]._id,
+                  });
+               }
+
+               seTfindCustomersGroup(details);
+            }
+         })
+         .catch((err) => console.log(err));
+   }
+
    function totalCebirItems() {
       let total2 = 0;
       let subtotal2 = 0;
@@ -457,7 +410,7 @@ export default function ExpenseCreate(props) {
       });
 
       items.map((item) => {
-         total2 = total2 + item.amount;
+         total2 = total2 + parseInt(item.amount).toFixed(2);
          subtotal2 = subtotal2 + (item.price * item.quantity - item.price * item.quantity * (0 + item.discount / 100));
          taxtotal2 =
             taxtotal2 +
@@ -473,9 +426,10 @@ export default function ExpenseCreate(props) {
             price: item.price,
             discount: item.discount,
             tax: item.tax,
-            amount:
+            amount: Number(
                item.price * item.quantity * (1 + item.tax / 100) -
-               (item.price * item.quantity * (0 + item.discount / 100) * (1 + item.tax / 100)).toFixed(0),
+                  (item.price * item.quantity * (0 + item.discount / 100) * (1 + item.tax / 100)).toFixed(0)
+            ).toFixed(2),
          });
       });
 
@@ -502,35 +456,59 @@ export default function ExpenseCreate(props) {
       }
    }
 
+   // open new group dialog save
+   const saveHandleNewGroup = () => {
+      const data = {
+         created_user: { name: user.name, id: user.id },
+
+         name: changeNewGroupNameJust,
+      };
+
+      axios
+         .post("/expensescategories/add", data)
+         .then((res) => {
+            if (res.data.variant == "error") {
+               enqueueSnackbar(t("Expenses Category Not Added") + res.data.messagge, { variant: res.data.variant });
+            } else {
+               enqueueSnackbar(t("Expenses Category Added"), {
+                  variant: res.data.variant,
+               });
+            }
+
+            getExpensesCategories();
+         })
+         .catch((err) => console.log(err));
+
+      seTgropBoxOpen(false);
+   };
+
    // componentDidMount = useEffect
    useEffect(() => {
       getCustomersF();
       getBankAccountF();
-      getProductsF();
+      getExpensesCategories();
    }, []);
 
    const onSubmit = (e) => {
       e.preventDefault();
-      if (paid === true) {
-         var paymentsArray = [
-            {
-               amount: totalAll.total.toFixed(2),
-               paid_date: Moment(state.paid_date)._d,
-               bank_account: state.bank_account,
-            },
-         ];
-      }
+      var paymentsArray = [
+         {
+            amount: totalAll.total.toFixed(2),
+            paid_date: Moment(state.paid_date)._d,
+            bank_account: state.bank_account,
+         },
+      ];
 
-      const Invoices = {
+      const Expense = {
          created_user: { name: user.name, id: user.id },
          draft: 0,
          no: state.no,
-         serie: state.serie,
          created: Moment(state.created)._d,
          due_date: Moment(state.due_date)._d,
          date_send: 0,
+         category_id: state.selectedGroupItems,
          customer_id: selectedDefaultCustomer,
-         due_note: state.due_note,
+         note: state.note,
          subtotal: totalAll.subtotal.toFixed(2),
          taxtotal: totalAll.taxtotal.toFixed(2),
          total: totalAll.total.toFixed(2),
@@ -538,7 +516,6 @@ export default function ExpenseCreate(props) {
          discountType: totalAll.discountType,
          discountValue: totalAll.discountValue,
          items: items,
-         default_payment_method: state.default_payment_method,
          quantity,
          quantity_name,
 
@@ -546,18 +523,18 @@ export default function ExpenseCreate(props) {
       };
 
       axios
-         .post("/invoices/add", Invoices)
+         .post("/expenses/add", Expense)
          .then((res) => {
             if (res.data.variant === "error") {
-               enqueueSnackbar(t("invoiceNotAdded") + res.data.messagge, {
+               enqueueSnackbar(t("Expense Not Added") + res.data.messagge, {
                   variant: res.data.variant,
                });
             } else {
-               enqueueSnackbar(t("invoiceAdded") + res.data.messagge, {
+               enqueueSnackbar(t("Expense Added") + res.data.messagge, {
                   variant: res.data.variant,
                });
                // navigate
-               history.push("/invoiceslist");
+               history.push("/expenseslist");
             }
          })
          .catch((err) => console.log(err));
@@ -573,22 +550,8 @@ export default function ExpenseCreate(props) {
                   </Card>
                   <Card className="listViewPaper">
                      <Typography component="h1" variant="h6" color="inherit" noWrap className="typography">
-                        {t("invoiceCreate")}
+                        {t("Expense Create")}
                      </Typography>
-                     <FormControlLabel
-                        style={{ float: "right" }}
-                        control={
-                           <Switch
-                              checked={paid}
-                              onChange={() => {
-                                 seTpaid(!paid);
-                              }}
-                              color="primary"
-                           />
-                        }
-                        label={t("paid")}
-                     />
-
                      <Grid item container sm={12}>
                         <Grid container item sm={4} spacing={0}>
                            <FormGroup className="FormGroup">
@@ -605,164 +568,51 @@ export default function ExpenseCreate(props) {
                               </FormControl>
                            </FormGroup>
                         </Grid>
-                        <Grid container item sm={2} spacing={0}>
-                           <FormGroup className="FormGroup">
-                              <FormControl>
-                                 <TextValidator
-                                    required
-                                    label={t("serie")}
-                                    variant="outlined"
-                                    margin="dense"
-                                    value={state.serie}
-                                    onChange={(e) => {
-                                       seTstate({
-                                          ...state,
-                                          serie: e.target.value,
-                                       });
+                        <Grid container item sm={4} spacing={0}>
+                           <Grid container item sm={1} spacing={0}>
+                              <Tooltip title={t("Create New Category")}>
+                                 <AddBox
+                                    onClick={() => {
+                                       seTgropBoxOpen(true);
+                                    }}
+                                    fontSize="large"
+                                    style={{
+                                       margin: "13px 0px 0 9px",
+                                       fontSize: "38pt",
                                     }}
                                  />
-                                 <FormHelperText>{t("youNeedaSerieName")}</FormHelperText>
-                              </FormControl>
-                           </FormGroup>
-                        </Grid>
-                        <Grid container item sm={3} spacing={0}>
-                           <FormGroup className="FormGroup">
-                              <FormControl>
-                                 <TextValidator
-                                    required
-                                    label={t("invoiceNumber")}
-                                    variant="outlined"
-                                    margin="dense"
-                                    value={state.no}
-                                    onChange={(e) => {
-                                       seTstate({
-                                          ...state,
-                                          no: e.target.value,
-                                       });
-                                    }}
-                                    validators={["isNumber"]}
-                                    errorMessages={[t("thisIsNotNumber")]}
-                                 />
-                                 <FormHelperText>{t("youNeedaInvoiceNumber")}</FormHelperText>
-                              </FormControl>
-                           </FormGroup>
-                        </Grid>
-                        <Grid container item sm={3} spacing={0}>
-                           <FormGroup className="FormGroup">
-                              <FormControl>
-                                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                    <KeyboardDatePicker
-                                       inputVariant="outlined"
-                                       margin="dense"
-                                       id="date-picker-dialog"
-                                       label={t("createdDate")}
-                                       format="dd/MM/yyyy"
-                                       value={state.created}
-                                       onChange={(date) =>
-                                          seTstate({
-                                             ...state,
-                                             created: date,
-                                          })
-                                       }
-                                       KeyboardButtonProps={{
-                                          "aria-label": "change date",
+                              </Tooltip>
+                           </Grid>
+                           <Grid container item sm={11} spacing={0}>
+                              <FormGroup className="FormGroup">
+                                 <InputLabel htmlFor="group_id" className="InputLabel" style={{ margin: "3px" }}>
+                                    {" "}
+                                 </InputLabel>
+                                 <FormControl>
+                                    <Select
+                                       isMulti
+                                       styles={{
+                                          singleValue: (base) => ({
+                                             ...base,
+                                             color: "white",
+                                          }),
                                        }}
-                                    />
-                                 </MuiPickersUtilsProvider>
-                                 <FormHelperText>{t("youNeedaCreatedDate")}</FormHelperText>
-                              </FormControl>
-                           </FormGroup>
-                        </Grid>
-
-                        <Grid container item sm={6} spacing={0} style={{ display: paid ? "none" : "flex" }}>
-                           <FormGroup className="FormGroup">
-                              <FormControl>
-                                 <TextValidator
-                                    multiline
-                                    label={t("duenote")}
-                                    variant="outlined"
-                                    margin="dense"
-                                    value={state.due_note}
-                                    onChange={(e) => {
-                                       seTstate({
-                                          ...state,
-                                          due_note: e.target.value,
-                                       });
-                                    }}
-                                 />
-                                 <FormHelperText>{t("youNeedaDueNote")}</FormHelperText>
-                              </FormControl>
-                           </FormGroup>
-                        </Grid>
-                        <Grid container item sm={3} spacing={0} style={{ display: paid ? "none" : "flex" }}>
-                           <FormGroup className="FormGroup">
-                              <FormControl>
-                                 <label className="selectLabel">{t("defaultPaymentMethod")}</label>
-                                 <Select
-                                    placeholder={t("defaultPaymentMethod")}
-                                    value={state.default_payment_method}
-                                    options={dataPayments}
-                                    onChange={(selectedOption) => {
-                                       seTstate({
-                                          ...state,
-                                          default_payment_method: selectedOption,
-                                       });
-                                    }}
-                                 />
-                                 <FormHelperText>{t("youNeedaDefaultPaymentMethod")}</FormHelperText>
-                              </FormControl>
-                           </FormGroup>
-                        </Grid>
-                        <Grid container item sm={3} spacing={0} style={{ display: paid ? "none" : "flex" }}>
-                           <FormGroup className="FormGroup">
-                              <FormControl>
-                                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                    <KeyboardDatePicker
-                                       inputVariant="outlined"
-                                       margin="dense"
-                                       id="date-picker-dialog"
-                                       label={t("dueDate")}
-                                       format="dd/MM/yyyy"
-                                       value={state.due_date}
-                                       onChange={(date) => {
+                                       placeholder={t("selectGropName")}
+                                       value={state.selectedGroupItems}
+                                       options={findCustomersGroup}
+                                       onChange={(selectedOption) => {
                                           seTstate({
                                              ...state,
-                                             due_date: date,
+                                             selectedGroupItems: selectedOption,
                                           });
                                        }}
-                                       KeyboardButtonProps={{
-                                          "aria-label": "change date",
-                                       }}
                                     />
-                                 </MuiPickersUtilsProvider>
-                                 <FormHelperText>{t("youNeedaDueDate")}</FormHelperText>
-                              </FormControl>
-                           </FormGroup>
+                                 </FormControl>
+                              </FormGroup>
+                           </Grid>
                         </Grid>
-                        <Grid container item sm={6} spacing={0} style={{ display: paid ? "flex" : "none" }}>
-                           <FormGroup className="FormGroup">
-                              <FormControl>
-                                 <label className="selectLabel">{t("selectBankAccount")}</label>
-                                 <Select
-                                    placeholder={t("selectBankAccount")}
-                                    value={state.bank_account}
-                                    style={{
-                                       width: "100%",
-                                       marginTop: "-6px",
-                                    }}
-                                    options={dataBankAccount}
-                                    onChange={(selectedOption) => {
-                                       seTstate({
-                                          ...state,
-                                          bank_account: selectedOption,
-                                       });
-                                    }}
-                                 />
-                                 <FormHelperText>{t("youNeedaselectBankAccount")}</FormHelperText>
-                              </FormControl>
-                           </FormGroup>
-                        </Grid>
-                        <Grid container item sm={6} spacing={0} style={{ display: paid ? "flex" : "none" }}>
+
+                        <Grid container item sm={4} spacing={0}>
                            <FormGroup className="FormGroup">
                               <FormControl>
                                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -791,6 +641,74 @@ export default function ExpenseCreate(props) {
                               </FormControl>
                            </FormGroup>
                         </Grid>
+                        <Grid container item sm={4} spacing={0}>
+                           <FormGroup className="FormGroup">
+                              <FormControl>
+                                 <label className="selectLabel">{t("selectBankAccount")}</label>
+                                 <Select
+                                    placeholder={t("selectBankAccount")}
+                                    value={state.bank_account}
+                                    style={{
+                                       width: "100%",
+                                       marginTop: "-6px",
+                                    }}
+                                    options={dataBankAccount}
+                                    onChange={(selectedOption) => {
+                                       seTstate({
+                                          ...state,
+                                          bank_account: selectedOption,
+                                       });
+                                    }}
+                                 />
+                                 <FormHelperText>{t("youNeedaselectBankAccount")}</FormHelperText>
+                              </FormControl>
+                           </FormGroup>
+                        </Grid>
+                        <Grid container item sm={4} spacing={0}>
+                           <FormGroup className="FormGroup">
+                              <FormControl>
+                                 <TextValidator
+                                    required
+                                    label={t("Referance Number")}
+                                    variant="outlined"
+                                    margin="dense"
+                                    value={state.no}
+                                    onChange={(e) => {
+                                       seTstate({
+                                          ...state,
+                                          no: e.target.value,
+                                       });
+                                    }}
+                                    validators={["isNumber"]}
+                                    errorMessages={[t("thisIsNotNumber")]}
+                                 />
+                                 <FormHelperText>{t("youNeedaInvoiceNumber")}</FormHelperText>
+                              </FormControl>
+                           </FormGroup>
+                        </Grid>
+                        <Grid container item sm={4} spacing={0}>
+                           <FormGroup className="FormGroup">
+                              <FormControl>
+                                 <TextValidator
+                                    label={t("Note")}
+                                    variant="outlined"
+                                    margin="dense"
+                                    value={state.note}
+                                    multiline
+                                    rows={1}
+                                    rowsMax={4}
+                                    onChange={(e) => {
+                                       seTstate({
+                                          ...state,
+                                          note: e.target.value,
+                                       });
+                                    }}
+                                 />
+                                 <FormHelperText>{t("Note")}</FormHelperText>
+                              </FormControl>
+                           </FormGroup>
+                        </Grid>
+
                         <Grid
                            item
                            container
@@ -801,33 +719,13 @@ export default function ExpenseCreate(props) {
                               margin: "15px 0",
                            }}
                         >
-                           <Grid item container sm={3} spacing={0}>
-                              <FormGroup className="FormGroup">
-                                 <FormControl>
-                                    <Select
-                                       placeholder={t("addProduct")}
-                                       value={selectedDefaultProduct}
-                                       options={dataProducts}
-                                       onChange={handleChangeProduct}
-                                       styles={{
-                                          control: (base) => ({
-                                             ...base,
-                                             color: "white",
-                                             width: "100%",
-                                             border: 0,
-                                             borderBottom: "1px solid #949494",
-                                             borderRadius: 0,
-                                             marginTop: "10px",
-                                          }),
-                                       }}
-                                    />
-                                    <FormHelperText>{t("youNeedaProductName")}</FormHelperText>
-                                 </FormControl>
-                              </FormGroup>
+                           <Grid item container sm={8} spacing={0}>
+                              <Typography component="h1" variant="h6" color="inherit" noWrap className="typography" style={{ paddingLeft: "20px" }}>
+                                 {t("Items")}
+                              </Typography>
                            </Grid>
-                           <Grid item container sm={4} spacing={0} />
 
-                           <Grid item container sm={5} spacing={0}>
+                           <Grid item container sm={4} spacing={0}>
                               <RadioGroup
                                  value={quantity_name}
                                  onChange={(event) => {
@@ -837,7 +735,7 @@ export default function ExpenseCreate(props) {
                               >
                                  <label
                                     style={{
-                                       marginTop: "31px",
+                                       marginTop: "20px",
                                        marginRight: "10px",
                                     }}
                                  >
@@ -879,12 +777,14 @@ export default function ExpenseCreate(props) {
                                  />
                               </FormControl>
                            </Grid>
-                           <Grid container item sm={2} spacing={0}>
+                           <Grid container item sm={3} spacing={0}>
                               <FormControl style={{ width: "90%" }}>
                                  <TextValidator
                                     multiline
                                     label={t("description")}
                                     value={product.product_description}
+                                    rows={1}
+                                    rowsMax={4}
                                     onChange={(e) => {
                                        seTproduct({
                                           ...product,
@@ -908,8 +808,8 @@ export default function ExpenseCreate(props) {
                                        seTunit(e.target.value);
                                     }}
                                     /*InputLabelProps={{
-                              shrink: true,
-                            }}*/
+                                       shrink: true,
+                                    }}*/
                                  />
                                  <FormHelperText>{t("youNeedaProductUnit")}</FormHelperText>
                               </FormControl>
@@ -941,7 +841,7 @@ export default function ExpenseCreate(props) {
                            <Grid container item sm={1} spacing={0}>
                               <FormControl>
                                  <Button color="primary" onClick={onClickAddItem} disabled={!product.amount}>
-                                    <Tooltip title={t("Add Product")}>
+                                    <Tooltip title={t("Add Expense item")}>
                                        <PlaylistAddCheck fontSize="large" />
                                     </Tooltip>
                                  </Button>
@@ -1031,6 +931,43 @@ export default function ExpenseCreate(props) {
                   <Card className="listViewPaper">sdas</Card>
                </Grid>
             </Grid>
+            <Dialog
+               disableBackdropClick
+               disableEscapeKeyDown
+               open={gropBoxOpen}
+               onClose={() => {
+                  seTgropBoxOpen(false);
+               }}
+            >
+               <DialogTitle>{t("addNewCustomerGroupName")}</DialogTitle>
+               <DialogContent>
+                  <FormControl className="FormControl" style={{ width: "100%" }}>
+                     <InputLabel htmlFor="group">{t("addGroupName")}</InputLabel>
+                     <Input
+                        id="group"
+                        onChange={(e) => {
+                           seTchangeNewGroupNameJust(e.target.value);
+                        }}
+                     />
+                     <FormHelperText>{t("addNewGroupName")}</FormHelperText>
+                  </FormControl>
+               </DialogContent>
+               <DialogActions>
+                  <Button
+                     onClick={() => {
+                        seTgropBoxOpen(false);
+                     }}
+                     color="primary"
+                  >
+                     {" "}
+                     {t("cancel")}{" "}
+                  </Button>
+                  <Button onClick={saveHandleNewGroup} color="primary">
+                     {" "}
+                     {t("save")}{" "}
+                  </Button>
+               </DialogActions>
+            </Dialog>
          </ValidatorForm>
       </div>
    );
