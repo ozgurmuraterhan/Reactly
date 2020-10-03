@@ -839,7 +839,7 @@ export default function ProductEdit(props) {
                            </div>
 
                            <div className="permissions_div">
-                              <b>{t("Payments")}</b>
+                              <b>{t("PaymentsMethod")}</b>
 
                               <FormControlLabel
                                  control={

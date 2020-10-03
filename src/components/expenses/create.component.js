@@ -88,7 +88,7 @@ export default function ExpenseCreate(props) {
    const [gropBoxOpen, seTgropBoxOpen] = useState(false);
 
    const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState([]);
-   const [dataPayments, seTdataPayments] = useState("");
+   const [dataPaymentsMethod, seTdataPaymentsMethod] = useState("");
 
    const [product, seTproduct] = useState({
       product_description: "",

@@ -105,9 +105,9 @@ export default function InvoicesList(props) {
          },
       },
       {
-         title: t("Add Payments"),
+         title: t("Add PaymentsMethod"),
          render: (rowData) => {
-            return <div onClick={() => getPaymentsData(rowData._id)}>Add Payments</div>;
+            return <div onClick={() => getPaymentsMethodData(rowData._id)}>Add PaymentsMethod</div>;
          },
       },
 
@@ -167,7 +167,7 @@ export default function InvoicesList(props) {
       ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
    };
 
-   const getPaymentsData = (id) => {
+   const getPaymentsMethodData = (id) => {
       seTpayment_id(id);
       handleClickOpen();
       axios.get("/invoices/payments/" + id).then((response) => {
@@ -205,7 +205,7 @@ export default function InvoicesList(props) {
          <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
             <DialogContent style={{ padding: "0" }}>
                <MaterialTable
-                  title={t("Payments")}
+                  title={t("PaymentsMethod")}
                   icons={tableIcons}
                   columns={payments_label}
                   data={payments}

@@ -82,7 +82,7 @@ export default function ExpenseEdit(props) {
 
    const [selectedDefaultProduct, seTselectedDefaultProduct] = useState([]);
    const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState([]);
-   const [dataPayments, seTdataPayments] = useState("");
+   const [dataPaymentsMethod, seTdataPaymentsMethod] = useState("");
 
    const [product, seTproduct] = useState({
       product_description: "",
@@ -437,7 +437,7 @@ export default function ExpenseEdit(props) {
       });
    };
 
-   function getPaymentsF() {
+   function getPaymentsMethodF() {
       axios
          .get("/payments")
          .then((response) => {
@@ -449,7 +449,7 @@ export default function ExpenseEdit(props) {
                      value: response.data[i]._id,
                   });
                }
-               seTdataPayments(details);
+               seTdataPaymentsMethod(details);
             }
          })
          .catch((err) => console.log(err));
@@ -766,7 +766,7 @@ export default function ExpenseEdit(props) {
    // componentDidMount = useEffect
    useEffect(() => {
       getCustomersF();
-      getPaymentsF();
+      getPaymentsMethodF();
       getBankAccountF();
       getProductsF();
       getCountryF();
@@ -976,7 +976,7 @@ export default function ExpenseEdit(props) {
                                  <Select
                                     placeholder={t("defaultPaymentMethod")}
                                     value={state.default_payment_method}
-                                    options={dataPayments}
+                                    options={dataPaymentsMethod}
                                     onChange={(selectedOption) => {
                                        seTstate({
                                           ...state,
