@@ -1,19 +1,33 @@
 const router = require("express").Router();
 const passport = require("passport");
 const JWT = require("jsonwebtoken");
-let PaymentsMethod = require("../models/paymentsmethods.model");
+let Paymentsmethods = require("../models/paymentsmethods.model");
 let User = require("../models/user.model");
 
 const title = "PaymentsMethod";
-const roleTitle = "payments";
+const roleTitle = "paymentsmethods";
 
+router.route("/sdsd").get((req, res, next) => {
+   Paymentsmethods.find()
+      .then((data) => {
+         res.json(data);
+      })
+      .catch((err) =>
+         res.json({
+            messagge: "Error: " + err,
+            variant: "error",
+         })
+      );
+});
 // get all items
 router.route("/").get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         PaymentsMethod.find()
+         Paymentsmethods.find()
             .then((data) => {
+               console.log(data);
+
                res.json(data);
             })
             .catch((err) =>
@@ -23,7 +37,7 @@ router.route("/").get(passport.authenticate("jwt", { session: false }), (req, re
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         PaymentsMethod.find({ "created_user.id": `${req.user._id}` })
+         Paymentsmethods.find({ "created_user.id": `${req.user._id}` })
             .then((data) => {
                res.json(data);
             })
@@ -79,7 +93,7 @@ router.route("/statistic").get(passport.authenticate("jwt", { session: false }),
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         PaymentsMethod.aggregate([
+         Paymentsmethods.aggregate([
             { $unwind: "$group_id" },
             {
                $group: {
@@ -97,7 +111,7 @@ router.route("/:id").get(passport.authenticate("jwt", { session: false }), (req,
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         PaymentsMethod.findById(req.params.id)
+         Paymentsmethods.findById(req.params.id)
             .then((data) => res.json(data))
             .catch((err) =>
                res.status(400).json({
@@ -106,7 +120,7 @@ router.route("/:id").get(passport.authenticate("jwt", { session: false }), (req,
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         PaymentsMethod.findOne({
+         Paymentsmethods.findOne({
             _id: req.params.id,
             "created_user.id": `${req.user._id}`,
          })
@@ -144,7 +158,7 @@ router.route("/:id").delete(passport.authenticate("jwt", { session: false }), (r
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "delete"]) {
-         PaymentsMethod.findByIdAndDelete(req.params.id)
+         Paymentsmethods.findByIdAndDelete(req.params.id)
             .then((data) =>
                res.json({
                   messagge: title + " Deleted",
@@ -158,7 +172,7 @@ router.route("/:id").delete(passport.authenticate("jwt", { session: false }), (r
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         PaymentsMethod.deleteOne({
+         Paymentsmethods.deleteOne({
             _id: req.params.id,
             "created_user.id": `${req.user._id}`,
          })
@@ -199,7 +213,7 @@ router.route("/:id").post(passport.authenticate("jwt", { session: false }), (req
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "edit"]) {
-         PaymentsMethod.findByIdAndUpdate(req.params.id, req.body)
+         Paymentsmethods.findByIdAndUpdate(req.params.id, req.body)
             .then(() =>
                res.json({
                   messagge: title + " Update",
@@ -213,7 +227,7 @@ router.route("/:id").post(passport.authenticate("jwt", { session: false }), (req
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         PaymentsMethod.findOneAndUpdate(
+         Paymentsmethods.findOneAndUpdate(
             {
                _id: req.params.id,
                "created_user.id": `${req.user._id}`,

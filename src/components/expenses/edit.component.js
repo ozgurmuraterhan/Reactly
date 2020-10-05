@@ -439,7 +439,7 @@ export default function ExpenseEdit(props) {
 
    function getPaymentsMethodF() {
       axios
-         .get("/payments")
+         .get("/paymentsmethod")
          .then((response) => {
             if (response.data.length > 0) {
                const details = [];

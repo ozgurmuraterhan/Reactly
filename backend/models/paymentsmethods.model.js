@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const PaymentsMethodSchema = new Schema(
+const PaymentsMethodsSchema = new Schema(
    {
       created_user: {
          required: true,
@@ -10,6 +10,8 @@ const PaymentsMethodSchema = new Schema(
       name: {
          required: true,
          type: String,
+         unique: true,
+         trim: true,
       },
    },
    {
@@ -17,6 +19,6 @@ const PaymentsMethodSchema = new Schema(
    }
 );
 
-const PaymentsMethod = mongoose.model("PaymentsMethod", PaymentsMethodSchema);
+const PaymentsMethods = mongoose.model("PaymentsMethods", PaymentsMethodsSchema);
 
-module.exports = PaymentsMethod;
+module.exports = PaymentsMethods;

@@ -446,7 +446,7 @@ export default function InvoiceEdit(props) {
 
    function getPaymentsMethodF() {
       axios
-         .get("/payments")
+         .get("/paymentsmethods/sdsd")
          .then((response) => {
             if (response.data.length > 0) {
                const details = [];

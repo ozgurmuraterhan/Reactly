@@ -35,7 +35,7 @@ const productCategoriesRouter = require("./routes/productCategories");
 const productsRouter = require("./routes/products");
 const invoicesRouter = require("./routes/invoices");
 const BankAccountsRouter = require("./routes/bankAccounts");
-const PaymentsMethodRouter = require("./routes/payments");
+const PaymentsMethodsRouter = require("./routes/paymentsmethods");
 const Expensescategories = require("./routes/expensescategories");
 const Expenses = require("./routes/expenses");
 
@@ -50,7 +50,7 @@ app.use("/productcategories", productCategoriesRouter);
 app.use("/products", productsRouter);
 app.use("/invoices", invoicesRouter);
 app.use("/bankaccounts", BankAccountsRouter);
-app.use("/payments", PaymentsMethodRouter);
+app.use("/paymentsmethods", PaymentsMethodsRouter);
 app.use("/expensescategories", Expensescategories);
 app.use("/expenses", Expenses);
 
