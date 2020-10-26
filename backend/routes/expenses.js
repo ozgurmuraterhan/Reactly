@@ -53,19 +53,22 @@ router.route("/add").post(passport.authenticate("jwt", { session: false }), (req
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "create"]) {
          new Expenses(req.body)
-            .save()
-            .then(() =>
-               res.json({
-                  messagge: title + " Added",
-                  variant: "success",
+            .save(
+               function (err, room) {
+                  if (err) {
+                     res.json({
+                        messagge: " Error: " + err,
+                        variant: "error",
+                     })
+                  } else {
+                     res.json({
+                        _id: room._id,
+                        messagge: title + " Added",
+                        variant: "success",
+                     })
+                  }
                })
-            )
-            .catch((err) =>
-               res.json({
-                  messagge: " Error: " + err,
-                  variant: "error",
-               })
-            );
+
       } else {
          res.status(403).json({
             message: {

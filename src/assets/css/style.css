@@ -373,8 +373,13 @@ body {
     background: #48ff00;
 }
 
+.OpenTop .css-26l3qy-menu{
+    top: auto; bottom: 100%
+}
 @media only screen and (max-width: 600px) {
     .loginBanner {
         display: none;
     }
 }
+
+ 

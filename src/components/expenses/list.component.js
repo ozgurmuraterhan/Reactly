@@ -91,17 +91,17 @@ export default function ExpensesList(props) {
          field: "created_user.name",
       },
       {
-         title: t("Billing Date"),
+         title: t("Created"),
          field: "created",
          render: (rowData) => {
             return <div>{Moment(rowData.due_date).format("DD/MM/YYYY")}</div>;
          },
       },
       {
-         title: t("Due Date"),
-         field: "due_date",
+         title: t("Paid Date"),
+         field: "paid_date",
          render: (rowData) => {
-            return <div>{Moment(rowData.due_date).format("DD/MM/YYYY")}</div>;
+            return <div>{Moment(rowData.paid_date).format("DD/MM/YYYY")}</div>;
          },
       },
 

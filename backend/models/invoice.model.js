@@ -43,6 +43,7 @@ const InvoiceSchema = new Schema(
             amount: { type: Number, required: true },
             paid_date: { type: Date, required: true },
             account_name: { type: Object, required: true },
+            note: { type: String },
          },
       ],
 

@@ -1,10 +1,11 @@
-import React, { forwardRef, useState, useEffect } from "react";
+import React, { forwardRef, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import { useHistory } from "react-router-dom";
 import Select from "react-select";
 import { ValidatorForm, TextValidator } from "react-material-ui-form-validator";
 import { useTranslation } from "react-i18next";
+import { AuthContext } from "../../Context/AuthContext";
 
 import Moment from "moment";
 
@@ -65,6 +66,7 @@ export default function InvoiceEdit(props) {
    const [t] = useTranslation();
    const history = useHistory();
    const { enqueueSnackbar } = useSnackbar();
+   const { user } = useContext(AuthContext);
 
    const [dataCustomers, seTdataCustomers] = useState([]);
    const [dataProducts, seTdataProducts] = useState([]);
@@ -112,7 +114,7 @@ export default function InvoiceEdit(props) {
       serie: "A",
       no: "",
       created: Date.now(),
-      bank_account: "",
+      account_name: "",
       due_note: "",
       due_date: Date.now(),
       paid_date: Date.now(),
@@ -172,7 +174,7 @@ export default function InvoiceEdit(props) {
                   props.onChange(e.target.value);
                   seTanyAmount(
                      props.rowData.price * e.target.value * (1 + props.rowData.tax / 100) -
-                        props.rowData.price * e.target.value * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
+                     props.rowData.price * e.target.value * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
                   );
                   seTfocus({
                      focus1: true,
@@ -201,7 +203,7 @@ export default function InvoiceEdit(props) {
                   seTanyAmount(
                      Number(
                         e.target.value * props.rowData.quantity * (1 + props.rowData.tax / 100) -
-                           e.target.value * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
+                        e.target.value * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
                      ).toFixed(2)
                   );
                   seTfocus({
@@ -232,7 +234,7 @@ export default function InvoiceEdit(props) {
                   seTanyAmount(
                      Number(
                         props.rowData.price * props.rowData.quantity * (1 + props.rowData.tax / 100) -
-                           props.rowData.price * props.rowData.quantity * (0 + e.target.value / 100) * (1 + props.rowData.tax / 100)
+                        props.rowData.price * props.rowData.quantity * (0 + e.target.value / 100) * (1 + props.rowData.tax / 100)
                      ).toFixed(2)
                   );
 
@@ -264,7 +266,7 @@ export default function InvoiceEdit(props) {
                   seTanyAmount(
                      Number(
                         props.rowData.price * props.rowData.quantity * (1 + e.target.value / 100) -
-                           props.rowData.price * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + e.target.value / 100)
+                        props.rowData.price * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + e.target.value / 100)
                      ).toFixed(2)
                   );
 
@@ -409,7 +411,7 @@ export default function InvoiceEdit(props) {
    const onChangeFquantity = (e) => {
       const amount = Number(
          (product.sale_price * e.target.value - product.sale_price * e.target.value * (0 + product.product_discount / 100)) *
-            (1 + product.product_vat / 100)
+         (1 + product.product_vat / 100)
       ).toFixed(2);
       seTquantity(e.target.value);
       seTproduct({ ...product, amount: amount });
@@ -442,7 +444,7 @@ export default function InvoiceEdit(props) {
 
    function getPaymentsMethodF() {
       axios
-         .get("/paymentsmethod")
+         .get("/paymentsmethods")
          .then((response) => {
             if (response.data.length > 0) {
                const details = [];
@@ -453,10 +455,12 @@ export default function InvoiceEdit(props) {
                   });
                }
                seTdataPaymentsMethod(details);
+               console.log(details)
             }
          })
          .catch((err) => console.log(err));
    }
+
 
    function getBankAccountF() {
       axios
@@ -718,7 +722,7 @@ export default function InvoiceEdit(props) {
             created: response.data.created,
             due_date: response.data.due_date,
             due_note: response.data.due_note,
-            default_payment_method: response.data.default_payment_method,
+            default_payment_method: response.data.default_payment_method[0],
             selectedbillingAddressCountry: [
                {
                   label: response.data.billingAddress_country_id,
@@ -778,14 +782,46 @@ export default function InvoiceEdit(props) {
 
    const onSubmit = (e) => {
       e.preventDefault();
+
       if (paid === true) {
          var paymentsArray = [
             {
                amount: totalAll.total.toFixed(2),
                paid_date: Moment(state.paid_date)._d,
-               bank_account: state.bank_account,
+               account_name: state.account_name,
             },
          ];
+         const paymentsPrime = {
+            created_user: { name: user.name, id: user.id },
+            customer_id: selectedDefaultCustomer[0],
+            type: 1,
+            amount: totalAll.total.toFixed(2),
+            paid_date: Moment(state.paid_date)._d,
+            account_name: state.account_name,
+            created: Moment(state.created)._d,
+            note: "",
+         }
+         console.log(paymentsPrime)
+
+
+         axios
+            .post(`/paymentsaccounts/add`, paymentsPrime)
+            .then((res) => {
+               if (res.data.variant === "error") {
+                  enqueueSnackbar(t("Not Added Payments") + res.data.messagge, {
+                     variant: res.data.variant,
+                  });
+               } else {
+                  enqueueSnackbar(t("Add Payments") + res.data.messagge, {
+                     variant: res.data.variant,
+                  });
+                  // navigate history.push("/invoiceslist");
+
+               }
+            })
+            .catch((err) => console.log(err));
+
+
       }
 
       const Invoices = {
@@ -839,6 +875,7 @@ export default function InvoiceEdit(props) {
             }
          })
          .catch((err) => console.log(err));
+
    };
 
    return (
@@ -985,6 +1022,8 @@ export default function InvoiceEdit(props) {
                                           ...state,
                                           default_payment_method: selectedOption,
                                        });
+
+                                       console.log(state.default_payment_method)
                                     }}
                                  />
                                  <FormHelperText>{t("youNeedaDefaultPaymentMethod")}</FormHelperText>
@@ -1023,7 +1062,7 @@ export default function InvoiceEdit(props) {
                                  <label className="selectLabel">{t("selectBankAccount")}</label>
                                  <Select
                                     placeholder={t("selectBankAccount")}
-                                    value={state.bank_account}
+                                    value={state.account_name}
                                     style={{
                                        width: "100%",
                                        marginTop: "-6px",
@@ -1032,7 +1071,7 @@ export default function InvoiceEdit(props) {
                                     onChange={(selectedOption) => {
                                        seTstate({
                                           ...state,
-                                          bank_account: selectedOption,
+                                          account_name: selectedOption,
                                        });
                                     }}
                                  />
@@ -1185,9 +1224,9 @@ export default function InvoiceEdit(props) {
                                     onChange={(e) => {
                                        seTunit(e.target.value);
                                     }}
-                                    /*InputLabelProps={{
-                                  shrink: true,
-                                }}*/
+                                 /*InputLabelProps={{
+                               shrink: true,
+                             }}*/
                                  />
                                  <FormHelperText>{t("youNeedaProductUnit")}</FormHelperText>
                               </FormControl>

@@ -60,6 +60,13 @@ import UsersList from "./components/users/list.component";
 import UsersCreate from "./components/users/create.component";
 import UsersEdit from "./components/users/edit.component";
 
+
+import PaymentsAccountsList from "./components/paymentsaccounts/list.component";
+import PaymentsAccountsCreate from "./components/paymentsaccounts/create.component";
+import PaymentsAccountsEdit from "./components/paymentsaccounts/edit.component";
+
+
+
 import Login from "./components/register/login";
 import ForgotPassword from "./components/register/forgotpassword";
 import ResetPassword from "./components/register/resetpassword";
@@ -73,7 +80,7 @@ import ExercisesList from './components/exercises/list.component';
 import PPimage from "./assets/images/pp2.jpeg";
 
 export default function App() {
-    const { t } = useTranslation();
+    const { t } = useTranslation(); 
 
     const [nowDate, seTnowDate] = useState(new Date());
     const [open, seTopen] = useState(false);
@@ -187,6 +194,16 @@ export default function App() {
                                         </NavIcon>
                                         <NavText>Expenses</NavText>
                                     </NavItem>
+                                    <NavItem eventKey="paymentsaccountslist">
+                                        <NavIcon>
+                                            <InsertChart
+                                                fontSize="large"
+                                                style={{ marginTop: "7px" }}
+                                            />
+                                        </NavIcon>
+                                        <NavText>Payment Account</NavText>
+                                    </NavItem>
+
                                     <NavItem eventKey="reports">
                                         <NavIcon>
                                             <InsertChart
@@ -334,6 +351,25 @@ export default function App() {
                                         path="/products/edit/:id"
                                         component={ProductsEdit}
                                     />
+
+                                    <PrivateRoute
+                                        roles={["paymentsaccountslist", "paymentsaccountsonlyyou"]}
+                                        path="/paymentsaccountslist"
+                                        component={PaymentsAccountsList}
+                                    />
+
+                                    <PrivateRoute
+                                        roles={["paymentsaccountscreate"]}
+                                        path="/paymentsaccountscreate"
+                                        component={PaymentsAccountsCreate}
+                                    />
+                                    <PrivateRoute
+                                        roles={["paymentsaccountsedit", "paymentsaccountsfonlyyou"]}
+                                        path="/paymentsaccounts/edit/:id"
+                                        component={PaymentsAccountsEdit}
+                                    />
+
+
 
                                     <PrivateRoute
                                         roles={["stafflist", "staffonlyyou"]}

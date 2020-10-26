@@ -7,7 +7,7 @@ const ExpensesSchema = new Schema(
          required: true,
          type: Object,
       },
-      draft: {
+      billable: {
          required: true,
          type: Boolean,
       },
@@ -29,11 +29,9 @@ const ExpensesSchema = new Schema(
          type: Date,
          required: true,
       },
-      due_date: {
+      paid_date: {
          type: Date,
-      },
-      date_send: {
-         type: Date,
+         required: true,
       },
       customer_id: {
          type: Array,
@@ -48,63 +46,18 @@ const ExpensesSchema = new Schema(
             account_name: { type: Object, required: true },
          },
       ],
+
       subtotal: {
          type: Number,
       },
       taxtotal: {
          type: Number,
       },
-      discount: {
-         type: Number,
-      },
-      discountType: {
-         type: String,
-      },
-      discountValue: {
-         type: Number,
-      },
+
       total: {
          type: Number,
       },
-      default_payment_method: {
-         type: Array,
-      },
-      billingAddress_country_id: {
-         type: String,
-      },
-      billingAddress_state_id: {
-         type: String,
-      },
-      billingAddress_town: {
-         type: String,
-         trim: true,
-      },
-      billingAddress_zipcode: {
-         type: Number,
-         trim: true,
-      },
-      billingAddress_address: {
-         type: String,
-         trim: true,
-      },
-      shippingAddress_country_id: {
-         type: String,
-      },
-      shippingAddress_state_id: {
-         type: String,
-      },
-      shippingAddress_town: {
-         type: String,
-         trim: true,
-      },
-      shippingAddress_zipcode: {
-         type: Number,
-         trim: true,
-      },
-      shippingAddress_address: {
-         type: String,
-         trim: true,
-      },
+
       items: {
          type: Array,
       },
@@ -112,9 +65,6 @@ const ExpensesSchema = new Schema(
          type: String,
       },
       quantity_name: {
-         type: String,
-      },
-      spesific_id: {
          type: String,
       },
    },

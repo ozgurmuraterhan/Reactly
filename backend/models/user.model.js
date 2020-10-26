@@ -31,6 +31,73 @@ const UserSchema = new mongoose.Schema({
    role: {
       type: Object,
       required: true,
+      default: {
+         staffonlyyou: true,
+         staffcreate: false,
+         staffedit: false,
+         stafflist: false,
+         staffdelete: false,
+   
+         customersonlyyou: true,
+         customerscreate: false,
+         customersedit: false,
+         customerslist: false,
+         customersdelete: false,
+   
+         productsonlyyou: true,
+         productscreate: false,
+         productsedit: false,
+         productslist: false,
+         productsdelete: false,
+   
+         bankaccountsonlyyou: true,
+         bankaccountscreate: false,
+         bankaccountsedit: false,
+         bankaccountslist: false,
+         bankaccountsdelete: false,
+   
+         customersgrouponlyyou: true,
+         customersgroupcreate: false,
+         customersgroupedit: false,
+         customersgrouplist: false,
+         customersgroupdelete: false,
+   
+         invoicesonlyyou: true,
+         invoicescreate: false,
+         invoicesedit: false,
+         invoiceslist: false,
+         invoicesdelete: false,
+   
+         paymentsonlyyou: true,
+         paymentscreate: false,
+         paymentsedit: false,
+         paymentslist: false,
+         paymentsdelete: false,
+   
+         productsCategoriesonlyyou: true,
+         productsCategoriescreate: false,
+         productsCategoriesedit: false,
+         productsCategorieslist: false,
+         productsCategoriesdelete: false,
+   
+         expensesonlyyou: true,
+         expensescreate: false,
+         expensesedit: false,
+         expenseslist: false,
+         expensesdelete: false,
+
+         expensescategoriesonlyyou: true,
+         expensescategoriescreate: false,
+         expensescategoriesedit: false,
+         expensescategorieslist: false,
+         expensescategoriesdelete: false,
+
+         paymentsaccountsonlyyou: true,
+         paymentsaccountscreate: false,
+         paymentsaccountsedit: false,
+         paymentsaccountslist: false,
+         paymentsaccountsdelete: false,
+      }
    },
    resetPasswordToken: {
       type: String,

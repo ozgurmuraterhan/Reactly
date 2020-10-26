@@ -10,6 +10,21 @@ const Moment = require("moment");
 const title = "Invoice";
 const roleTitle = "invoices";
 
+
+// statistic
+router.route("/statist222ic").get((req, res, next) => {
+   Invoice.aggregate([
+      { $unwind: "$group_id" },
+      {
+         $group: {
+            _id: "$group_id.label",
+            count: { $sum: 1 },
+         },
+      },
+   ]).then((data) => res.json(data));
+
+});
+
 // get all items
 router.route("/").get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
    User.find({ username: req.user.username }).then((data) => {
@@ -53,19 +68,21 @@ router.route("/add").post(passport.authenticate("jwt", { session: false }), (req
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "create"]) {
          new Invoice(req.body)
-            .save()
-            .then(() =>
-               res.json({
-                  messagge: title + " Added",
-                  variant: "success",
+            .save(
+               function (err, room) {
+                  if (err) {
+                     res.json({
+                        messagge: " Error: " + err,
+                        variant: "error",
+                     })
+                  } else {
+                     res.json({
+                        _id: room._id,
+                        messagge: title + " Added",
+                        variant: "success",
+                     })
+                  }
                })
-            )
-            .catch((err) =>
-               res.json({
-                  messagge: " Error: " + err,
-                  variant: "error",
-               })
-            );
       } else {
          res.status(403).json({
             message: {
@@ -306,6 +323,8 @@ router.route("/addpayments/:id").post(passport.authenticate("jwt", { session: fa
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "create"]) {
+
+
          Invoice.updateMany(
             {
                _id: ObjectId(req.params.id),
@@ -314,7 +333,9 @@ router.route("/addpayments/:id").post(passport.authenticate("jwt", { session: fa
                $push: {
                   payments: {
                      amount: req.body.amount,
+                     account_name: req.body.account_name,
                      paid_data: Moment(Date.now())._d,
+                     note: req.body.note,
                      _id: ObjectId(),
                   },
                },

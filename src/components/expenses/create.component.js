@@ -87,7 +87,7 @@ export default function ExpenseCreate(props) {
    const [findCustomersGroup, seTfindCustomersGroup] = useState([]);
    const [gropBoxOpen, seTgropBoxOpen] = useState(false);
 
-   const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState([]);
+   const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState(0);
    const [dataPaymentsMethod, seTdataPaymentsMethod] = useState("");
 
    const [product, seTproduct] = useState({
@@ -167,7 +167,7 @@ export default function ExpenseCreate(props) {
                   seTanyAmount(
                      Number(
                         props.rowData.price * e.target.value * (1 + props.rowData.tax / 100) -
-                           props.rowData.price * e.target.value * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
+                        props.rowData.price * e.target.value * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
                      ).toFixed(2)
                   );
                   seTfocus({
@@ -197,7 +197,7 @@ export default function ExpenseCreate(props) {
                   seTanyAmount(
                      Number(
                         e.target.value * props.rowData.quantity * (1 + props.rowData.tax / 100) -
-                           e.target.value * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
+                        e.target.value * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
                      ).tofixed
                   );
                   seTfocus({
@@ -229,7 +229,7 @@ export default function ExpenseCreate(props) {
                   seTanyAmount(
                      Number(
                         props.rowData.price * props.rowData.quantity * (1 + e.target.value / 100) -
-                           props.rowData.price * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + e.target.value / 100)
+                        props.rowData.price * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + e.target.value / 100)
                      ).tofixed(2)
                   );
 
@@ -311,7 +311,7 @@ export default function ExpenseCreate(props) {
    const onChangeFquantity = (e) => {
       const amount = Number(
          (product.sale_price * e.target.value - product.sale_price * e.target.value * (0 + product.product_discount / 100)) *
-            (1 + product.product_vat / 100)
+         (1 + product.product_vat / 100)
       ).toFixed(2);
       seTquantity(e.target.value);
       seTproduct({ ...product, amount: amount });
@@ -428,7 +428,7 @@ export default function ExpenseCreate(props) {
             tax: item.tax,
             amount: Number(
                item.price * item.quantity * (1 + item.tax / 100) -
-                  (item.price * item.quantity * (0 + item.discount / 100) * (1 + item.tax / 100)).toFixed(0)
+               (item.price * item.quantity * (0 + item.discount / 100) * (1 + item.tax / 100)).toFixed(0)
             ).toFixed(2),
          });
       });
@@ -491,21 +491,24 @@ export default function ExpenseCreate(props) {
 
    const onSubmit = (e) => {
       e.preventDefault();
+
+      console.log(state.bank_account)
       var paymentsArray = [
          {
             amount: totalAll.total.toFixed(2),
             paid_date: Moment(state.paid_date)._d,
-            bank_account: state.bank_account,
+            account_name: state.bank_account,
          },
       ];
 
+
+
       const Expense = {
          created_user: { name: user.name, id: user.id },
-         draft: 0,
+         billable: 0,
          no: state.no,
          created: Moment(state.created)._d,
-         due_date: Moment(state.due_date)._d,
-         date_send: 0,
+         paid_date: Moment(state.paid_date)._d,
          category_id: state.selectedGroupItems,
          customer_id: selectedDefaultCustomer,
          note: state.note,
@@ -530,11 +533,45 @@ export default function ExpenseCreate(props) {
                   variant: res.data.variant,
                });
             } else {
+
+               const paymentsPrime = {
+                  created_user: { name: user.name, id: user.id },
+                  customer_id: selectedDefaultCustomer[0],
+                  type: 0,
+                  amount: totalAll.total.toFixed(2),
+                  paid_date: Moment(state.paid_date)._d,
+                  account_name: state.bank_account,
+                  created: Moment(state.created)._d,
+                  note: state.note,
+                  expenses_id: res.data._id,
+                  invoices_id: ""
+               }
+
+
+               axios
+                  .post(`/paymentsaccounts/add`, paymentsPrime)
+                  .then((res) => {
+                     if (res.data.variant === "error") {
+                        enqueueSnackbar(t("Not Added Payments") + res.data.messagge, {
+                           variant: res.data.variant,
+                        });
+                     } else {
+                        enqueueSnackbar(t("Add Payments") + res.data.messagge, {
+                           variant: res.data.variant,
+                        });
+                        // navigate 
+                        history.push("/expenseslist");
+
+                     }
+                  })
+                  .catch((err) => console.log(err));
+
+
                enqueueSnackbar(t("Expense Added") + res.data.messagge, {
                   variant: res.data.variant,
                });
                // navigate
-               history.push("/expenseslist");
+               //history.push("/expenseslist");
             }
          })
          .catch((err) => console.log(err));
@@ -552,6 +589,19 @@ export default function ExpenseCreate(props) {
                      <Typography component="h1" variant="h6" color="inherit" noWrap className="typography">
                         {t("Expense Create")}
                      </Typography>
+                     <FormControlLabel
+                        style={{ float: "right", display: selectedDefaultCustomer == 0 ? "none" : "block" }}
+                        control={
+                           <Switch
+                              checked={state.billable}
+                              onChange={() => {
+                                 seTstate({ ...state, billable: !state.billable });
+                              }}
+                              color="primary"
+                           />
+                        }
+                        label={t("Billable")}
+                     />
                      <Grid item container sm={12}>
                         <Grid container item sm={4} spacing={0}>
                            <FormGroup className="FormGroup">
@@ -597,7 +647,7 @@ export default function ExpenseCreate(props) {
                                              color: "white",
                                           }),
                                        }}
-                                       placeholder={t("selectGropName")}
+                                       placeholder={t("Selected Cateories")}
                                        value={state.selectedGroupItems}
                                        options={findCustomersGroup}
                                        onChange={(selectedOption) => {
@@ -620,9 +670,10 @@ export default function ExpenseCreate(props) {
                                        inputVariant="outlined"
                                        margin="dense"
                                        id="date-picker-dialog"
-                                       label={t("paidDate")}
+                                       label={t("Paid Date")}
                                        format="dd/MM/yyyy"
                                        value={state.paid_date}
+                                       disableFuture={true}
                                        onChange={(date) => {
                                           seTstate({
                                              ...state,
@@ -637,7 +688,7 @@ export default function ExpenseCreate(props) {
                                        }}
                                     />
                                  </MuiPickersUtilsProvider>
-                                 <FormHelperText>{t("youNeedaDueDate")}</FormHelperText>
+                                 <FormHelperText>{t("You need Paid Date")}</FormHelperText>
                               </FormControl>
                            </FormGroup>
                         </Grid>
@@ -807,9 +858,9 @@ export default function ExpenseCreate(props) {
                                     onChange={(e) => {
                                        seTunit(e.target.value);
                                     }}
-                                    /*InputLabelProps={{
-                                       shrink: true,
-                                    }}*/
+                                 /*InputLabelProps={{
+                                    shrink: true,
+                                 }}*/
                                  />
                                  <FormHelperText>{t("youNeedaProductUnit")}</FormHelperText>
                               </FormControl>

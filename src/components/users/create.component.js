@@ -106,11 +106,18 @@ export default function ProductEdit(props) {
       expensesedit: false,
       expenseslist: false,
       expensesdelete: false,
+
       expensescategoriesonlyyou: true,
       expensescategoriescreate: false,
       expensescategoriesedit: false,
       expensescategorieslist: false,
       expensescategoriesdelete: false,
+
+      paymentsaccountsonlyyou: true,
+      paymentsaccountscreate: false,
+      paymentsaccountsedit: false,
+      paymentsaccountslist: false,
+      paymentsaccountsdelete: false,
    });
 
    // componentDidMount = useEffect
@@ -301,11 +308,12 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.staffonlyyou}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.staffonlyyou = val;
                                           deg.stafflist = false;
                                           seTpermissions(deg);
-                                       }}
+                                          seTstate({...state})
+                                        }}
                                        color="primary"
                                     />
                                  }
@@ -316,11 +324,13 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.stafflist}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.stafflist = val;
+                                          const deg = permissions;
+                                           deg.stafflist = val;
                                           deg.staffonlyyou = false;
                                           seTpermissions(deg);
-                                       }}
+                                          seTstate({...state})
+ 
+                                        }}
                                        color="primary"
                                     />
                                  }
@@ -332,9 +342,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.staffcreate}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.staffcreate = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
+ 
                                        }}
                                        color="primary"
                                     />
@@ -346,9 +358,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.staffedit}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.staffedit = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -360,9 +373,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.staffdelete}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.staffdelete = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -379,10 +393,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.customersonlyyou}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.customersonlyyou = val;
                                           deg.customerslist = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -394,10 +409,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.customerslist}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.customerslist = val;
                                           deg.customersonlyyou = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -410,9 +426,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.customerscreate}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.customerscreate = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -424,9 +441,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.customersedit}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.customersedit = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -438,9 +456,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.customersdelete}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.customersdelete = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -457,10 +476,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.productsonlyyou}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.productsonlyyou = val;
                                           deg.productslist = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -472,10 +492,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.productslist}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.productslist = val;
                                           deg.productsonlyyou = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -488,9 +509,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.productscreate}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.productscreate = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -502,9 +524,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.productsedit}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.productsedit = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -516,9 +539,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.productsdelete}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.productsdelete = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -535,10 +559,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.bankaccountsonlyyou}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.bankaccountsonlyyou = val;
                                           deg.bankaccountslist = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -550,10 +575,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.bankaccountslist}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.bankaccountslist = val;
                                           deg.bankaccountsonlyyou = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -566,9 +592,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.bankaccountscreate}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.bankaccountscreate = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -580,9 +607,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.bankaccountsedit}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.bankaccountsedit = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -594,9 +622,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.bankaccountsdelete}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.bankaccountsdelete = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -613,10 +642,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.customersgrouponlyyou}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.customersgrouponlyyou = val;
                                           deg.customersgrouplist = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -628,10 +658,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.customersgrouplist}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.customersgrouplist = val;
                                           deg.customersgrouponlyyou = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -644,9 +675,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.customersgroupcreate}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.customersgroupcreate = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -658,9 +690,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.customersgroupedit}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.customersgroupedit = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -672,9 +705,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.customersgroupdelete}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.customersgroupdelete = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -691,10 +725,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.invoicesonlyyou}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.invoicesonlyyou = val;
                                           deg.invoiceslist = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -706,10 +741,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.invoiceslist}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.invoiceslist = val;
                                           deg.invoicesonlyyou = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -722,9 +758,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.invoicescreate}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.invoicescreate = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -736,9 +773,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.invoicesedit}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.invoicesedit = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -750,9 +788,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.invoicesdelete}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.invoicesdelete = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -760,83 +799,8 @@ export default function ProductEdit(props) {
                                  label={t("Delete")}
                               />
                            </div>
-                           <div className="permissions_div">
-                              <b>{t("Expenses")}</b>
 
-                              <FormControlLabel
-                                 control={
-                                    <Checkbox
-                                       checked={permissions.expensesonlyyou}
-                                       onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expensesonlyyou = val;
-                                          deg.expenseslist = false;
-                                          seTpermissions(deg);
-                                       }}
-                                       color="primary"
-                                    />
-                                 }
-                                 label={t("View (Own)")}
-                              />
-                              <FormControlLabel
-                                 control={
-                                    <Checkbox
-                                       checked={permissions.expenseslist}
-                                       onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expenseslist = val;
-                                          deg.expensesonlyyou = false;
-                                          seTpermissions(deg);
-                                       }}
-                                       color="primary"
-                                    />
-                                 }
-                                 label={t("View (Global)")}
-                              />
-
-                              <FormControlLabel
-                                 control={
-                                    <Checkbox
-                                       checked={permissions.expensescreate}
-                                       onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expensescreate = val;
-                                          seTpermissions(deg);
-                                       }}
-                                       color="primary"
-                                    />
-                                 }
-                                 label={t("Create")}
-                              />
-                              <FormControlLabel
-                                 control={
-                                    <Checkbox
-                                       checked={permissions.expensesedit}
-                                       onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expensesedit = val;
-                                          seTpermissions(deg);
-                                       }}
-                                       color="primary"
-                                    />
-                                 }
-                                 label={t("Edit")}
-                              />
-                              <FormControlLabel
-                                 control={
-                                    <Checkbox
-                                       checked={permissions.expensesdelete}
-                                       onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expensesdelete = val;
-                                          seTpermissions(deg);
-                                       }}
-                                       color="primary"
-                                    />
-                                 }
-                                 label={t("Delete")}
-                              />
-                           </div>
+                           
 
                            <div className="permissions_div">
                               <b>{t("PaymentsMethod")}</b>
@@ -846,10 +810,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.paymentsonlyyou}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.paymentsonlyyou = val;
                                           deg.paymentslist = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -861,10 +826,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.paymentslist}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.paymentslist = val;
                                           deg.paymentsonlyyou = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -877,9 +843,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.paymentscreate}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.paymentscreate = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -891,9 +858,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.paymentsedit}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.paymentsedit = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -905,9 +873,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.paymentsdelete}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.paymentsdelete = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -924,10 +893,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.productsCategoriesonlyyou}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.productsCategoriesonlyyou = val;
                                           deg.productsCategorieslist = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -939,10 +909,11 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.productsCategorieslist}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.productsCategorieslist = val;
                                           deg.productsCategoriesonlyyou = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -955,9 +926,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.productsCategoriescreate}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.productsCategoriescreate = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -969,9 +941,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.productsCategoriesedit}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.productsCategoriesedit = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -983,9 +956,10 @@ export default function ProductEdit(props) {
                                     <Checkbox
                                        checked={permissions.productsCategoriesdelete}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
+                                          const deg = permissions;
                                           deg.productsCategoriesdelete = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -993,18 +967,20 @@ export default function ProductEdit(props) {
                                  label={t("Delete")}
                               />
                            </div>
+
                            <div className="permissions_div">
-                              <b>{t("Expanses")}</b>
+                              <b>{t("Expenses")}</b>
 
                               <FormControlLabel
                                  control={
                                     <Checkbox
-                                       checked={permissions.expansesonlyyou}
+                                       checked={permissions.expensesonlyyou}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expansesonlyyou = val;
-                                          deg.expanseslist = false;
+                                          const deg = permissions;
+                                          deg.expensesonlyyou = val;
+                                          deg.expenseslist = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -1014,12 +990,13 @@ export default function ProductEdit(props) {
                               <FormControlLabel
                                  control={
                                     <Checkbox
-                                       checked={permissions.expanseslist}
+                                       checked={permissions.expenseslist}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expanseslist = val;
-                                          deg.expansesonlyyou = false;
+                                          const deg = permissions;
+                                          deg.expenseslist = val;
+                                          deg.expensesonlyyou = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -1030,11 +1007,12 @@ export default function ProductEdit(props) {
                               <FormControlLabel
                                  control={
                                     <Checkbox
-                                       checked={permissions.expansescreate}
+                                       checked={permissions.expensescreate}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expansescreate = val;
+                                          const deg = permissions;
+                                          deg.expensescreate = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -1044,11 +1022,12 @@ export default function ProductEdit(props) {
                               <FormControlLabel
                                  control={
                                     <Checkbox
-                                       checked={permissions.expansesedit}
+                                       checked={permissions.expensesedit}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expansesedit = val;
+                                          const deg = permissions;
+                                          deg.expensesedit = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -1058,11 +1037,12 @@ export default function ProductEdit(props) {
                               <FormControlLabel
                                  control={
                                     <Checkbox
-                                       checked={permissions.expansesdelete}
+                                       checked={permissions.expensesdelete}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expansesdelete = val;
+                                          const deg = permissions;
+                                          deg.expensesdelete = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -1072,17 +1052,18 @@ export default function ProductEdit(props) {
                            </div>
 
                            <div className="permissions_div">
-                              <b>{t("Expanses Categories")}</b>
+                              <b>{t("Expenses Categories")}</b>
 
                               <FormControlLabel
                                  control={
                                     <Checkbox
-                                       checked={permissions.expansescategoriesonlyyou}
+                                       checked={permissions.expensescategoriesonlyyou}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expansescategoriesonlyyou = val;
-                                          deg.expansescategorieslist = false;
+                                          const deg = permissions;
+                                          deg.expensescategoriesonlyyou = val;
+                                          deg.expensescategorieslist = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -1092,12 +1073,13 @@ export default function ProductEdit(props) {
                               <FormControlLabel
                                  control={
                                     <Checkbox
-                                       checked={permissions.expansescategorieslist}
+                                       checked={permissions.expensescategorieslist}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expansescategorieslist = val;
-                                          deg.expansescategoriesonlyyou = false;
+                                          const deg = permissions;
+                                          deg.expensescategorieslist = val;
+                                          deg.expensescategoriesonlyyou = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -1108,11 +1090,12 @@ export default function ProductEdit(props) {
                               <FormControlLabel
                                  control={
                                     <Checkbox
-                                       checked={permissions.expansescategoriescreate}
+                                       checked={permissions.expensescategoriescreate}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expansescategoriescreate = val;
+                                          const deg = permissions;
+                                          deg.expensescategoriescreate = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
@@ -1122,25 +1105,110 @@ export default function ProductEdit(props) {
                               <FormControlLabel
                                  control={
                                     <Checkbox
-                                       checked={permissions.expansescategoriesedit}
+                                       checked={permissions.expensescategoriesedit}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expansescategoriesedit = val;
+                                          const deg = permissions;
+                                          deg.expensescategoriesedit = val;
                                           seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />
                                  }
-                                 label={t("Edit")}
+                                 label={t("Edit")} 
+                               />
+                              <FormControlLabel
+                                 control={
+                                    <Checkbox
+                                       checked={permissions.expensescategoriesdelete}
+                                       onChange={(e, val) => {
+                                          const deg = permissions;
+                                          deg.expensescategoriesdelete = val;
+                                          seTpermissions(deg);
+                                          seTstate({...state})
+                                       }}
+                                       color="primary"
+                                    />
+                                 }
+                                 label={t("Delete")}
+                              />
+                           </div>
+
+
+                           <div className="permissions_div">
+                              <b>{t("Payments Accounts")}</b>
+                              <FormControlLabel
+                                 control={
+                                    <Checkbox
+                                       checked={permissions.paymentsaccountsonlyyou}
+                                       onChange={(e, val) => {
+                                          const deg = permissions;
+                                          deg.paymentsaccountsonlyyou = val;
+                                          deg.paymentsaccountslist = false;
+                                          seTpermissions(deg);
+                                          seTstate({...state})
+                                       }}
+                                       color="primary"
+                                    />
+                                 }
+                                 label={t("View (Own)")}
                               />
                               <FormControlLabel
                                  control={
                                     <Checkbox
-                                       checked={permissions.expansescategoriesdelete}
+                                       checked={permissions.paymentsaccountslist}
                                        onChange={(e, val) => {
-                                          const deg = [...permissions];
-                                          deg.expansescategoriesdelete = val;
+                                          const deg = permissions;
+                                          deg.paymentsaccountslist = val;
+                                          deg.paymentsaccountsonlyyou = false;
                                           seTpermissions(deg);
+                                          seTstate({...state})
+                                       }}
+                                       color="primary"
+                                    />
+                                 }
+                                 label={t("View (Global)")}
+                              />
+
+                              <FormControlLabel
+                                 control={
+                                    <Checkbox
+                                       checked={permissions.paymentsaccountscreate}
+                                       onChange={(e, val) => {
+                                          const deg = permissions;
+                                          deg.paymentsaccountscreate = val;
+                                          seTpermissions(deg);
+                                          seTstate({...state})
+                                       }}
+                                       color="primary"
+                                    />
+                                 }
+                                 label={t("Create")}
+                              />
+                              <FormControlLabel
+                                 control={
+                                    <Checkbox
+                                       checked={permissions.paymentsaccountsedit}
+                                       onChange={(e, val) => {
+                                          const deg = permissions;
+                                          deg.paymentsaccountsedit = val;
+                                          seTpermissions(deg);
+                                          seTstate({...state})
+                                       }}
+                                       color="primary"
+                                    />
+                                 }
+                                 label={t("Edit")} 
+                               />
+                              <FormControlLabel
+                                 control={
+                                    <Checkbox
+                                       checked={permissions.paymentsaccountsdelete}
+                                       onChange={(e, val) => {
+                                          const deg = permissions;
+                                          deg.paymentsaccountsdelete = val;
+                                          seTpermissions(deg);
+                                          seTstate({...state})
                                        }}
                                        color="primary"
                                     />

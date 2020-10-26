@@ -1,14 +1,17 @@
-import React, { Component, forwardRef, useState, useEffect } from "react";
+import React, { Component, forwardRef, useState, useEffect, useContext } from "react";
 import { Link, useHistory } from "react-router-dom";
 import axios from "axios";
+import { useSnackbar } from "notistack";
 
 import MaterialTable, { MTableToolbar } from "material-table";
 import { useTranslation } from "react-i18next";
 import Moment from "moment";
+import Select from "react-select";
+import { AuthContext } from "../../Context/AuthContext";
 
 import { Doughnut } from "react-chartjs-2";
 
-import { DialogActions, DialogContent, Button, Dialog, Card, Tooltip, Grid, Typography } from "@material-ui/core";
+import { DialogActions, DialogContent, Button, Dialog, Card, Tooltip, Grid, Typography, FormGroup, FormControl, FormHelperText } from "@material-ui/core";
 
 import {
    Settings,
@@ -63,24 +66,41 @@ export default function InvoicesList(props) {
       "#8c564b",
       "#3366cc",
    ];
+   const tableIcons = {
+      Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
+      Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
+      Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+      Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
+      DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+      Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+      Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
+      Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
+      FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
+      LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
+      NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+      PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
+      ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+      Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
+      SortArrow: forwardRef((props, ref) => <ArrowUpward {...props} ref={ref} />),
+      ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
+      ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
+   };
+
+
    const customergroups_label = [{ title: t("groupName"), field: "name" }];
-   const [state, seTstate] = useState({});
+   const [state, seTstate] = useState({
+      addaccountname: []
+   });
    const [open, seTopen] = useState(false);
    const [customergroups, seTcustomergroups] = useState([]);
    const [data, seTdata] = useState([]);
    const [payments, seTpayments] = useState([]);
    const [payment_id, seTpayment_id] = useState(0);
+   const [dataBankAccount, seTdataBankAccount] = useState("");
+   const { user } = useContext(AuthContext);
+   const { enqueueSnackbar } = useSnackbar();
 
-   const payments_label = [
-      { title: t("Amount"), field: "amount" },
-      {
-         title: t("Paid Date"),
-         field: "paid_date",
-         render: (rowData) => {
-            return <div>{Moment(rowData.paid_date).format("DD/MM/YYYY HH:MM")}</div>;
-         },
-      },
-   ];
+
    const columns = [
       {
          title: t("no"),
@@ -147,32 +167,69 @@ export default function InvoicesList(props) {
       },
    ];
 
-   const tableIcons = {
-      Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
-      Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
-      Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-      Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
-      DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-      Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
-      Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
-      Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
-      FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
-      LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
-      NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-      PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
-      ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-      Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
-      SortArrow: forwardRef((props, ref) => <ArrowUpward {...props} ref={ref} />),
-      ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
-      ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
-   };
+
+   const payments_label = [
+      { title: t("Amount"), field: "amount" },
+      {
+         title: t("Paid Date"),
+         field: "paid_date",
+         render: (rowData) => {
+            return <div>{Moment(rowData.paid_date).format("DD/MM/YYYY HH:mm:ss")}</div>;
+         },
+         editComponent: (props) => (
+            <div>{Moment(Date.now()).format("DD/MM/YYYY HH:mm:ss")}</div>
+         ),
+      },
+
+      {
+         title: t("Note"),
+         field: "note",
+      },
+
+      {
+         title: t("Account"),
+         field: "account_name.label",
+         editComponent: (props) => (
+            <div style={{ width: '150px' }}>
+               <Select
+                  placeholder={t("Select Account")}
+                  value={state.addaccountname}
+                  options={dataBankAccount}
+                  onChange={(selectedInput) => {
+                     seTstate({
+                        ...state,
+                        addaccountname: selectedInput
+                     })
+                  }}
+               />
+            </div>
+         ),
+      },
+   ];
+   function getBankAccountF() {
+      axios
+         .get("/bankaccounts")
+         .then((response) => {
+            if (response.data.length > 0) {
+               const details = [];
+               for (const i in response.data) {
+                  details.push({
+                     label: response.data[i].account_name,
+                     value: response.data[i]._id,
+                  });
+               }
+               seTdataBankAccount(details);
+            }
+         })
+         .catch((err) => console.log(err));
+   }
 
    const getPaymentsMethodData = (id) => {
       seTpayment_id(id);
       handleClickOpen();
       axios.get("/invoices/payments/" + id).then((response) => {
-         console.log(response.data);
          seTpayments(response.data[0].payments);
+
       });
    };
 
@@ -189,6 +246,7 @@ export default function InvoicesList(props) {
    // componentDidMount = useEffect
    useEffect(() => {
       getInvoicesData();
+      getBankAccountF();
    }, []);
 
    const handleClickOpen = () => {
@@ -210,41 +268,57 @@ export default function InvoicesList(props) {
                   columns={payments_label}
                   data={payments}
                   options={{
-                     exportButton: true,
+                     actionsColumnIndex: -1,
+                     addRowPosition: 'first'
                   }}
                   editable={{
                      onRowAdd: (newData) =>
                         new Promise((resolve, reject) => {
+
+                           let paymentsPrime = {
+                              created_user: { name: user.name, id: user.id },
+                              type: 1,
+                              amount: newData.amount,
+                              paid_date: Moment(newData.paid_date)._d,
+                              account_name: state.addaccountname,
+                              created: Moment(newData.paid_date)._d,
+                              note: newData.note,
+                           }
+
+                           axios
+                              .post(`/paymentsaccounts/add`, paymentsPrime)
+                              .then((res) => {
+                                 if (res.data.variant === "error") {
+                                    enqueueSnackbar(t("Not Added Payments") + res.data.messagge, {
+                                       variant: res.data.variant,
+                                    });
+                                 } else {
+                                    enqueueSnackbar(t("Add Payments") + res.data.messagge, {
+                                       variant: res.data.variant,
+                                    });
+                                    // navigate history.push("/invoiceslist");
+
+                                 }
+                              })
+                              .catch((err) => console.log(err));
+
+
                            axios.post(`/invoices/addpayments/${payment_id}`, {
                               amount: newData.amount,
+                              account_name: state.addaccountname,
+                              note: newData.note,
+
                            });
+                           let setObj = {
+                              amount: newData.amount,
+                              account_name: state.addaccountname,
+                              note: newData.note,
+                           }
 
-                           payments.push(newData);
-                           console.log(payments);
-                           seTpayments(payments);
-                           getInvoicesData();
 
-                           resolve();
-                        }),
-                     onRowUpdate: (newData, oldData) =>
-                        new Promise((resolve, reject) => {
-                           axios.post(`/invoices/editpayments/${newData._id}`, { amount: newData.amount });
+                           payments.push(setObj);
+                           console.log(payments)
 
-                           const index = payments.indexOf(oldData);
-                           payments[index] = newData;
-                           console.log(payments);
-                           seTpayments(payments);
-                           getInvoicesData();
-
-                           resolve();
-                        }),
-                     onRowDelete: (oldData) =>
-                        new Promise((resolve, reject) => {
-                           axios.get(`/invoices/deletepayments/${oldData._id}`);
-
-                           const index = payments.indexOf(oldData);
-                           payments.splice(index, 1);
-                           console.log(payments);
                            seTpayments(payments);
                            getInvoicesData();
 

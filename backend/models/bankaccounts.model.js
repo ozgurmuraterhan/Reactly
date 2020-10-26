@@ -12,35 +12,32 @@ const BankAccountsSchema = new Schema(
          type: Boolean,
       },
       account_name: {
-         required: true,
          type: String,
-      },
-
-      bank_name: {
          required: true,
+
+      },
+      bank_name: {
          type: String,
       },
       branch_bank: {
-         required: true,
          type: String,
       },
-
+      status: {
+         type: Boolean,
+         require: true,
+      },
       account_number: {
-         required: true,
          type: Number,
       },
       swift_iban: {
-         required: true,
          type: String,
       },
-      payments: [
-         {
-            amount: { type: Number, required: true },
-            paid_date: { type: Date, required: true },
-            account_name: { type: Object, required: true },
-            _id: { type: mongoose.ObjectId },
-         },
-      ],
+      total: {
+         type: Number,
+         required: true,
+         default: 0
+      },
+
    },
    {
       timestamps: true,

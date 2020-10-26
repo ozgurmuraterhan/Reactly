@@ -7,12 +7,105 @@ let User = require("../models/user.model");
 const title = "Bank Accounts";
 const roleTitle = "bankaccounts";
 
+
+// statistic
+router.route("/deneme").get((req, res, next) => {
+   BankAccounts.aggregate(
+      [{ "$addFields": { "userId": { "$toString": "$_id" } } },
+      { "$addFields": { "userId2": "account_name" } },
+
+      {
+         "$lookup": {
+            "from": "paymentsaccounts",
+            "localField": "userId",
+            "foreignField": "account_name.value",
+            "as": "output"
+         }
+      },
+      { $unwind: "$output" },
+
+      {
+         "$project": {
+            account_name: 1,
+            amount: { $sum: "$output.amount" },
+            status: 1,
+            type: { $cond: { if: "$output.type", then: { "giren": { "$sum": "$output.amount" } }, else: { "cikan": { "$sum": "$output.amount" } } } }
+         }
+      },
+      {
+         $group: {
+            _id: { "account_name": "$account_name", "_id": "$_id", "status": "$status" },
+            in: { $sum: "$type.giren" },
+            out: { $sum: "$type.cikan" },
+         },
+      },
+      { $unwind: "$_id.account_name" },
+      {
+         "$project": {
+            _id: "$_id._id",
+            account_name: "$_id.account_name",
+            status: "$_id.status",
+            in: "$in",
+            out: "$out",
+            total: {
+               $subtract: ["$in", "$out"]
+            }
+         }
+      },
+
+
+      ]
+   ).then((data) => res.json(data));
+});
+
+
+
 // get all items
 router.route("/").get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         BankAccounts.find()
+         BankAccounts.aggregate(
+            [{ "$addFields": { "userId": { "$toString": "$_id" } } },
+            {
+               "$lookup": {
+                  "from": "paymentsaccounts",
+                  "localField": "userId",
+                  "foreignField": "account_name.value",
+                  "as": "output"
+               }
+            },
+            { $unwind: "$output" },
+            {
+               "$project": {
+                  account_name: 1,
+                  amount: { $sum: "$output.amount" },
+                  status: 1,
+                  type: { $cond: { if: "$output.type", then: { "inn": { "$sum": "$output.amount" } }, else: { "outt": { "$sum": "$output.amount" } } } }
+               }
+            },
+            {
+               $group: {
+                  _id: { "account_name": "$account_name", "_id": "$_id", "status": "$status" },
+                  in: { $sum: "$type.inn" },
+                  out: { $sum: "$type.outt" },
+               },
+            },
+            { $unwind: "$_id.account_name" },
+            {
+               "$project": {
+                  _id: "$_id._id",
+                  account_name: "$_id.account_name",
+                  status: "$_id.status",
+                  in: "$in",
+                  out: "$out",
+                  total: {
+                     $subtract: ["$in", "$out"]
+                  }
+               }
+            },
+            ]
+         )
             .then((data) => {
                res.json(data);
             })

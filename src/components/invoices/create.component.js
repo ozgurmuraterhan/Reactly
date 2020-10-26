@@ -114,7 +114,7 @@ export default function InvoiceEdit(props) {
       serie: "A",
       no: "",
       created: Date.now(),
-      bank_account: "",
+      account_name: "",
       due_note: "",
       due_date: Date.now(),
       paid_date: Date.now(),
@@ -175,7 +175,7 @@ export default function InvoiceEdit(props) {
                   seTanyAmount(
                      Number(
                         props.rowData.price * e.target.value * (1 + props.rowData.tax / 100) -
-                           props.rowData.price * e.target.value * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
+                        props.rowData.price * e.target.value * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
                      ).toFixed(2)
                   );
                   seTfocus({
@@ -205,7 +205,7 @@ export default function InvoiceEdit(props) {
                   seTanyAmount(
                      Number(
                         e.target.value * props.rowData.quantity * (1 + props.rowData.tax / 100) -
-                           e.target.value * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
+                        e.target.value * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
                      ).toFixed(2)
                   );
                   seTfocus({
@@ -236,7 +236,7 @@ export default function InvoiceEdit(props) {
                   seTanyAmount(
                      Number(
                         props.rowData.price * props.rowData.quantity * (1 + props.rowData.tax / 100) -
-                           props.rowData.price * props.rowData.quantity * (0 + e.target.value / 100) * (1 + props.rowData.tax / 100)
+                        props.rowData.price * props.rowData.quantity * (0 + e.target.value / 100) * (1 + props.rowData.tax / 100)
                      ).toFixed(2)
                   );
 
@@ -268,7 +268,7 @@ export default function InvoiceEdit(props) {
                   seTanyAmount(
                      Number(
                         props.rowData.price * props.rowData.quantity * (1 + e.target.value / 100) -
-                           props.rowData.price * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + e.target.value / 100)
+                        props.rowData.price * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + e.target.value / 100)
                      ).toFixed(2)
                   );
 
@@ -413,7 +413,7 @@ export default function InvoiceEdit(props) {
    const onChangeFquantity = (e) => {
       const amount = Number(
          (product.sale_price * e.target.value - product.sale_price * e.target.value * (0 + product.product_discount / 100)) *
-            (1 + product.product_vat / 100)
+         (1 + product.product_vat / 100)
       ).toFixed(2);
       seTquantity(e.target.value);
       seTproduct({ ...product, amount: amount });
@@ -446,7 +446,7 @@ export default function InvoiceEdit(props) {
 
    function getPaymentsMethodF() {
       axios
-         .get("/paymentsmethods/sdsd")
+         .get("/paymentsmethods")
          .then((response) => {
             if (response.data.length > 0) {
                const details = [];
@@ -724,17 +724,18 @@ export default function InvoiceEdit(props) {
 
    const onSubmit = (e) => {
       e.preventDefault();
+
       if (paid === true) {
          var paymentsArray = [
             {
                amount: totalAll.total.toFixed(2),
                paid_date: Moment(state.paid_date)._d,
-               account_name: state.bank_account,
+               account_name: state.account_name,
             },
          ];
+      } else {
+         var paymentsArray = []
       }
-      console.log(paymentsArray);
-
       const Invoices = {
          created_user: { name: user.name, id: user.id },
          draft: 0,
@@ -779,6 +780,45 @@ export default function InvoiceEdit(props) {
                   variant: res.data.variant,
                });
             } else {
+
+
+               if (paid === true) {
+
+
+                  const paymentsPrime = {
+                     created_user: { name: user.name, id: user.id },
+                     customer_id: selectedDefaultCustomer[0],
+                     type: 1,
+                     amount: totalAll.total.toFixed(2),
+                     paid_date: Moment(state.paid_date)._d,
+                     account_name: state.account_name,
+                     created: Moment(state.created)._d,
+                     note: "",
+                     expenses_id: "",
+                     invoices_id: res.data._id
+                  }
+
+
+                  axios
+                     .post(`/paymentsaccounts/add`, paymentsPrime)
+                     .then((res) => {
+                        if (res.data.variant === "error") {
+                           enqueueSnackbar(t("Not Added Payments") + res.data.messagge, {
+                              variant: res.data.variant,
+                           });
+                        } else {
+                           enqueueSnackbar(t("Add Payments") + res.data.messagge, {
+                              variant: res.data.variant,
+                           });
+                           // navigate 
+                           history.push("/invoiceslist");
+
+                        }
+                     })
+                     .catch((err) => console.log(err));
+               }
+
+
                enqueueSnackbar(t("invoiceAdded") + res.data.messagge, {
                   variant: res.data.variant,
                });
@@ -971,17 +1011,17 @@ export default function InvoiceEdit(props) {
                                  <label className="selectLabel">{t("selectBankAccount")}</label>
                                  <Select
                                     placeholder={t("selectBankAccount")}
-                                    value={state.bank_account}
-                                    style={{
-                                       width: "100%",
-                                       marginTop: "-6px",
-                                    }}
+                                    value={state.account_name}
                                     options={dataBankAccount}
                                     onChange={(selectedOption) => {
                                        seTstate({
                                           ...state,
-                                          bank_account: selectedOption,
+                                          account_name: selectedOption,
                                        });
+                                    }}
+                                    style={{
+                                       width: "100%",
+                                       marginTop: "-6px",
                                     }}
                                  />
                                  <FormHelperText>{t("youNeedaselectBankAccount")}</FormHelperText>
@@ -1133,9 +1173,9 @@ export default function InvoiceEdit(props) {
                                     onChange={(e) => {
                                        seTunit(e.target.value);
                                     }}
-                                    /*InputLabelProps={{
-                              shrink: true,
-                            }}*/
+                                 /*InputLabelProps={{
+                           shrink: true,
+                         }}*/
                                  />
                                  <FormHelperText>{t("youNeedaProductUnit")}</FormHelperText>
                               </FormControl>
