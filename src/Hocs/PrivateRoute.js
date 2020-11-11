@@ -27,7 +27,6 @@ const PrivateRoute = ({ component: Component, roles, ...rest }) => {
             if (!isAuthenticated) {
                history.push("/login");
             }
-
             if (eqRoles.length == 0) {
                enqueueSnackbar(t("You are not authorized to view this page, contact your administrator."), { variant: "error" });
                // navigate

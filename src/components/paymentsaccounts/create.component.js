@@ -101,7 +101,7 @@ export default function PaymentsAccountsEdit(props) {
                   </Card>
                   <Card className="listViewPaper">
                      <Typography component="h1" variant="h6" color="inherit" noWrap style={{ width: "100%" }} className="typography">
-                        {t("Edit Accounts")}
+                        {t("Create   Accounts")}
                      </Typography>
 
                      <Grid item container sm={12} style={{ background: "#fff", float: "left" }}>

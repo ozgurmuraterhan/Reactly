@@ -116,10 +116,53 @@ router.route("/").get(passport.authenticate("jwt", { session: false }), (req, re
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         BankAccounts.find({ "created_user.id": `${req.user._id}` })
-            .then((data) => {
-               res.json(data);
-            })
+         BankAccounts.aggregate(
+            [
+               { $match: { "created_user.id": `${req.user._id}` } },
+
+               { "$addFields": { "userId": { "$toString": "$_id" } } },
+
+               {
+                  "$lookup": {
+                     "from": "paymentsaccounts",
+                     "localField": "userId",
+                     "foreignField": "account_name.value",
+                     "as": "output"
+                  }
+               },
+               { $unwind: "$output" },
+               {
+                  "$project": {
+                     account_name: 1,
+                     amount: { $sum: "$output.amount" },
+                     status: 1,
+                     type: { $cond: { if: "$output.type", then: { "inn": { "$sum": "$output.amount" } }, else: { "outt": { "$sum": "$output.amount" } } } }
+                  }
+               },
+               {
+                  $group: {
+                     _id: { "account_name": "$account_name", "_id": "$_id", "status": "$status" },
+                     in: { $sum: "$type.inn" },
+                     out: { $sum: "$type.outt" },
+                  },
+               },
+               { $unwind: "$_id.account_name" },
+               {
+                  "$project": {
+                     _id: "$_id._id",
+                     account_name: "$_id.account_name",
+                     status: "$_id.status",
+                     in: "$in",
+                     out: "$out",
+                     total: {
+                        $subtract: ["$in", "$out"]
+                     }
+                  }
+               },
+            ]
+         ).then((data) => {
+            res.json(data);
+         })
             .catch((err) =>
                res.json({
                   messagge: "Error: " + err,
@@ -190,6 +233,7 @@ router.route("/:id").get(passport.authenticate("jwt", { session: false }), (req,
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
+
          BankAccounts.findById(req.params.id)
             .then((data) => res.json(data))
             .catch((err) =>
