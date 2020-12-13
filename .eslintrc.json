@@ -15,7 +15,7 @@
         "sourceType": "module",
         "ecmaFeatures": {
             "jsx": true
-        }
+        } 
     },
     "rules": {
         "no-tabs": ["error", { "allowIndentationTabs": true }]

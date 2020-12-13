@@ -46,7 +46,7 @@ export default class ResetPassword extends Component {
 
         try {
             const response = await axios.get(
-                "http://localhost:5000/user/reset",
+                "/user/reset",
                 {
                     params: {
                         resetPasswordToken: token,
@@ -88,7 +88,7 @@ export default class ResetPassword extends Component {
 
         try {
             const response = await axios.put(
-                "http://localhost:5000/user/updatePasswordViaEmail",
+                "/user/updatePasswordViaEmail",
                 {
                     username,
                     password,
