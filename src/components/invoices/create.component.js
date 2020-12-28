@@ -324,7 +324,7 @@ export default function InvoiceEdit(props) {
 
    function getCustomersF() {
       axios
-         .get("/customers")
+         .get("/staff/all/1")
          .then((response) => {
             if (response.data.length > 0) {
                const details = [];
@@ -342,7 +342,7 @@ export default function InvoiceEdit(props) {
 
    const handleChangeCustomer = (selectedOption) => {
       axios
-         .get(`/customers/${selectedOption.value}`)
+         .get(`/staff/${selectedOption.value}`)
          .then((response) => {
             seTstate({
                ...state,

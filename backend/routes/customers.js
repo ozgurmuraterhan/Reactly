@@ -1,8 +1,7 @@
 const router = require("express").Router();
 const passport = require("passport");
 const JWT = require("jsonwebtoken");
-let Customer = require("../models/customer.model");
-let User = require("../models/user.model");
+ let User = require("../models/user.model");
 
 const title = "Customer";
 const roleTitle = "customers";
@@ -12,7 +11,7 @@ router.route("/").get(passport.authenticate("jwt", { session: false }), (req, re
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         Customer.find()
+         Customer.find({isCustomer:true})
             .then((data) => {
                res.json(data);
             })

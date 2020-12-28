@@ -75,7 +75,7 @@ export default function CustomerCreate() {
       selected2Town: "",
       selected3Town: "",
       company: "",
-      email: "",
+      username: "",
       password: getRandomPass(8),
       taxoffice: "",
       taxnumber: "",
@@ -264,8 +264,9 @@ export default function CustomerCreate() {
       e.preventDefault();
       const Customers = {
          created_user: { name: user.name, id: user.id },
+         isCustomer:true,
          company: state.company,
-         email: state.email,
+         username: state.username,
          password: state.password,
          group_id: state.selectedGroupItems,
          taxoffice: state.taxoffice,
@@ -297,7 +298,9 @@ export default function CustomerCreate() {
          shippingAddress_address: state.selected3Address,
       };
 
-      axios.post("/customers/add", Customers).then((res) => {
+      
+
+      axios.post("/staff/add", Customers).then((res) => {
          if (res.data.variant == "error") {
             enqueueSnackbar(t("customerNotAdded") + res.data.messagge, {
                variant: res.data.variant,
@@ -349,16 +352,16 @@ export default function CustomerCreate() {
                               <FormControl>
                                  <TextValidator
                                     required
-                                    label={t("email")}
-                                    value={state.email}
+                                    label={t("username")}
+                                    value={state.username}
                                     onChange={(e) => {
                                        seTstate({
                                           ...state,
-                                          email: e.target.value,
+                                          username: e.target.value,
                                        });
                                     }}
                                     validators={["isEmail"]}
-                                    errorMessages={[t("emailIsNotValid")]}
+                                    errorMessages={[t("userEmailIsNotValid")]}
                                  />
                                  <FormHelperText>{t("youNeedaEmail")}</FormHelperText>
                               </FormControl>

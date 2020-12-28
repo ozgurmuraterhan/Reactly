@@ -173,11 +173,12 @@ export default function CustomersList() {
     };
 
     const getCustomersData = () => {
-        axios.get("/customers").then((response) => {
+
+        // 0  : user 
+        // 1 : customer
+        axios.get("/staff/all/1").then((response) => {
             if (response.data.length > 0) {
                 seTdata(response.data);
-                // console.log(data)
-                // console.log(columns)
             }
         });
     };
@@ -192,7 +193,9 @@ export default function CustomersList() {
 
     const getGroupNameStatistic = () => {
         // group name statistic data
-        axios.get("/customers/statistic").then((response) => {
+        axios.get("/staff/statistic").then((response) => {
+
+            console.log(response.data)
             if (response.data.length > 0) {
                 const details_label = [];
                 const details_value = [];

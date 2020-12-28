@@ -68,7 +68,7 @@ export default function CustomerEdit(props) {
       ssn: "",
       executive: "",
       phone: "",
-      email: "",
+      username: "",
       fax: "",
       web: "",
       default_payment_method: "",
@@ -198,8 +198,28 @@ export default function CustomerEdit(props) {
          .catch((err) => console.log(err));
    }
 
+   function updatePassword() {
+      const { _id, password } = state;
+  
+      axios
+        .post(`/staff/updatePasswordSuperadmin`, { _id, password })
+        .then((res) => {
+          if (res.data.variant == 'success') {
+            enqueueSnackbar(t('Password Updated '), {
+              variant: 'success',
+            });
+          } else {
+            enqueueSnackbar(t('Password Not Updated ') + res.data.messagge, {
+              variant: 'error',
+            });
+          }
+        })
+        .catch((err) => console.log(err));
+    }
+
+
    function getCustomersData() {
-      axios.get(`/customers/${props.match.params.id}`).then((response) => {
+      axios.get(`/staff/${props.match.params.id}`).then((response) => {
          const details = [];
          for (const i in response.data.group_id) {
             details.push({
@@ -210,7 +230,7 @@ export default function CustomerEdit(props) {
          seTstate({
             _id: response.data._id,
             company: response.data.company,
-            email: response.data.email,
+            username: response.data.username,
             password: response.data.password,
             group_id: response.data.group_id,
             taxoffice: response.data.taxoffice,
@@ -334,7 +354,7 @@ export default function CustomerEdit(props) {
 
       const Customers = {
          company: state.company,
-         email: state.email,
+         username: state.username,
          password: state.password,
          group_id: state.selectedGroupItems,
          taxoffice: state.taxoffice,
@@ -366,8 +386,12 @@ export default function CustomerEdit(props) {
          shippingAddress_address: state.selected3Address,
       };
 
-      axios
-         .post(`/customers/${props.match.params.id}`, Customers)
+        if (state.password) {
+      updatePassword();
+    }
+
+    axios
+      .post(`/staff/${props.match.params.id}`, Customers)
          .then((res) => {
             if (res.data.variant == "error") {
                enqueueSnackbar(t("customerNotUpdated") + res.data.messagge, { variant: res.data.variant });
@@ -383,7 +407,7 @@ export default function CustomerEdit(props) {
    };
 
    const deleteData = (id) => {
-      axios.delete(`/customers/${id}`).then((res) => {
+      axios.delete(`/staff/${id}`).then((res) => {
          history.push("/customerslist");
          enqueueSnackbar(t("customerDeleted"), {
             variant: res.data.variant,
@@ -484,16 +508,16 @@ export default function CustomerEdit(props) {
                                     required
                                     variant="outlined"
                                     margin="dense"
-                                    label={t("email")}
-                                    value={state.email}
+                                    label={t("username")}
+                                    value={state.username}
                                     onChange={(e) => {
                                        seTstate({
                                           ...state,
-                                          email: e.target.value,
+                                          username: e.target.value,
                                        });
                                     }}
                                     validators={["isEmail"]}
-                                    errorMessages={[t("emailIsNotValid")]}
+                                    errorMessages={[t("userEmailIsNotValid")]}
                                  />
                                  <FormHelperText>{t("youNeedaEmail")}</FormHelperText>
                               </FormControl>
@@ -506,9 +530,7 @@ export default function CustomerEdit(props) {
                                     variant="outlined"
                                     margin="dense"
                                     label={t("password")}
-                                    required
-                                    value={state.password}
-                                    onChange={(e) => {
+                                      onChange={(e) => {
                                        seTstate({
                                           ...state,
                                           password: e.target.value,
