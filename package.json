@@ -56,10 +56,10 @@
         "starwars-names": "^1.6.0"
     },
     "scripts": {
-        "start": "react-scripts start ",
+        "test": "react-scripts start",
+        "start": "cd backend && nodemon server.js",
         "server":"cd backend && nodemon server.js",
         "build": "react-scripts build",
-        "test": "react-scripts test",
         "eject": "react-scripts eject",
         "fix-js": "eslint-auto-fix"
     },
