@@ -59,7 +59,7 @@
         "test": "react-scripts start",
         "start": "cd backend && nodemon server.js",
         "server":"cd backend && nodemon server.js",
-        "build": "react-scripts build",
+        "build": "react-scripts build && cd backend && npm install",
         "eject": "react-scripts eject",
         "fix-js": "eslint-auto-fix"
     },
