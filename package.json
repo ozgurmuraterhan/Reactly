@@ -57,7 +57,7 @@
     },
     "scripts": {
         "test": "react-scripts start",
-        "start": "node server.js",
+        "start": "cd backend && node server.js",
         "server":"cd backend && nodemon server.js",
         "build": "react-scripts build && cd backend && npm install",
         "eject": "react-scripts eject",
