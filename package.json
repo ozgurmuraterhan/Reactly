@@ -1,11 +1,11 @@
 {
     "name": "mern-stack",
-    "version": "0.1.1",
+    "version": "0.1.0",
     "private": true,
     "dependencies": {
         "@appgeist/react-select-material-ui": "^1.4.0",
         "@material-ui/core": "^4.11.2",
-        "@material-ui/icons": "^4.5.1",
+        "@material-ui/icons": "^4.4.1",
         "@material-ui/lab": "^4.0.0-alpha.49",
         "@nivo/pie": "^0.59.1",
         "@trendmicro/react-sidenav": "^0.4.5",
@@ -57,12 +57,13 @@
         "starwars-names": "^1.6.0"
     },
     "scripts": {
-        "test": "react-scripts start",
-        "start": "cd backend && npm install && node server.js",
+        "start": "cd backend && node server.js",
         "server": "cd backend && nodemon server.js",
-        "build": "npm install && react-scripts build   ",
+        "build": "npm run fix-react-v && react-scripts build && cd backend && npm install",
+        "test": "react-scripts start",
         "eject": "react-scripts eject",
-        "fix-js": "eslint-auto-fix"
+        "fix-js": "eslint-auto-fix",
+        "fix-react-v": "npm install --save @material-ui/core --legacy-peer-deps"
     },
     "eslintConfig": {
         "extends": "react-app"
