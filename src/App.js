@@ -134,28 +134,25 @@ export default function App() {
         );
     };
 
-    const authenticatedNavBar = () => {
-        return (
-            <>
-                <Route
-                    render={({ location, history }) => (
-                        <>
-                            <SideNav
-                                onMouseOver={() => seTopen(true)}
-                                onMouseOut={() => seTopen(false)}
-                                onToggle={() => {}}
-                                expanded={open}
-                                onSelect={(selected) => {
-                                    const to = `/${selected}`;
-                                    if (location.pathname !== to) {
-                                        history.push(to);
-                                    }
-                                }}
-                            >
-                                <SideNav.Toggle />
+    const customersMenu=(
 
-                                <SideNav.Nav defaultSelected="customerslist">
-                                    <NavItem eventKey="invoiceslist">
+             <SideNav.Nav defaultSelected="customerslist">
+                    <NavItem eventKey="Paymentarea">
+                        <NavIcon>
+                            <InsertChart
+                                fontSize="large"
+                                style={{ marginTop: "7px" }}
+                            />
+                        </NavIcon>
+                        <NavText>Payment Area</NavText>
+                    </NavItem>
+                    </SideNav.Nav>
+     )
+
+    const adminMenu= (
+
+        <SideNav.Nav defaultSelected="customerslist">
+                    <NavItem eventKey="invoiceslist">
                                         <NavIcon>
                                             <Receipt
                                                 fontSize="large"
@@ -242,7 +239,36 @@ export default function App() {
                                         </NavIcon>
                                         <NavText>Logout</NavText>
                                     </NavItem>
-                                </SideNav.Nav>
+                                    </SideNav.Nav>
+    )
+
+
+    const authenticatedNavBar = () => {
+        return (
+            <>
+                <Route
+                    render={({ location, history }) => (
+                        <>
+                            <SideNav
+                                onMouseOver={() => seTopen(true)}
+                                onMouseOut={() => seTopen(false)}
+                                onToggle={() => {}}
+                                expanded={open}
+                                onSelect={(selected) => {
+                                    const to = `/${selected}`;
+                                    if (location.pathname !== to) {
+                                        history.push(to);
+                                    }
+                                }}
+                            >
+                                <SideNav.Toggle />
+
+                                
+
+                                    {user.isCustomer ? customersMenu : adminMenu }
+                                    
+                                    
+                                
                             </SideNav>
                             <main style={{ marginLeft: "63px" }}>
                                 <div>

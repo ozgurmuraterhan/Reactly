@@ -106,7 +106,7 @@ router.post(
     passport.authenticate("local", { session: false }),
     (req, res) => {
         if (req.isAuthenticated()) {
-            const { _id, username, role, name, surname } = req.user;
+            const { _id, username, role, name, surname,company,isCustomer } = req.user;
             const token = signToken(_id);
             res.cookie("access_token", token, {
                 httpOnly: true,
@@ -114,7 +114,7 @@ router.post(
             });
             res.status(200).json({
                 isAuthenticated: true,
-                user: { username, role, id: _id, name: name + " " + surname },
+                user: { username, role, id: _id, name: name + " " + surname, company: company, isCustomer: isCustomer },
             });
         }
     }
@@ -198,7 +198,7 @@ router.get(
     (req, res) => {
         res.clearCookie("access_token");
         res.json({
-            user: { username: "", role: "", id: "", name: "" },
+            user: { username: "", role: "", id: "", name: "",company: "", isCustomer: ""  },
             success: true,
         });
     }
@@ -227,10 +227,10 @@ router.get(
     "/authenticated",
     passport.authenticate("jwt", { session: false }),
     (req, res) => {
-        const { username, role, _id, name, surname } = req.user;
+        const { username, role, _id, name, surname,company,isCustomer } = req.user;
         res.status(200).json({
             isAuthenticated: true,
-            user: { username, role, id: _id, name: name + " " + surname },
+            user: { username, role, id: _id, name: name + " " + surname, company: company, isCustomer: isCustomer },
         });
     }
 );

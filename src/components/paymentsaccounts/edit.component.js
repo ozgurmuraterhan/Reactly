@@ -256,11 +256,7 @@ export default function PaymentsAccountsEdit(props) {
 
                      </Grid>
                   </Card>
-                  <div className="saveButtonPlace">
-                     <Button type="submit" className="glow-on-hover">
-                        <Save fontSize="small" style={{ marginRight: "15px" }} /> {t("save")}
-                     </Button>
-                  </div>
+                   
                </Grid>
             </Grid>
          </ValidatorForm>

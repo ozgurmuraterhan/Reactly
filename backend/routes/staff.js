@@ -69,7 +69,6 @@ router
 .get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
   User.find({ username: req.user.username }).then((data) => {
 
-    console.log("asda")
     const rolesControl = data[0].role;
     if (rolesControl[roleTitle + "list"]) {
       User.aggregate([
