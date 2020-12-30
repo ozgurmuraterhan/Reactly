@@ -60,6 +60,7 @@
         "start": "cd backend && node server.js",
         "server": "cd backend && nodemon server.js",
         "build": "npm run fix-react-v && react-scripts build && cd backend && npm install",
+        
         "test": "react-scripts start",
         "eject": "react-scripts eject",
         "fix-js": "eslint-auto-fix",
