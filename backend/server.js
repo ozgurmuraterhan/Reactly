@@ -40,7 +40,7 @@ const invoicesRouter = require("./routes/invoices");
 const BankAccountsRouter = require("./routes/bankAccounts");
 const PaymentsMethodsRouter = require("./routes/paymentsMethods");
 const PaymentsAccounts = require("./routes/paymentsaccounts");
-const Expensescategories = require("./routes/expensescategories");
+const Expensescategories = require("./routes/expensesCategories");
 const Expenses = require("./routes/expenses");
 
 app.use(bodyParser.json());
