@@ -9,7 +9,7 @@ const compression = require('compression');
 require("dotenv").config();
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 80;
 
 app.use(compression());
 app.use(cookieParser());
