@@ -38,7 +38,7 @@ const productCategoriesRouter = require("./routes/productCategories");
 const productsRouter = require("./routes/products");
 const invoicesRouter = require("./routes/invoices");
 const BankAccountsRouter = require("./routes/bankAccounts");
-const PaymentsMethodsRouter = require("./routes/paymentsmethods");
+const PaymentsMethodsRouter = require("./routes/paymentsMethods");
 const PaymentsAccounts = require("./routes/paymentsaccounts");
 const Expensescategories = require("./routes/expensescategories");
 const Expenses = require("./routes/expenses");
@@ -65,7 +65,7 @@ app.use(express.static(path.join(__dirname, '../')));
 
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build/index.html'));
+   res.sendFile(path.join(__dirname, '../build/index.html'));
 });
 
 
