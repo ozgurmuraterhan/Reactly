@@ -8,6 +8,7 @@ let User = require("../models/user.model");
 const title = "Products Group";
 const roleTitle = "productsCategories";
 // get all items
+
 router.route("/").get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
