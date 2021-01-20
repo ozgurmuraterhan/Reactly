@@ -264,7 +264,7 @@ export default function CustomerCreate() {
       e.preventDefault();
       const Customers = {
          created_user: { name: user.name, id: user.id },
-         isCustomer:true,
+         isCustomer: true,
          company: state.company,
          username: state.username,
          password: state.password,
@@ -298,7 +298,7 @@ export default function CustomerCreate() {
          shippingAddress_address: state.selected3Address,
       };
 
-      
+
 
       axios.post("/staff/add", Customers).then((res) => {
          if (res.data.variant == "error") {
@@ -334,6 +334,8 @@ export default function CustomerCreate() {
                                  <TextValidator
                                     label={t("company")}
                                     value={state.company}
+                                    margin="dense"
+                                    variant="outlined"
                                     onChange={(e) => {
                                        seTstate({
                                           ...state,
@@ -351,6 +353,8 @@ export default function CustomerCreate() {
                            <FormGroup className="FormGroup">
                               <FormControl>
                                  <TextValidator
+                                    margin="dense"
+                                    variant="outlined"
                                     required
                                     label={t("username")}
                                     value={state.username}
@@ -371,6 +375,8 @@ export default function CustomerCreate() {
                            <FormGroup className="FormGroup">
                               <FormControl>
                                  <TextValidator
+                                    margin="dense"
+                                    variant="outlined"
                                     required
                                     label={t("password")}
                                     value={state.password}
@@ -439,6 +445,8 @@ export default function CustomerCreate() {
                            <FormGroup className="FormGroup">
                               <FormControl>
                                  <TextValidator
+                                    margin="dense"
+                                    variant="outlined"
                                     label={t("taxNumber")}
                                     value={state.taxnumber}
                                     onChange={(e) => {
@@ -457,10 +465,11 @@ export default function CustomerCreate() {
                         <Grid container item sm={4} spacing={0}>
                            <FormGroup className="FormGroup">
                               <FormControl>
-                                 <InputLabel htmlFor="taxoffice" className="InputLabel">
-                                    {t("taxOffice")}
-                                 </InputLabel>
-                                 <Input
+
+                                 <TextValidator
+                                    margin="dense"
+                                    variant="outlined"
+                                    label={t("taxOffice")}
                                     id="taxoffice"
                                     value={state.taxoffice}
                                     onChange={(e) => {
@@ -478,6 +487,8 @@ export default function CustomerCreate() {
                            <FormGroup className="FormGroup">
                               <FormControl>
                                  <TextValidator
+                                    margin="dense"
+                                    variant="outlined"
                                     label={t("SSN")}
                                     value={state.ssn}
                                     onChange={(e) => {
@@ -496,10 +507,11 @@ export default function CustomerCreate() {
                         <Grid container item sm={4} spacing={0}>
                            <FormGroup className="FormGroup">
                               <FormControl>
-                                 <InputLabel htmlFor="executive" className="InputLabel">
-                                    {t("executive")}
-                                 </InputLabel>
-                                 <Input
+
+                                 <TextValidator
+                                    margin="dense"
+                                    variant="outlined"
+                                    label={t("executive")}
                                     id="executive"
                                     value={state.executive}
                                     onChange={(e) => {
@@ -517,6 +529,8 @@ export default function CustomerCreate() {
                            <FormGroup className="FormGroup">
                               <FormControl>
                                  <TextValidator
+                                    margin="dense"
+                                    variant="outlined"
                                     required
                                     label={t("phone")}
                                     value={state.phone}
@@ -537,6 +551,8 @@ export default function CustomerCreate() {
                            <FormGroup className="FormGroup">
                               <FormControl>
                                  <TextValidator
+                                    margin="dense"
+                                    variant="outlined"
                                     label={t("fax")}
                                     value={state.fax}
                                     onChange={(e) => {
@@ -555,10 +571,10 @@ export default function CustomerCreate() {
                         <Grid container item sm={4} spacing={0}>
                            <FormGroup className="FormGroup">
                               <FormControl>
-                                 <InputLabel htmlFor="web" className="InputLabel">
-                                    {t("webSite")}
-                                 </InputLabel>
-                                 <Input
+                                 <TextValidator
+                                    margin="dense"
+                                    variant="outlined"
+                                    label={t("webSite")}
                                     id="web"
                                     value={state.web}
                                     onChange={(e) => {

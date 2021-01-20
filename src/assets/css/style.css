@@ -376,6 +376,12 @@ body {
 .OpenTop .css-26l3qy-menu{
     top: auto; bottom: 100%
 }
+
+.MuiFormControl-marginDense {
+    width: 100%;
+}
+
+
 @media only screen and (max-width: 600px) {
     .loginBanner {
         display: none;
