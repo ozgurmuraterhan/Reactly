@@ -4,13 +4,11 @@
 any manager: 
 
 username: try@try.co
-
 pass: 123456
 
 customer:
 
 username: customers@try.co
-
 pass: 123456
 
 
