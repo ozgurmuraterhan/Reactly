@@ -98,6 +98,7 @@ const Login = (props) => {
                                     label={t("E-mail")}
                                     name="username"
                                     onChange={onChange}
+                                    style={{width:"100%"}}
                                 />
 
                                 <FormHelperText>
@@ -114,6 +115,8 @@ const Login = (props) => {
                                     name="password"
                                     type="password"
                                     onChange={onChange}
+                                    style={{width:"100%"}}
+
                                 />
                                 <FormHelperText>
                                     {t("You need a Password")}

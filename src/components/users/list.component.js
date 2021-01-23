@@ -101,7 +101,7 @@ export default function ProductsList() {
     };
 
     const getUserssData = () => {
-        axios.get("/staff").then((response) => {
+        axios.get("/staff/all/0").then((response) => {
             if (response.data.length > 0) {
                 seTdata(response.data);
             }
@@ -141,7 +141,7 @@ export default function ProductsList() {
                                                 noWrap
                                                 className="typography"
                                             >
-                                                {t("productList")}
+                                                {t("User List")}
                                             </Typography>
                                             <Link
                                                 to="/staffcreate"

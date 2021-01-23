@@ -133,6 +133,7 @@ export default function ProductEdit(props) {
          phone: state.phone,
          password: state.password,
          role: permissions,
+         isCustomer:false,
       };
 
       axios
