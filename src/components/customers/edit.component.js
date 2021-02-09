@@ -353,6 +353,7 @@ export default function CustomerEdit(props) {
       e.preventDefault();
 
       const Customers = {
+         isCustomer: true,
          company: state.company,
          username: state.username,
          password: state.password,

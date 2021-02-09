@@ -34,23 +34,39 @@ router
               variant: 'error',
             })
           );
-      } else if (rolesControl[roleTitle + 'onlyyou']) {
-        User.find({
-          $or: [
-            { _id: req.user._id },
-            { 'created_user.id': `${req.user._id}` },
-          ],
-        })
-          .then((data) => {
-            res.json(data);
+        } else if (rolesControl[roleTitle + 'onlyyou']) {
+          User.find({
+            $or: [
+              { _id: req.user._id },
+              { 'created_user.id': `${req.user._id}` },
+            ],
           })
-          .catch((err) =>
-            res.json({
-              messagge: 'Error: ' + err,
-              variant: 'error',
+            .then((data) => {
+              res.json(data);
             })
-          );
-      } else {
+            .catch((err) =>
+              res.json({
+                messagge: 'Error: ' + err,
+                variant: 'error',
+              })
+            );
+        } else if (rolesControl['customerslist']) {
+          User.find( 
+            
+               { 'isCustomer': true },
+            
+          )
+            .then((data) => {
+
+              res.json(data);
+            })
+            .catch((err) =>
+              res.json({ 
+                messagge: 'Error: ' + err,
+                variant: 'error',
+              })
+            );
+        } else {
         res.status(403).json({
           message: {
             messagge: 'You are not authorized, go away!',
@@ -91,7 +107,7 @@ router
   .post(passport.authenticate('jwt', { session: false }), (req, res, next) => {
     User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
-      if (rolesControl[roleTitle + 'create']) {
+      if (rolesControl[roleTitle + 'create'] || rolesControl['customerscreate']) {
         new User(req.body)
           .save()
 
@@ -118,7 +134,7 @@ router
     });
   });
 // post new items
-router.route('/add/register').post((req, res, next) => {
+router.route('/add/register123123123').post((req, res, next) => {
   new User(req.body)
     .save()
 
@@ -172,6 +188,22 @@ router
           })
           .catch((err) =>
             res.status(400).json({
+              messagge: 'Error: ' + err,
+              variant: 'error',
+            })
+          );
+      }else if (rolesControl['customerslist']) {
+        User.findOne({
+          $and: [
+            { _id: req.params.id },
+            { 'isCustomer': true },
+          ],
+        }).then((data) => {
+
+             res.json(data);
+          })
+          .catch((err) =>
+            res.json({ 
               messagge: 'Error: ' + err,
               variant: 'error',
             })
@@ -250,7 +282,23 @@ router
             }
           })
           .catch((err) =>
-            res.json({
+            res.json({ 
+              messagge: 'Error: ' + err,
+              variant: 'error',
+            })
+          );
+      }else if (rolesControl['customersdelete']) {
+        User.deleteOne({
+          $and: [
+            { _id: req.params.id },
+            { 'isCustomer': true },
+          ],
+        }).then((data) => {
+
+             res.json(data);
+          })
+          .catch((err) =>
+            res.json({ 
               messagge: 'Error: ' + err,
               variant: 'error',
             })
@@ -413,7 +461,24 @@ router
               variant: 'error',
             })
           );
-      } else {
+      } else if (rolesControl['customersedit']) {
+        User.findOneAndUpdate({
+          $and: [
+            { _id: req.params.id },
+            { 'isCustomer': true },
+          ],
+        }).then((data) => {
+
+            console.log(data[0])
+            res.json(data);
+          })
+          .catch((err) =>
+            res.json({ 
+              messagge: 'Error: ' + err,
+              variant: 'error',
+            })
+          );
+      }else {
         res.status(403).json({
           message: {
             messagge: 'You are not authorized, go away!',
@@ -424,7 +489,7 @@ router
     });
   });
 
-// update data by id
+/*
 router
   .route('/customer/:id')
   .post(passport.authenticate('jwt', { session: false }), (req, res, next) => {
@@ -443,64 +508,6 @@ router
           })
         );
     });
-  });
-// @route    PUT user/like/:id
-// @desc     Like a estate
-
-router.route('/:id/like/:estateId').put(
-  /* passport.authenticate('jwt', { session: false }), */
-  async (req, res, next) => {
-    try {
-      const user = await User.findById(req.params.id);
-      //Check if has already been liked
-      if (
-        user.favorites.filter((like) => like.toString() === req.params.estateId)
-          .length > 0
-      ) {
-        return res.status(400).json({ msg: 'Already liked' });
-      }
-      user.favorites.unshift(req.params.estateId);
-      await user.save();
-      res.json(user.favorites);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server Error');
-    }
-  }
-);
-
-// @route    PUT staff/unlike/:id
-// @desc     Unlike a
-
-router.route('/:id/unlike/:estateId').put(
-  /* passport.authenticate('jwt', { session: false }), */
-  async (req, res, next) => {
-    try {
-      const user = await User.findById(req.params.id);
-
-      //Check if has already been liked
-      if (
-        user.favorites.filter((like) => like.toString() === req.params.estateId)
-          .length === 0
-      ) {
-        return res.status(400).json({ msg: 'user has not yet been liked' });
-      }
-
-      // Get remove index
-      const removeIndex = user.favorites
-        .map((like) => like)
-        .indexOf(req.params.estateId);
-
-      user.favorites.splice(removeIndex, 1);
-
-      await user.save();
-
-      res.json(user.favorites);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server Error');
-    }
-  }
-);
+  }); */
 
 module.exports = router;

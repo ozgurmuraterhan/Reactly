@@ -80,7 +80,7 @@ import ExercisesList from './components/exercises/list.component';
 import PPimage from "./assets/images/pp2.jpeg";
 
 export default function App() {
-    const { t } = useTranslation(); 
+    const { t } = useTranslation();
 
     const [nowDate, seTnowDate] = useState(new Date());
     const [open, seTopen] = useState(false);
@@ -89,9 +89,8 @@ export default function App() {
         i18n.changeLanguage(lng);
     };
 
-    const { isAuthenticated, user, setIsAuthenticated, setUser } = useContext(
-        AuthContext
-    );
+
+    const { isAuthenticated, user, setIsAuthenticated, setUser } = useContext(AuthContext);
 
     const onClickLogoutHandler = () => {
         AuthService.logout().then((data) => {
@@ -108,9 +107,7 @@ export default function App() {
                 <Route
                     render={({ location, history }) => (
                         <>
-                            {location.pathname === "/"
-                                ? history.push("/login")
-                                : ""}
+                            {location.pathname === "/" ? history.push("/login") : ""}
                             <main style={{ height: "100%" }}>
                                 <div style={{ height: "100%" }}>
                                     <UnPrivateRoute
@@ -134,112 +131,112 @@ export default function App() {
         );
     };
 
-    const customersMenu=(
-
-             <SideNav.Nav defaultSelected="customerslist">
-                    <NavItem eventKey="Paymentarea">
-                        <NavIcon>
-                            <InsertChart
-                                fontSize="large"
-                                style={{ marginTop: "7px" }}
-                            />
-                        </NavIcon>
-                        <NavText>Payment Area</NavText>
-                    </NavItem>
-                    </SideNav.Nav>
-     )
-
-    const adminMenu= (
+    const customersMenu = (
 
         <SideNav.Nav defaultSelected="customerslist">
-                    <NavItem eventKey="invoiceslist">
-                                        <NavIcon>
-                                            <Receipt
-                                                fontSize="large"
-                                                style={{ marginTop: "7px" }}
-                                            />
-                                        </NavIcon>
-                                        <NavText>Invoices</NavText>
-                                    </NavItem>
+            <NavItem eventKey="Paymentarea">
+                <NavIcon>
+                    <InsertChart
+                        fontSize="large"
+                        style={{ marginTop: "7px" }}
+                    />
+                </NavIcon>
+                <NavText>Payment Area</NavText>
+            </NavItem>
+        </SideNav.Nav>
+    )
 
-                                    <NavItem eventKey="customerslist">
-                                        <NavIcon>
-                                            <SupervisedUserCircle
-                                                fontSize="large"
-                                                style={{ marginTop: "7px" }}
-                                            />
-                                        </NavIcon>
-                                        <NavText>Customers</NavText>
-                                    </NavItem>
+    const adminMenu = (
 
-                                    <NavItem eventKey="productslist">
-                                        <NavIcon>
-                                            <Ballot
-                                                fontSize="large"
-                                                style={{ marginTop: "7px" }}
-                                            />
-                                        </NavIcon>
-                                        <NavText>Products</NavText>
-                                    </NavItem>
+        <SideNav.Nav defaultSelected="customerslist">
+            <NavItem eventKey="invoiceslist">
+                <NavIcon>
+                    <Receipt
+                        fontSize="large"
+                        style={{ marginTop: "7px" }}
+                    />
+                </NavIcon>
+                <NavText>Invoices</NavText>
+            </NavItem>
 
-                                    <NavItem eventKey="expenseslist">
-                                        <NavIcon>
-                                            <MonetizationOn
-                                                fontSize="large"
-                                                style={{ marginTop: "7px" }}
-                                            />
-                                        </NavIcon>
-                                        <NavText>Expenses</NavText>
-                                    </NavItem>
-                                    <NavItem eventKey="paymentsaccountslist">
-                                        <NavIcon>
-                                            <InsertChart
-                                                fontSize="large"
-                                                style={{ marginTop: "7px" }}
-                                            />
-                                        </NavIcon>
-                                        <NavText>Payment Account</NavText>
-                                    </NavItem>
+            <NavItem eventKey="customerslist">
+                <NavIcon>
+                    <SupervisedUserCircle
+                        fontSize="large"
+                        style={{ marginTop: "7px" }}
+                    />
+                </NavIcon>
+                <NavText>Customers</NavText>
+            </NavItem>
 
-                                    <NavItem eventKey="reports">
-                                        <NavIcon>
-                                            <InsertChart
-                                                fontSize="large"
-                                                style={{ marginTop: "7px" }}
-                                            />
-                                        </NavIcon>
-                                        <NavText>Reports</NavText>
-                                    </NavItem>
+            <NavItem eventKey="productslist">
+                <NavIcon>
+                    <Ballot
+                        fontSize="large"
+                        style={{ marginTop: "7px" }}
+                    />
+                </NavIcon>
+                <NavText>Products</NavText>
+            </NavItem>
 
-                                    <NavItem eventKey="charts">
-                                        <NavIcon>
-                                            <ArrowDropDownCircle
-                                                fontSize="large"
-                                                style={{ marginTop: "7px" }}
-                                            />
-                                        </NavIcon>
-                                        <NavText>Drowdown</NavText>
-                                        <NavItem eventKey="stafflist">
-                                            <NavText>Staff </NavText>
-                                        </NavItem>
-                                        <NavItem eventKey="charts/barchart">
-                                            <NavText>Bar Chart</NavText>
-                                        </NavItem>
-                                    </NavItem>
+            <NavItem eventKey="expenseslist">
+                <NavIcon>
+                    <MonetizationOn
+                        fontSize="large"
+                        style={{ marginTop: "7px" }}
+                    />
+                </NavIcon>
+                <NavText>Expenses</NavText>
+            </NavItem>
+            <NavItem eventKey="paymentsaccountslist">
+                <NavIcon>
+                    <InsertChart
+                        fontSize="large"
+                        style={{ marginTop: "7px" }}
+                    />
+                </NavIcon>
+                <NavText>Payment Account</NavText>
+            </NavItem>
 
-                                    <NavItem
-                                        eventKey="login"
-                                        onClick={onClickLogoutHandler}
-                                    >
-                                        <NavIcon>
-                                            <PowerSettingsNew
-                                                fontSize="large"
-                                                style={{ marginTop: "7px" }}
-                                            />
-                                        </NavIcon>
-                                        <NavText>Logout</NavText>
-                                    </NavItem>
-                                    </SideNav.Nav>
+            <NavItem eventKey="reports">
+                <NavIcon>
+                    <InsertChart
+                        fontSize="large"
+                        style={{ marginTop: "7px" }}
+                    />
+                </NavIcon>
+                <NavText>Reports</NavText>
+            </NavItem>
+
+            <NavItem eventKey="charts">
+                <NavIcon>
+                    <ArrowDropDownCircle
+                        fontSize="large"
+                        style={{ marginTop: "7px" }}
+                    />
+                </NavIcon>
+                <NavText>Drowdown</NavText>
+                <NavItem eventKey="stafflist">
+                    <NavText>Staff </NavText>
+                </NavItem>
+                <NavItem eventKey="charts/barchart">
+                    <NavText>Bar Chart</NavText>
+                </NavItem>
+            </NavItem>
+
+            <NavItem
+                eventKey="login"
+                onClick={onClickLogoutHandler}
+            >
+                <NavIcon>
+                    <PowerSettingsNew
+                        fontSize="large"
+                        style={{ marginTop: "7px" }}
+                    />
+                </NavIcon>
+                <NavText>Logout</NavText>
+            </NavItem>
+        </SideNav.Nav>
     )
 
 
@@ -252,7 +249,7 @@ export default function App() {
                             <SideNav
                                 onMouseOver={() => seTopen(true)}
                                 onMouseOut={() => seTopen(false)}
-                                onToggle={() => {}}
+                                onToggle={() => { }}
                                 expanded={open}
                                 onSelect={(selected) => {
                                     const to = `/${selected}`;
@@ -263,12 +260,12 @@ export default function App() {
                             >
                                 <SideNav.Toggle />
 
-                                
 
-                                    {user.isCustomer ? customersMenu : adminMenu }
-                                    
-                                    
-                                
+
+                                {user.isCustomer ? customersMenu : adminMenu}
+
+
+
                             </SideNav>
                             <main style={{ marginLeft: "63px" }}>
                                 <div>

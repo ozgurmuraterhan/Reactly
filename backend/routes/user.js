@@ -163,13 +163,13 @@ router.post("/forgotPassword", (req, res) => {
                 secure: false,
                 tls: { rejectUnauthorized: false },
                 auth: {
-                    user: `merhan@bigfil.com.tr`,
+                    user: `merhan@`,
                     pass: `U&e224$!`,
                 },
             });
 
             const mailOptions = {
-                from: `merhan@bigfil.com.tr`,
+                from: `merhan@`,
                 to: `${user.username}`,
                 subject: "Link To Reset Password",
                 text:
