@@ -34,13 +34,13 @@ const staffRouter = require("./routes/staff");
 //const customerRouter = require("./routes/customers");
 const countryRouter = require("./routes/country");
 const customersGroupsRouter = require("./routes/customersGroups");
-const productCategoriesRouter = require("./routes/productCategories");
+const productCategoriesRouter = require("./routes/productcategories");
 const productsRouter = require("./routes/products");
 const invoicesRouter = require("./routes/invoices");
 const BankAccountsRouter = require("./routes/bankAccounts");
 const PaymentsMethodsRouter = require("./routes/paymentsMethods");
 const PaymentsAccounts = require("./routes/paymentsaccounts");
-const Expensescategories = require("./routes/expensesCategories");
+const Expensescategories = require("./routes/expensescategories");
 const Expenses = require("./routes/expenses");
 
 app.use(bodyParser.json());
