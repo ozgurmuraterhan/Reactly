@@ -101,7 +101,7 @@ export default function ProductsList() {
     };
 
     const getUserssData = () => {
-        axios.get("/staff/all/0").then((response) => {
+        axios.get("/staff").then((response) => {
             if (response.data.length > 0) {
                 seTdata(response.data);
             }

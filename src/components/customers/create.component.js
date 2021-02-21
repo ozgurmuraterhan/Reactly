@@ -300,7 +300,7 @@ export default function CustomerCreate() {
 
 
 
-      axios.post("/staff/add", Customers).then((res) => {
+      axios.post("/customers/add", Customers).then((res) => {
          if (res.data.variant == "error") {
             enqueueSnackbar(t("customerNotAdded") + res.data.messagge, {
                variant: res.data.variant,

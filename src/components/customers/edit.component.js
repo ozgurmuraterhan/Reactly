@@ -200,26 +200,26 @@ export default function CustomerEdit(props) {
 
    function updatePassword() {
       const { _id, password } = state;
-  
+
       axios
-        .post(`/staff/updatePasswordSuperadmin`, { _id, password })
-        .then((res) => {
-          if (res.data.variant == 'success') {
-            enqueueSnackbar(t('Password Updated '), {
-              variant: 'success',
-            });
-          } else {
-            enqueueSnackbar(t('Password Not Updated ') + res.data.messagge, {
-              variant: 'error',
-            });
-          }
-        })
-        .catch((err) => console.log(err));
-    }
+         .post(`/staff/updatePasswordCustomer`, { _id, password })
+         .then((res) => {
+            if (res.data.variant == 'success') {
+               enqueueSnackbar(t('Password Updated '), {
+                  variant: 'success',
+               });
+            } else {
+               enqueueSnackbar(t('Password Not Updated ') + res.data.messagge, {
+                  variant: 'error',
+               });
+            }
+         })
+         .catch((err) => console.log(err));
+   }
 
 
    function getCustomersData() {
-      axios.get(`/staff/${props.match.params.id}`).then((response) => {
+      axios.get(`/customers/${props.match.params.id}`).then((response) => {
          const details = [];
          for (const i in response.data.group_id) {
             details.push({
@@ -387,12 +387,12 @@ export default function CustomerEdit(props) {
          shippingAddress_address: state.selected3Address,
       };
 
-        if (state.password) {
-      updatePassword();
-    }
+      if (state.password) {
+         updatePassword();
+      }
 
-    axios
-      .post(`/staff/${props.match.params.id}`, Customers)
+      axios
+         .post(`/customers/${props.match.params.id}`, Customers)
          .then((res) => {
             if (res.data.variant == "error") {
                enqueueSnackbar(t("customerNotUpdated") + res.data.messagge, { variant: res.data.variant });
@@ -408,7 +408,7 @@ export default function CustomerEdit(props) {
    };
 
    const deleteData = (id) => {
-      axios.delete(`/staff/${id}`).then((res) => {
+      axios.delete(`/customers/${id}`).then((res) => {
          history.push("/customerslist");
          enqueueSnackbar(t("customerDeleted"), {
             variant: res.data.variant,
@@ -531,7 +531,7 @@ export default function CustomerEdit(props) {
                                     variant="outlined"
                                     margin="dense"
                                     label={t("password")}
-                                      onChange={(e) => {
+                                    onChange={(e) => {
                                        seTstate({
                                           ...state,
                                           password: e.target.value,

@@ -1,9 +1,9 @@
 const router = require("express").Router();
 const passport = require("passport");
 const JWT = require("jsonwebtoken");
- let User = require("../models/user.model");
+let User = require("../models/user.model");
 
-const title = "Customer";
+const title = "User";
 const roleTitle = "customers";
 
 // get all items
@@ -11,18 +11,21 @@ router.route("/").get(passport.authenticate("jwt", { session: false }), (req, re
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         Customer.find({isCustomer:true})
-            .then((data) => {
-               res.json(data);
-            })
+         User.find({ 'isCustomer': true },)
+            .then((data) => { res.json(data); })
             .catch((err) =>
                res.json({
-                  messagge: "Error: " + err,
-                  variant: "error",
+                  messagge: 'Error: ' + err,
+                  variant: 'error',
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         Customer.find({ "created_user.id": `${req.user._id}` })
+         User.find({
+            $and: [
+               { 'isCustomer': true },
+               { "created_user.id": `${req.user._id}` },
+            ],
+         })
 
             .then((data) => {
                res.json(data);
@@ -49,7 +52,7 @@ router.route("/add").post(passport.authenticate("jwt", { session: false }), (req
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "create"]) {
-         new Customer(req.body)
+         new User(req.body)
             .save()
 
             .then(() =>
@@ -80,7 +83,7 @@ router.route("/statistic").get(passport.authenticate("jwt", { session: false }),
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         Customer.aggregate([
+         User.aggregate([
             { $unwind: "$group_id" },
             {
                $group: {
@@ -98,7 +101,12 @@ router.route("/:id").get(passport.authenticate("jwt", { session: false }), (req,
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
-         Customer.findById(req.params.id)
+         User.findOne({
+            $and: [
+               { _id: req.params.id },
+               { 'isCustomer': true },
+            ],
+         })
             .then((data) => res.json(data))
             .catch((err) =>
                res.status(400).json({
@@ -107,9 +115,10 @@ router.route("/:id").get(passport.authenticate("jwt", { session: false }), (req,
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         Customer.findOne({
+         User.findOne({
             _id: req.params.id,
             "created_user.id": `${req.user._id}`,
+            'isCustomer': true,
          })
             .then((data) => {
                if (data) {
@@ -145,7 +154,12 @@ router.route("/:id").delete(passport.authenticate("jwt", { session: false }), (r
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "delete"]) {
-         Customer.findByIdAndDelete(req.params.id)
+         User.deleteOne({
+            $and: [
+               { _id: req.params.id },
+               { 'isCustomer': true },
+            ],
+         })
             .then((data) =>
                res.json({
                   messagge: title + " Deleted",
@@ -159,9 +173,10 @@ router.route("/:id").delete(passport.authenticate("jwt", { session: false }), (r
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         Customer.deleteOne({
+         User.deleteOne({
             _id: req.params.id,
             "created_user.id": `${req.user._id}`,
+            'isCustomer': true,
          })
             .then((resdata) => {
                if (resdata.deletedCount > 0) {
@@ -200,7 +215,7 @@ router.route("/:id").post(passport.authenticate("jwt", { session: false }), (req
    User.find({ username: req.user.username }).then((data) => {
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "edit"]) {
-         Customer.findByIdAndUpdate(req.params.id, req.body)
+         User.findByIdAndUpdate(req.params.id, req.body)
             .then(() =>
                res.json({
                   messagge: title + " Update",
@@ -214,7 +229,7 @@ router.route("/:id").post(passport.authenticate("jwt", { session: false }), (req
                })
             );
       } else if (rolesControl[roleTitle + "onlyyou"]) {
-         Customer.findOneAndUpdate(
+         User.findOneAndUpdate(
             {
                _id: req.params.id,
                "created_user.id": `${req.user._id}`,
@@ -250,5 +265,59 @@ router.route("/:id").post(passport.authenticate("jwt", { session: false }), (req
       }
    });
 });
+
+
+router.post(
+   '/updatePasswordCustomer',
+   passport.authenticate('jwt', { session: false }),
+   (req, res) => {
+      User.find({ username: req.user.username }).then((data) => {
+         const rolesControl = data[0].role;
+         if (rolesControl['superadmin'] || req.body._id == req.user._id) {
+            User.findOne({
+               _id: req.body._id,
+            }).then((user) => {
+               if (user != null) {
+                  console.log('user exists in db');
+                  bcrypt
+                     .hash(req.body.password, BCRYPT_SALT_ROUNDS)
+                     .then((hashedPassword) => {
+                        User.findOneAndUpdate(
+                           {
+                              _id: req.body._id,
+                           },
+                           {
+                              password: hashedPassword,
+                           }
+                        )
+                           .then(() => {
+                              res.json({
+                                 messagge: title + ' Password Update',
+                                 variant: 'success',
+                              });
+                           })
+                           .catch((err) => {
+                              console.log(err);
+                              res.json({
+                                 messagge: 'Error: ' + err,
+                                 variant: 'error',
+                              });
+                           });
+                     });
+               } else {
+                  console.error('no user exists in db to update');
+                  res.status(401).json('no user exists in db to update');
+               }
+            });
+         } else {
+            res.json({
+               messagge: ' You are not authorized, go away!',
+               variant: 'error',
+            });
+         }
+      });
+   }
+);
+
 
 module.exports = router;

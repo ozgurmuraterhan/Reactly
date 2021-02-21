@@ -31,7 +31,7 @@ connection.once("open", () => {
 
 const userRouter = require("./routes/user");
 const staffRouter = require("./routes/staff");
-//const customerRouter = require("./routes/customers");
+const customerRouter = require("./routes/customers");
 const countryRouter = require("./routes/country");
 const customersGroupsRouter = require("./routes/customersGroups");
 const productCategoriesRouter = require("./routes/productcategories");
@@ -47,7 +47,7 @@ app.use(bodyParser.json());
 
 app.use("/user", userRouter);
 app.use("/staff", staffRouter);
-//app.use("/customers", customerRouter);
+app.use("/customers", customerRouter);
 app.use("/country", countryRouter);
 app.use("/customersgroups", customersGroupsRouter);
 app.use("/productcategories", productCategoriesRouter);

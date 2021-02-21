@@ -176,7 +176,7 @@ export default function CustomersList() {
 
         // 0  : user 
         // 1 : customer
-        axios.get("/staff/all/1").then((response) => {
+        axios.get("/customers").then((response) => {
             if (response.data.length > 0) {
                 seTdata(response.data);
             }
@@ -193,7 +193,7 @@ export default function CustomersList() {
 
     const getGroupNameStatistic = () => {
         // group name statistic data
-        axios.get("/staff/statistic").then((response) => {
+        axios.get("/customers/statistic").then((response) => {
 
             console.log(response.data)
             if (response.data.length > 0) {
