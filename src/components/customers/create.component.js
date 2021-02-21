@@ -194,7 +194,7 @@ export default function CustomerCreate() {
 
    function getPaymentsMethodF() {
       axios
-         .get("/paymentsmethod")
+         .get("/paymentsmethods")
          .then((response) => {
             if (response.data.length > 0) {
                const details = [];
@@ -205,11 +205,11 @@ export default function CustomerCreate() {
                   });
                }
                seTdataPaymentsMethod(details);
+               console.log(details)
             }
          })
          .catch((err) => console.log(err));
    }
-
    function getCustomersGroup() {
       axios
          .get("/customersgroups/")

@@ -231,7 +231,6 @@ export default function CustomerEdit(props) {
             _id: response.data._id,
             company: response.data.company,
             username: response.data.username,
-            password: response.data.password,
             group_id: response.data.group_id,
             taxoffice: response.data.taxoffice,
             taxnumber: response.data.taxnumber,
@@ -325,7 +324,7 @@ export default function CustomerEdit(props) {
 
    function getPaymentsMethodF() {
       axios
-         .get("/paymentsmethod")
+         .get("/paymentsmethods")
          .then((response) => {
             if (response.data.length > 0) {
                const details = [];
@@ -336,6 +335,7 @@ export default function CustomerEdit(props) {
                   });
                }
                seTdataPaymentsMethod(details);
+               console.log(details)
             }
          })
          .catch((err) => console.log(err));
@@ -387,7 +387,7 @@ export default function CustomerEdit(props) {
          shippingAddress_address: state.selected3Address,
       };
 
-      if (state.password) {
+      if (state.password != "") {
          updatePassword();
       }
 

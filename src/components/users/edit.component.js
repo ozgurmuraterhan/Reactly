@@ -186,7 +186,7 @@ export default function ProductEdit(props) {
          };
       }
 
-      if (state.password) {
+      if (state.password != "") {
          updatePassword();
       }
 

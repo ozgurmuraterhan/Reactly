@@ -324,7 +324,7 @@ export default function InvoiceEdit(props) {
 
    function getCustomersF() {
       axios
-         .get("/staff/all/1")
+         .get("/customers")
          .then((response) => {
             if (response.data.length > 0) {
                const details = [];
