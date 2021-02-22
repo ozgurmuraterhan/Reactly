@@ -356,7 +356,6 @@ export default function CustomerEdit(props) {
          isCustomer: true,
          company: state.company,
          username: state.username,
-         password: state.password,
          group_id: state.selectedGroupItems,
          taxoffice: state.taxoffice,
          taxnumber: state.taxnumber,
