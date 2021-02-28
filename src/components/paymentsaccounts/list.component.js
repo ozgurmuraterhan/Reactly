@@ -114,7 +114,7 @@ export default function PaymentsAccountsList() {
             field: "_id",
             render: (rowData) => (
                 <div>
-                    <Link style={{ float: "left", marginRight: "15px" }} to={`/paymentsaccounts/edit/${rowData._id}`}>
+                    <Link style={{ float: "left", marginRight: "15px" }} to={`/paymentsaccounts/view/${rowData._id}`}>
                         <Visibility />
                     </Link>
 

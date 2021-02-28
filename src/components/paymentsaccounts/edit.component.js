@@ -95,8 +95,9 @@ export default function PaymentsAccountsEdit(props) {
    return (
       <div className="containerP">
          <ValidatorForm autoComplete="off" onSubmit={onSubmit}>
+
             <Grid item container spacing={3}>
-               <Grid item container md={3} className="panelGridRelative">
+               {/*  <Grid item container md={3} className="panelGridRelative">
                   <Card className="panelLargeIcon">
                      <GroupAdd fontSize="large" />
                   </Card>
@@ -235,14 +236,14 @@ export default function PaymentsAccountsEdit(props) {
                         </div>
                      </Grid>
                   </Card>
-                  <div className="saveButtonPlace">
-                     <Button type="submit" className="glow-on-hover">
-                        <Save fontSize="small" style={{ marginRight: "15px" }} /> {t("save")}
-                     </Button>
-                  </div>
-               </Grid>
+               </Grid>   */}
 
-               <Grid item container md={9} className="panelGridRelative">
+               <div className="saveButtonPlace">
+                  <Button type="submit" className="glow-on-hover">
+                     <Save fontSize="small" style={{ marginRight: "15px" }} /> {t("save")}
+                  </Button>
+               </div>
+               <Grid item container md={12} className="panelGridRelative">
                   <Card className="panelLargeIcon">
                      <GroupAdd fontSize="large" />
                   </Card>
@@ -256,11 +257,11 @@ export default function PaymentsAccountsEdit(props) {
 
                      </Grid>
                   </Card>
-                   
+
                </Grid>
             </Grid>
-         </ValidatorForm>
+         </ValidatorForm >
 
-      </div>
+      </div >
    );
 }

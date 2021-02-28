@@ -94,6 +94,26 @@ router.route("/statistic").get(passport.authenticate("jwt", { session: false }),
    });
 });
 
+// fetch data by bankaccount id
+router.route("/view/:id").get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
+   User.find({ username: req.user.username }).then((data) => {
+      const rolesControl = data[0].role;
+      if (rolesControl[roleTitle + "list"]) {
+         Paymentsaccounts
+            .find({ "account_name.value": req.params.id }, { amount: 1, created: 1, note: 1, paid_date: 1, type: 1 })
+            .sort({ createdAt: -1 })
+            .then((data) => res.json(data))
+            .catch((err) => res.status(400).json({ messagge: "Error: " + err, variant: "error", }));
+      } else {
+         res.status(403).json({
+            message: {
+               messagge: "You are not authorized, go away!",
+               variant: "error",
+            },
+         });
+      }
+   });
+});
 // fetch data by id
 router.route("/:id").get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
    User.find({ username: req.user.username }).then((data) => {

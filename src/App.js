@@ -64,6 +64,7 @@ import UsersEdit from "./components/users/edit.component";
 import PaymentsAccountsList from "./components/paymentsaccounts/list.component";
 import PaymentsAccountsCreate from "./components/paymentsaccounts/create.component";
 import PaymentsAccountsEdit from "./components/paymentsaccounts/edit.component";
+import PaymentsAccountsView from "./components/paymentsaccounts/view.component";
 
 
 
@@ -390,6 +391,13 @@ export default function App() {
                                         roles={["paymentsaccountsedit", "paymentsaccountsfonlyyou"]}
                                         path="/paymentsaccounts/edit/:id"
                                         component={PaymentsAccountsEdit}
+                                    />
+
+
+                                    <PrivateRoute
+                                        roles={["paymentsaccountsedit", "paymentsaccountsfonlyyou"]}
+                                        path="/paymentsaccounts/view/:id"
+                                        component={PaymentsAccountsView}
                                     />
 
 
