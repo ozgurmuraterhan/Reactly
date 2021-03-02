@@ -18,7 +18,6 @@ import {
     Edit,
     GroupAdd,
     AddBox,
-    ArrowUpward,
     Check,
     ChevronLeft,
     ChevronRight,
@@ -31,6 +30,8 @@ import {
     SaveAlt,
     Search,
     ViewColumn,
+    ArrowUpward,
+    ArrowDownward,
 } from "@material-ui/icons";
 import "../../assets/css/style.css";
 import MaterialTable from "material-table";
@@ -66,6 +67,11 @@ export default function PaymentsAccountsView(props) {
         {
             title: t("type"),
             field: "type",
+            render: (rowData) => (
+                <div>
+                    { rowData.type ? <ArrowUpward color="error" /> : <ArrowDownward color="primary" />}
+                </div>
+            ),
         },
 
     ];
