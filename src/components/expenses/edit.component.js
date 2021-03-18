@@ -89,7 +89,6 @@ export default function ExpenseEdit(props) {
       product_name: "",
       sale_price: 0,
       product_vat: 0,
-      product_discount: 0,
       amount: 0,
    });
 
@@ -103,9 +102,7 @@ export default function ExpenseEdit(props) {
       total: 0,
       subtotal: 0,
       taxtotal: 0,
-      discountType: "%",
-      discount: 0,
-      discountValue: 0,
+
    });
 
    const [state, seTstate] = useState({
@@ -172,7 +169,7 @@ export default function ExpenseEdit(props) {
                   props.onChange(e.target.value);
                   seTanyAmount(
                      props.rowData.price * e.target.value * (1 + props.rowData.tax / 100) -
-                        props.rowData.price * e.target.value * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
+                     props.rowData.price * e.target.value * (1 + props.rowData.tax / 100)
                   );
                   seTfocus({
                      focus1: true,
@@ -200,42 +197,12 @@ export default function ExpenseEdit(props) {
                   props.onChange(e.target.value);
                   seTanyAmount(
                      e.target.value * props.rowData.quantity * (1 + props.rowData.tax / 100) -
-                        e.target.value * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
+                     e.target.value * props.rowData.quantity * (1 + props.rowData.tax / 100)
                   );
                   seTfocus({
                      focus1: false,
                      focus2: true,
                      focus3: false,
-                     focus4: false,
-                  });
-               }}
-               validators={["isNumber"]}
-               errorMessages={[t("thisIsNotNumber")]}
-            />
-         ),
-      },
-      {
-         title: t("Discount"),
-         field: "discount",
-         type: "numeric",
-         render: (rowData) => <div>{`${rowData.discount} %`}</div>,
-         editComponent: (props) => (
-            <TextValidator
-               margin="dense"
-               type="number"
-               value={props.value}
-               autoFocus={focus.focus3}
-               onChange={(e) => {
-                  props.onChange(e.target.value);
-                  seTanyAmount(
-                     props.rowData.price * props.rowData.quantity * (1 + props.rowData.tax / 100) -
-                        props.rowData.price * props.rowData.quantity * (0 + e.target.value / 100) * (1 + props.rowData.tax / 100)
-                  );
-
-                  seTfocus({
-                     focus1: false,
-                     focus2: false,
-                     focus3: true,
                      focus4: false,
                   });
                }}
@@ -259,7 +226,7 @@ export default function ExpenseEdit(props) {
                   props.onChange(e.target.value);
                   seTanyAmount(
                      props.rowData.price * props.rowData.quantity * (1 + e.target.value / 100) -
-                        props.rowData.price * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + e.target.value / 100)
+                     props.rowData.price * props.rowData.quantity * (1 + e.target.value / 100)
                   );
 
                   seTfocus({
@@ -379,30 +346,11 @@ export default function ExpenseEdit(props) {
       });
    };
 
-   const handleChangeDiscountType = (selectedOption) => {
-      if (selectedOption.target.value === "%") {
-         seTtotalAll({
-            ...totalAll,
-            discountValue: (totalAll.taxtotal + totalAll.subtotal) * (1 + totalAll.discount / 100) - (totalAll.taxtotal + totalAll.subtotal),
-            total:
-               totalAll.taxtotal +
-               totalAll.subtotal -
-               ((totalAll.taxtotal + totalAll.subtotal) * (1 + totalAll.discount / 100) - (totalAll.taxtotal + totalAll.subtotal)),
-            discountType: selectedOption.target.value,
-         });
-      } else {
-         seTtotalAll({
-            ...totalAll,
-            discountValue: totalAll.discount,
-            total: totalAll.taxtotal + totalAll.subtotal - totalAll.discount,
-            discountType: selectedOption.target.value,
-         });
-      }
-   };
+
 
    const onChangeFquantity = (e) => {
       const amount = (
-         (product.sale_price * e.target.value - product.sale_price * e.target.value * (0 + product.product_discount / 100)) *
+         (product.sale_price * e.target.value - product.sale_price * e.target.value) *
          (1 + product.product_vat / 100)
       ).toFixed(0);
       seTquantity(e.target.value);
@@ -411,7 +359,7 @@ export default function ExpenseEdit(props) {
 
    const onChangeFprice = (e) => {
       const amount = (
-         (e.target.value * quantity - e.target.value * quantity * (0 + product.product_discount / 100)) *
+         (e.target.value * quantity - e.target.value * quantity) *
          (1 + product.product_vat / 100)
       ).toFixed(0);
       seTproduct({ ...product, sale_price: e.target.value, amount: amount });
@@ -419,23 +367,13 @@ export default function ExpenseEdit(props) {
 
    const onChangeFproduct_vat = (e) => {
       const amount = (
-         (product.sale_price * quantity - product.sale_price * quantity * (0 + product.product_discount / 100)) *
+         (product.sale_price * quantity - product.sale_price * quantity) *
          (1 + e.target.value / 100)
       ).toFixed(0);
       seTproduct({ ...product, product_vat: e.target.value, amount: amount });
    };
 
-   const onChangeFproduct_discount = (e) => {
-      const amount = (
-         (product.sale_price * quantity - product.sale_price * quantity * (0 + e.target.value / 100)) *
-         (1 + product.product_vat / 100)
-      ).toFixed(0);
-      seTproduct({
-         ...product,
-         product_discount: e.target.value,
-         amount: amount,
-      });
-   };
+
 
    function getPaymentsMethodF() {
       axios
@@ -523,7 +461,6 @@ export default function ExpenseEdit(props) {
          unit,
          price: product.sale_price,
          tax: product.product_vat,
-         discount: product.product_discount,
          amount: product.amount,
       });
 
@@ -533,37 +470,16 @@ export default function ExpenseEdit(props) {
          seTtotalAll({
             ...totalAll,
             total: totalAll.total + item.amount,
-            subtotal: totalAll.subtotal + (item.price * item.quantity - item.price * item.quantity * (0 + item.discount / 100)),
+            subtotal: totalAll.subtotal + (item.price * item.quantity - item.price * item.quantity),
             taxtotal:
-               (item.price * item.quantity - item.price * item.quantity * (0 + item.discount / 100)) * (1 + item.tax / 100) -
-               (item.price * item.quantity - item.price * item.quantity * (0 + item.discount / 100)),
+               (item.price * item.quantity - item.price * item.quantity) * (1 + item.tax / 100) -
+               (item.price * item.quantity - item.price * item.quantity),
          })
       );
       totalCebirItems();
    };
 
-   const onChangeFdiscount = (e) => {
-      totalCebirItems();
 
-      if (totalAll.discountType === "%") {
-         seTtotalAll({
-            ...totalAll,
-            discountValue: (totalAll.taxtotal + totalAll.subtotal) * (1 + e.target.value / 100) - (totalAll.taxtotal + totalAll.subtotal),
-            total:
-               totalAll.taxtotal +
-               totalAll.subtotal -
-               ((totalAll.taxtotal + totalAll.subtotal) * (1 + e.target.value / 100) - (totalAll.taxtotal + totalAll.subtotal)),
-            discount: e.target.value,
-         });
-      } else {
-         seTtotalAll({
-            ...totalAll,
-            discountValue: e.target.value,
-            total: totalAll.taxtotal + totalAll.subtotal - e.target.value,
-            discount: e.target.value,
-         });
-      }
-   };
 
    function totalCebirItems() {
       let total2 = 0;
@@ -578,11 +494,11 @@ export default function ExpenseEdit(props) {
 
       items.map((item) => {
          total2 = total2 + item.amount;
-         subtotal2 = subtotal2 + (item.price * item.quantity - item.price * item.quantity * (0 + item.discount / 100));
+         subtotal2 = subtotal2 + (item.price * item.quantity - item.price * item.quantity);
          taxtotal2 =
             taxtotal2 +
-            ((item.price * item.quantity - item.price * item.quantity * (0 + item.discount / 100)) * (1 + item.tax / 100) -
-               (item.price * item.quantity - item.price * item.quantity * (0 + item.discount / 100)));
+            ((item.price * item.quantity - item.price * item.quantity) * (1 + item.tax / 100) -
+               (item.price * item.quantity - item.price * item.quantity));
 
          items2.push({
             product_name: item.product_name,
@@ -591,36 +507,15 @@ export default function ExpenseEdit(props) {
             quantity: item.quantity,
             unit: item.unit,
             price: item.price,
-            discount: item.discount,
             tax: item.tax,
             amount:
                item.price * item.quantity * (1 + item.tax / 100) -
-               (item.price * item.quantity * (0 + item.discount / 100) * (1 + item.tax / 100)).toFixed(0),
+               (item.price * item.quantity * (1 + item.tax / 100)).toFixed(0),
          });
       });
 
       seTitems(items2);
 
-      if (totalAll.discountType === "%") {
-         seTtotalAll({
-            ...totalAll,
-            taxtotal: taxtotal2,
-            subtotal: subtotal2,
-            discountValue: (taxtotal2 + subtotal2) * (1 + totalAll.discount / 100) - (taxtotal2 + subtotal2),
-            total: taxtotal2 + subtotal2 - ((taxtotal2 + subtotal2) * (1 + totalAll.discount / 100) - (taxtotal2 + subtotal2)),
-            discount: totalAll.discount,
-         });
-      } else {
-         seTtotalAll({
-            ...totalAll,
-            taxtotal: taxtotal2,
-            subtotal: subtotal2,
-            discountValue: totalAll.discountValue,
-            total: taxtotal2 + subtotal2 - totalAll.discountValue,
-            discount: totalAll.discount,
-         });
-      }
-      console.log(totalAll.subtotal);
    }
 
    function getCountryF() {
@@ -755,9 +650,7 @@ export default function ExpenseEdit(props) {
             taxtotal: response.data.taxtotal,
             total: response.data.total,
 
-            discount: response.data.discount,
-            discountType: response.data.discountType,
-            discountValue: response.data.discountValue,
+
          });
 
          seTitems(response.data.items);
@@ -797,9 +690,7 @@ export default function ExpenseEdit(props) {
          subtotal: totalAll.subtotal.toFixed(2),
          taxtotal: totalAll.taxtotal.toFixed(2),
          total: totalAll.total.toFixed(2),
-         discount: totalAll.discount,
-         discountType: totalAll.discountType,
-         discountValue: totalAll.discountValue,
+
          items: items,
          default_payment_method: state.default_payment_method,
          quantity,
@@ -1100,9 +991,9 @@ export default function ExpenseEdit(props) {
                                  </FormControl>
                               </FormGroup>
                            </Grid>
-                           <Grid item container sm={4} spacing={0} />
+                           <Grid item container sm={3} spacing={0} />
 
-                           <Grid item container sm={5} spacing={0}>
+                           <Grid item container sm={6} spacing={0}>
                               <RadioGroup
                                  value={quantity_name}
                                  onChange={(event) => {
@@ -1154,7 +1045,7 @@ export default function ExpenseEdit(props) {
                                  />
                               </FormControl>
                            </Grid>
-                           <Grid container item sm={2} spacing={0}>
+                           <Grid container item sm={3} spacing={0}>
                               <FormControl style={{ width: "90%" }}>
                                  <TextValidator
                                     multiline
@@ -1182,9 +1073,9 @@ export default function ExpenseEdit(props) {
                                     onChange={(e) => {
                                        seTunit(e.target.value);
                                     }}
-                                    /*InputLabelProps={{
-                                  shrink: true,
-                                }}*/
+                                 /*InputLabelProps={{
+                               shrink: true,
+                             }}*/
                                  />
                                  <FormHelperText>{t("youNeedaProductUnit")}</FormHelperText>
                               </FormControl>
@@ -1194,20 +1085,7 @@ export default function ExpenseEdit(props) {
                                  <TextValidator type="number" label={t("price")} value={product.sale_price} onChange={onChangeFprice} />
                               </FormControl>
                            </Grid>
-                           <Grid container item sm={1} spacing={0}>
-                              <FormControl style={{ width: "90%" }}>
-                                 <TextValidator
-                                    type="number"
-                                    label={t("Discount")}
-                                    value={product.product_discount}
-                                    onChange={onChangeFproduct_discount}
-                                    InputProps={{
-                                       endAdornment: <InputAdornment position="end">%</InputAdornment>,
-                                    }}
-                                 />
-                                 <FormHelperText>{t("Before Tax")}</FormHelperText>
-                              </FormControl>
-                           </Grid>
+
 
                            <Grid container item sm={1} spacing={0}>
                               <FormControl style={{ width: "90%" }}>
@@ -1296,39 +1174,7 @@ export default function ExpenseEdit(props) {
                                        {totalAll.taxtotal.toFixed(2)}{" "}
                                     </TableCell>
                                  </TableRow>
-                                 <TableRow>
-                                    <TableCell>Discount (After Tax) </TableCell>
-                                    <TableCell>
-                                       <TextValidator
-                                          margin="dense"
-                                          type="number"
-                                          style={{
-                                             width: "100px",
-                                             marginLeft: "70px",
-                                          }}
-                                          value={totalAll.discount}
-                                          onChange={onChangeFdiscount}
-                                          InputLabelProps={{
-                                             shrink: true,
-                                          }}
-                                       />
 
-                                       <Select2
-                                          value={totalAll.discountType}
-                                          onChange={handleChangeDiscountType}
-                                          style={{
-                                             marginTop: "5px",
-                                          }}
-                                       >
-                                          <MenuItem value="%">%</MenuItem>
-                                          <MenuItem value="eksi">{t("fixedAmount")}</MenuItem>
-                                       </Select2>
-                                    </TableCell>
-                                    <TableCell align="right" className="textRight">
-                                       {" "}
-                                       {Number(totalAll.discountValue).toFixed(2)}
-                                    </TableCell>
-                                 </TableRow>
                                  <TableRow>
                                     <TableCell colSpan={2}>{t("Total")}</TableCell>
                                     <TableCell align="right" className="textRight">

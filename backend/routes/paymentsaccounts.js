@@ -100,7 +100,7 @@ router.route("/view/:id").get(passport.authenticate("jwt", { session: false }), 
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
          Paymentsaccounts
-            .find({ "account_name.value": req.params.id }, { amount: 1, created: 1, note: 1, paid_date: 1, type: 1 })
+            .find({ "account_name.value": req.params.id })
             .sort({ createdAt: -1 })
             .then((data) => res.json(data))
             .catch((err) => res.status(400).json({ messagge: "Error: " + err, variant: "error", }));

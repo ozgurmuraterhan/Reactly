@@ -44,6 +44,9 @@ export default function PaymentsAccountsView(props) {
     const { enqueueSnackbar } = useSnackbar();
     const [state, seTstate] = useState({});
     const [data, seTdata] = useState([]);
+    const [dataTotalBank, seTdataTotalBank] = useState({});
+
+
 
 
     const columns = [
@@ -69,7 +72,7 @@ export default function PaymentsAccountsView(props) {
             field: "type",
             render: (rowData) => (
                 <div>
-                    { rowData.type ? <ArrowUpward color="error" /> : <ArrowDownward color="primary" />}
+                    { rowData.type ? <ArrowDownward color="primary" /> : <ArrowUpward color="error" />}
                 </div>
             ),
         },
@@ -103,10 +106,22 @@ export default function PaymentsAccountsView(props) {
             if (response.data) {
                 console.log(response.data)
                 seTdata(response.data);
-                // console.log(data)
+                console.log(response.data)
                 // console.log(columns)
             }
         });
+
+
+        axios.get("/bankaccounts/bankaccountstotal/" + props.match.params.id).then((response) => {
+            if (response.data) {
+                seTdataTotalBank(response.data[0]);
+
+                console.log(response.data[0])
+            }
+        });
+
+
+
     };
 
     useEffect(() => {
@@ -122,9 +137,16 @@ export default function PaymentsAccountsView(props) {
                         <GroupAdd fontSize="large" />
                     </Card>
                     <Card className="listViewPaper">
-                        <Typography component="h1" variant="h6" color="inherit" noWrap style={{ width: "100%" }} className="typography">
+
+                        <Typography component="h1" variant="h6" color="inherit" noWrap style={{ width: "50%", float: "left" }} className="typography">
                             {t("Account Activities")}
                         </Typography>
+
+                        <Typography component="h4" style={{ width: "30%", float: "left" }}>
+                            {dataTotalBank.account_name}: {dataTotalBank.total} <br />
+                            {t("Account Status")}: {dataTotalBank.status ? "Active" : "Deactive"}
+                        </Typography>
+
                         <Grid item container sm={12} style={{ background: "#fff", float: "left" }}>
                             <MaterialTable
                                 title="Editable Preview"

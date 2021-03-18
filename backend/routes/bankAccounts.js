@@ -8,54 +8,202 @@ const title = "Bank Accounts";
 const roleTitle = "bankaccounts";
 
 
-// statistic
 router.route("/deneme").get((req, res, next) => {
    BankAccounts.aggregate(
-      [{ "$addFields": { "userId": { "$toString": "$_id" } } },
-      { "$addFields": { "userId2": "account_name" } },
+      [
 
-      {
-         "$lookup": {
-            "from": "paymentsaccounts",
-            "localField": "userId",
-            "foreignField": "account_name.value",
-            "as": "output"
-         }
-      },
-      { $unwind: "$output" },
-
-      {
-         "$project": {
-            account_name: 1,
-            amount: { $sum: "$output.amount" },
-            status: 1,
-            type: { $cond: { if: "$output.type", then: { "giren": { "$sum": "$output.amount" } }, else: { "cikan": { "$sum": "$output.amount" } } } }
-         }
-      },
-      {
-         $group: {
-            _id: { "account_name": "$account_name", "_id": "$_id", "status": "$status" },
-            in: { $sum: "$type.giren" },
-            out: { $sum: "$type.cikan" },
+         {
+            "$addFields": { "userId": { "$toString": "$_id" } }
          },
-      },
-      { $unwind: "$_id.account_name" },
-      {
-         "$project": {
-            _id: "$_id._id",
-            account_name: "$_id.account_name",
-            status: "$_id.status",
-            in: "$in",
-            out: "$out",
-            total: {
-               $subtract: ["$in", "$out"]
+         {
+            $match: { userId: req.params.id }
+         },
+         {
+            "$lookup": {
+               "from": "paymentsaccounts",
+               "localField": "userId",
+               "foreignField": "account_name.value",
+               "as": "output"
             }
-         }
-      },
+         },
+         { $unwind: "$output" },
+         {
+            "$project": {
+               account_name: 1,
+               amount: { $sum: "$output.amount" },
+               status: 1,
+               type: { $cond: { if: "$output.type", then: { "inn": { "$sum": "$output.amount" } }, else: { "outt": { "$sum": "$output.amount" } } } }
+            }
+         },
+         {
+            $group: {
+               _id: { "account_name": "$account_name", "_id": "$_id", "status": "$status" },
+               in: { $sum: "$type.inn" },
+               out: { $sum: "$type.outt" },
+            },
+         },
+         { $unwind: "$_id.account_name" },
 
-
+         {
+            "$project": {
+               _id: "$_id._id",
+               account_name: "$_id.account_name",
+               status: "$_id.status",
+               in: "$in",
+               out: "$out",
+               total: {
+                  $subtract: ["$in", "$out"]
+               }
+            }
+         },
       ]
    ).then((data) => res.json(data));
+});
+
+
+
+// get id items
+router.route("/bankaccountstotal/:id").get(passport.authenticate("jwt", { session: false }), (req, res, next) => {
+   User.find({ username: req.user.username }).then((data) => {
+      const rolesControl = data[0].role;
+      if (rolesControl[roleTitle + "list"]) {
+         BankAccounts.aggregate(
+            [
+               {
+                  "$addFields": { "userId": { "$toString": "$_id" } }
+               },
+               {
+                  $match: { userId: req.params.id }
+               },
+               {
+                  "$lookup": {
+                     "from": "paymentsaccounts",
+                     "localField": "userId",
+                     "foreignField": "account_name.value",
+                     "as": "output"
+                  }
+               },
+               { $unwind: "$output" },
+               {
+                  "$project": {
+                     account_name: 1,
+                     bank_name: 1,
+                     branch_bank: 1,
+                     account_number: 1,
+                     swift_iban: 1,
+                     amount: { $sum: "$output.amount" },
+                     status: 1,
+                     type: { $cond: { if: "$output.type", then: { "inn": { "$sum": "$output.amount" } }, else: { "outt": { "$sum": "$output.amount" } } } }
+                  }
+               },
+               {
+                  $group: {
+                     _id: {
+                        "account_name": "$account_name",
+                        "bank_name": "$bank_name",
+                        "branch_bank": "$branch_bank",
+                        "account_number": "$account_number",
+                        "swift_iban": "$swift_iban",
+                        "_id": "$_id",
+                        "status": "$status"
+                     },
+                     in: { $sum: "$type.inn" },
+                     out: { $sum: "$type.outt" },
+                  },
+               },
+               { $unwind: "$_id" },
+               {
+                  "$project": {
+                     _id: "$_id._id",
+                     account_name: "$_id.account_name",
+                     bank_name: "$_id.bank_name",
+                     branch_bank: "$_id.branch_bank",
+                     account_number: "$_id.account_number",
+                     swift_iban: "$_id.swift_iban",
+                     status: "$_id.status",
+                     in: "$in",
+                     out: "$out",
+                     total: {
+                        $subtract: ["$in", "$out"]
+                     }
+                  }
+               },
+            ]
+         )
+            .then((data) => {
+               res.json(data);
+            })
+            .catch((err) =>
+               res.json({
+                  messagge: "Error: " + err,
+                  variant: "error",
+               })
+            );
+      } else if (rolesControl[roleTitle + "onlyyou"]) {
+         BankAccounts.aggregate(
+            [
+               { $match: { "created_user.id": `${req.user._id}` } },
+
+               { "$addFields": { "userId": { "$toString": "$_id" } } },
+               {
+                  $match: { userId: req.params.id }
+               },
+               {
+                  "$lookup": {
+                     "from": "paymentsaccounts",
+                     "localField": "userId",
+                     "foreignField": "account_name.value",
+                     "as": "output"
+                  }
+               },
+               { $unwind: "$output" },
+               {
+                  "$project": {
+                     account_name: 1,
+                     amount: { $sum: "$output.amount" },
+                     status: 1,
+                     type: { $cond: { if: "$output.type", then: { "inn": { "$sum": "$output.amount" } }, else: { "outt": { "$sum": "$output.amount" } } } }
+                  }
+               },
+               {
+                  $group: {
+                     _id: { "account_name": "$account_name", "_id": "$_id", "status": "$status" },
+                     in: { $sum: "$type.inn" },
+                     out: { $sum: "$type.outt" },
+                  },
+               },
+               { $unwind: "$_id.account_name" },
+               {
+                  "$project": {
+                     _id: "$_id._id",
+                     account_name: "$_id.account_name",
+                     status: "$_id.status",
+                     in: "$in",
+                     out: "$out",
+                     total: {
+                        $subtract: ["$in", "$out"]
+                     }
+                  }
+               },
+            ]
+         ).then((data) => {
+            res.json(data);
+         })
+            .catch((err) =>
+               res.json({
+                  messagge: "Error: " + err,
+                  variant: "error",
+               })
+            );
+      } else {
+         res.status(403).json({
+            message: {
+               messagge: "You are not authorized, go away!",
+               variant: "error",
+            },
+         });
+      }
+   });
 });
 
 
@@ -66,44 +214,47 @@ router.route("/").get(passport.authenticate("jwt", { session: false }), (req, re
       const rolesControl = data[0].role;
       if (rolesControl[roleTitle + "list"]) {
          BankAccounts.aggregate(
-            [{ "$addFields": { "userId": { "$toString": "$_id" } } },
-            {
-               "$lookup": {
-                  "from": "paymentsaccounts",
-                  "localField": "userId",
-                  "foreignField": "account_name.value",
-                  "as": "output"
-               }
-            },
-            { $unwind: "$output" },
-            {
-               "$project": {
-                  account_name: 1,
-                  amount: { $sum: "$output.amount" },
-                  status: 1,
-                  type: { $cond: { if: "$output.type", then: { "inn": { "$sum": "$output.amount" } }, else: { "outt": { "$sum": "$output.amount" } } } }
-               }
-            },
-            {
-               $group: {
-                  _id: { "account_name": "$account_name", "_id": "$_id", "status": "$status" },
-                  in: { $sum: "$type.inn" },
-                  out: { $sum: "$type.outt" },
+            [
+               {
+                  "$addFields": { "userId": { "$toString": "$_id" } }
                },
-            },
-            { $unwind: "$_id.account_name" },
-            {
-               "$project": {
-                  _id: "$_id._id",
-                  account_name: "$_id.account_name",
-                  status: "$_id.status",
-                  in: "$in",
-                  out: "$out",
-                  total: {
-                     $subtract: ["$in", "$out"]
+               {
+                  "$lookup": {
+                     "from": "paymentsaccounts",
+                     "localField": "userId",
+                     "foreignField": "account_name.value",
+                     "as": "output"
                   }
-               }
-            },
+               },
+               { $unwind: "$output" },
+               {
+                  "$project": {
+                     account_name: 1,
+                     amount: { $sum: "$output.amount" },
+                     status: 1,
+                     type: { $cond: { if: "$output.type", then: { "inn": { "$sum": "$output.amount" } }, else: { "outt": { "$sum": "$output.amount" } } } }
+                  }
+               },
+               {
+                  $group: {
+                     _id: { "account_name": "$account_name", "_id": "$_id", "status": "$status" },
+                     in: { $sum: "$type.inn" },
+                     out: { $sum: "$type.outt" },
+                  },
+               },
+               { $unwind: "$_id.account_name" },
+               {
+                  "$project": {
+                     _id: "$_id._id",
+                     account_name: "$_id.account_name",
+                     status: "$_id.status",
+                     in: "$in",
+                     out: "$out",
+                     total: {
+                        $subtract: ["$in", "$out"]
+                     }
+                  }
+               },
             ]
          )
             .then((data) => {
