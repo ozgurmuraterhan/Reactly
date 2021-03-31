@@ -739,6 +739,8 @@ export default function InvoiceEdit(props) {
       const Invoices = {
          created_user: { name: user.name, id: user.id },
          draft: 0,
+         paid: paid,
+         account_name: state.account_name,
          no: state.no,
          serie: state.serie,
          created: Moment(state.created)._d,
@@ -800,7 +802,7 @@ export default function InvoiceEdit(props) {
 
 
                   axios
-                     .post(`/paymentsaccounts/add`, paymentsPrime)
+                     .post(`/paymentsaccountsdetail/add`, paymentsPrime)
                      .then((res) => {
                         if (res.data.variant === "error") {
                            enqueueSnackbar(t("Not Added Payments") + res.data.messagge, {
@@ -1230,32 +1232,24 @@ export default function InvoiceEdit(props) {
                         </Grid>
                         <Grid container item sm={12} spacing={0}>
                            <MaterialTable
-                              title="Editable Preview"
+                              title="Cell Editable Preview"
                               columns={columns}
                               data={items}
                               icons={tableIcons}
-                              style={{
-                                 width: "100%",
-                                 boxShadow: "1px -2px 5px 0px #0000000f",
+
+                              cellEditable={{
+                                 onCellEditApproved: (newValue, oldValue, rowData, columnDef) => {
+                                    return new Promise((resolve, reject) => {
+                                       const data = [...items]
+                                       data[rowData.tableData.id][columnDef.field] = newValue
+                                       seTitems(data)
+                                       totalCebirItems()
+                                       setTimeout(resolve, 0);
+                                    });
+                                 }
                               }}
-                              components={{
-                                 Toolbar: (props) => <div />,
-                              }}
-                              options={{
-                                 actionsColumnIndex: -1,
-                                 paging: false,
-                              }}
+
                               editable={{
-                                 onRowUpdate: (newData, oldData) =>
-                                    new Promise((resolve, reject) => {
-                                       {
-                                          const index = items.indexOf(oldData);
-                                          items[index] = newData;
-                                          seTitems(items);
-                                          totalCebirItems();
-                                       }
-                                       resolve();
-                                    }),
                                  onRowDelete: (oldData) =>
                                     new Promise((resolve, reject) => {
                                        {
@@ -1266,6 +1260,17 @@ export default function InvoiceEdit(props) {
                                        }
                                        resolve();
                                     }),
+                              }}
+
+                              style={{
+                                 width: "100%",
+                                 boxShadow: "1px -2px 5px 0px #0000000f",
+                              }}
+                              components={{
+                                 Toolbar: (props) => <div />,
+                              }}
+                              options={{
+                                 paging: false,
                               }}
                            />
                         </Grid>

@@ -102,7 +102,7 @@ export default function PaymentsAccountsView(props) {
 
     // componentDidMount = useEffect 
     const getData = () => {
-        axios.get("/paymentsaccounts/view/" + props.match.params.id).then((response) => {
+        axios.get("/paymentsaccountsdetail/view/" + props.match.params.id).then((response) => {
             if (response.data) {
                 console.log(response.data)
                 seTdata(response.data);

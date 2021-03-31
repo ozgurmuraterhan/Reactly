@@ -37,7 +37,14 @@ const InvoiceSchema = new Schema(
       due_note: {
          type: String,
       },
-
+      account_name: {
+         type: Object,
+         required: true
+      },
+      paid: {
+         type: Boolean,
+         required: true
+      },
       payments: [
          {
             amount: { type: Number, required: true },

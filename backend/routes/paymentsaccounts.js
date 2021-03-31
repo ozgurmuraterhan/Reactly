@@ -216,6 +216,62 @@ router.route("/:id").delete(passport.authenticate("jwt", { session: false }), (r
    });
 });
 
+
+// delete data by id
+router.route("/deletemanyexpenses/:id").delete(passport.authenticate("jwt", { session: false }), (req, res) => {
+   User.find({ username: req.user.username }).then((data) => {
+      const rolesControl = data[0].role;
+      if (rolesControl[roleTitle + "delete"]) {
+         Paymentsaccounts.deleteMany({ expenses_id: `${req.params.id}` })
+            .then((data) =>
+               res.json({
+                  messagge: title + " Deleted",
+                  variant: "info",
+               })
+            )
+            .catch((err) =>
+               res.json({
+                  messagge: "Error: " + err,
+                  variant: "error",
+               })
+            );
+      } else if (rolesControl[roleTitle + "onlyyou"]) {
+         Paymentsaccounts.deleteMany({
+            expenses_id: `${req.params.id}`,
+            "created_user.id": `${req.user._id}`,
+         })
+            .then((resdata) => {
+               if (resdata.deletedCount > 0) {
+                  res.json({
+                     messagge: title + " delete",
+                     variant: "success",
+                  });
+               } else {
+                  res.status(403).json({
+                     message: {
+                        messagge: "You are not authorized, go away!",
+                        variant: "error",
+                     },
+                  });
+               }
+            })
+            .catch((err) =>
+               res.json({
+                  messagge: "Error: " + err,
+                  variant: "error",
+               })
+            );
+      } else {
+         res.status(403).json({
+            message: {
+               messagge: "You are not authorized, go away!",
+               variant: "error",
+            },
+         });
+      }
+   });
+});
+
 // update data by id
 router.route("/:id").post(passport.authenticate("jwt", { session: false }), (req, res, next) => {
    User.find({ username: req.user.username }).then((data) => {

@@ -286,7 +286,7 @@ export default function InvoicesList(props) {
                            }
 
                            axios
-                              .post(`/paymentsaccounts/add`, paymentsPrime)
+                              .post(`/paymentsaccountsdetail/add`, paymentsPrime)
                               .then((res) => {
                                  if (res.data.variant === "error") {
                                     enqueueSnackbar(t("Not Added Payments") + res.data.messagge, {

@@ -103,11 +103,21 @@ export default function PaymentsAccountsList() {
         {
             title: t("Out"),
             field: "out",
+            render: (rowData) => (
+                <div>
+                    {Number(rowData.out).toFixed(0)}
+                </div>
+            )
         },
 
         {
-            title: t("Total"),
+            title: t("Now"),
             field: "total",
+            render: (rowData) => (
+                <div>
+                    {Number(rowData.total).toFixed(0)}
+                </div>
+            )
         },
         {
             title: t("actions"),

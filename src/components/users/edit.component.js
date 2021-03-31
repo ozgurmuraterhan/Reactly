@@ -1349,8 +1349,8 @@ export default function ProductEdit(props) {
 
                   </Grid>
                ) : (
-                     <div></div>
-                  )}
+                  <div></div>
+               )}
             </Grid>
          </ValidatorForm>
       </div>

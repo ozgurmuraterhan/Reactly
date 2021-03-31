@@ -75,12 +75,7 @@ export default function InvoiceEdit(props) {
    const [selectedshippingAddressStateArray, seTselectedshippingAddressStateArray] = useState([]);
    const [dataBankAccount, seTdataBankAccount] = useState("");
    const [paid, seTpaid] = useState(false);
-   const [focus, seTfocus] = useState({
-      focus1: true,
-      focus2: false,
-      focus3: false,
-      focus4: false,
-   });
+
 
    const [selectedDefaultProduct, seTselectedDefaultProduct] = useState([]);
    const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState([]);
@@ -139,21 +134,10 @@ export default function InvoiceEdit(props) {
       {
          title: t("productName"),
          field: "product_name",
-         editComponent: (props) => (
-            <TextValidator
-               multiline
-               required
-               margin="dense"
-               type="text"
-               value={props.value}
-               onChange={(e) => {
-                  props.onChange(e.target.value);
-               }}
-            />
-         ),
+
       },
       {
-         title: t("productDescription"),
+         title: t("Description"),
          field: "product_description",
          editComponent: (props) => (
             <TextValidator multiline required margin="dense" type="text" value={props.value} onChange={(e) => props.onChange(e.target.value)} />
@@ -164,142 +148,34 @@ export default function InvoiceEdit(props) {
          field: "quantity",
          type: "numeric",
          render: (rowData) => <div>{`${rowData.quantity} ${rowData.quantity_name} ${rowData.unit}`}</div>,
-         editComponent: (props) => (
-            <TextValidator
-               margin="dense"
-               type="number"
-               value={props.value}
-               autoFocus={focus.focus1}
-               onChange={(e) => {
-                  props.onChange(e.target.value);
-                  seTanyAmount(
-                     props.rowData.price * e.target.value * (1 + props.rowData.tax / 100) -
-                     props.rowData.price * e.target.value * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
-                  );
-                  seTfocus({
-                     focus1: true,
-                     focus2: false,
-                     focus3: false,
-                     focus4: false,
-                  });
-               }}
-               validators={["isNumber"]}
-               errorMessages={[t("thisIsNotNumber")]}
-            />
-         ),
+
       },
       {
          title: t("salePrice"),
          field: "price",
          type: "numeric",
-         editComponent: (props) => (
-            <TextValidator
-               margin="dense"
-               type="number"
-               value={props.value}
-               autoFocus={focus.focus2}
-               onChange={(e) => {
-                  props.onChange(e.target.value);
-                  seTanyAmount(
-                     Number(
-                        e.target.value * props.rowData.quantity * (1 + props.rowData.tax / 100) -
-                        e.target.value * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
-                     ).toFixed(2)
-                  );
-                  seTfocus({
-                     focus1: false,
-                     focus2: true,
-                     focus3: false,
-                     focus4: false,
-                  });
-               }}
-               validators={["isNumber"]}
-               errorMessages={[t("thisIsNotNumber")]}
-            />
-         ),
       },
       {
          title: t("Discount"),
          field: "discount",
          type: "numeric",
          render: (rowData) => <div>{`${rowData.discount} %`}</div>,
-         editComponent: (props) => (
-            <TextValidator
-               margin="dense"
-               type="number"
-               value={props.value}
-               autoFocus={focus.focus3}
-               onChange={(e) => {
-                  props.onChange(e.target.value);
-                  seTanyAmount(
-                     Number(
-                        props.rowData.price * props.rowData.quantity * (1 + props.rowData.tax / 100) -
-                        props.rowData.price * props.rowData.quantity * (0 + e.target.value / 100) * (1 + props.rowData.tax / 100)
-                     ).toFixed(2)
-                  );
 
-                  seTfocus({
-                     focus1: false,
-                     focus2: false,
-                     focus3: true,
-                     focus4: false,
-                  });
-               }}
-               validators={["isNumber"]}
-               errorMessages={[t("thisIsNotNumber")]}
-            />
-         ),
       },
       {
          title: t("productVat"),
          field: "tax",
          type: "numeric",
          render: (rowData) => <div>{`${rowData.tax} %`}</div>,
-         editComponent: (props) => (
-            <TextValidator
-               margin="dense"
-               type="number"
-               value={props.value}
-               autoFocus={focus.focus4}
-               onChange={(e) => {
-                  props.onChange(e.target.value);
-                  seTanyAmount(
-                     Number(
-                        props.rowData.price * props.rowData.quantity * (1 + e.target.value / 100) -
-                        props.rowData.price * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + e.target.value / 100)
-                     ).toFixed(2)
-                  );
 
-                  seTfocus({
-                     focus1: false,
-                     focus2: false,
-                     focus3: false,
-                     focus4: true,
-                  });
-               }}
-               validators={["isNumber"]}
-               errorMessages={[t("thisIsNotNumber")]}
-            />
-         ),
       },
       {
          title: t("amount"),
          field: "amount",
          type: "numeric",
-         editComponent: (props) => (
-            <TextValidator
-               margin="dense"
-               type="text"
-               disabled
-               value={anyAmount ? anyAmount : props.value}
-               onChange={(e) => props.onChange(e.target.value)}
-               validators={["isNumber"]}
-               errorMessages={[t("thisIsNotNumber")]}
-            />
-         ),
+         editable: "never"
       },
    ];
-
    const tableIcons = {
       Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
       Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
@@ -319,7 +195,6 @@ export default function InvoiceEdit(props) {
       ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
       ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
    };
-
    function getCustomersF() {
       axios
          .get("/customers")
@@ -337,7 +212,6 @@ export default function InvoiceEdit(props) {
          })
          .catch((err) => console.log(err));
    }
-
    const handleChangeCustomer = (selectedOption) => {
       axios
          .get(`/customers/${selectedOption.value}`)
@@ -386,7 +260,6 @@ export default function InvoiceEdit(props) {
          value: selectedOption.value,
       });
    };
-
    const handleChangeDiscountType = (selectedOption) => {
       if (selectedOption.target.value === "%") {
          seTtotalAll({
@@ -407,7 +280,6 @@ export default function InvoiceEdit(props) {
          });
       }
    };
-
    const onChangeFquantity = (e) => {
       const amount = Number(
          (product.sale_price * e.target.value - product.sale_price * e.target.value * (0 + product.product_discount / 100)) *
@@ -416,21 +288,18 @@ export default function InvoiceEdit(props) {
       seTquantity(e.target.value);
       seTproduct({ ...product, amount: amount });
    };
-
    const onChangeFprice = (e) => {
       const amount = Number(
          (e.target.value * quantity - e.target.value * quantity * (0 + product.product_discount / 100)) * (1 + product.product_vat / 100)
       ).toFixed(2);
       seTproduct({ ...product, sale_price: e.target.value, amount: amount });
    };
-
    const onChangeFproduct_vat = (e) => {
       const amount = Number(
          (product.sale_price * quantity - product.sale_price * quantity * (0 + product.product_discount / 100)) * (1 + e.target.value / 100)
       ).toFixed(2);
       seTproduct({ ...product, product_vat: e.target.value, amount: amount });
    };
-
    const onChangeFproduct_discount = (e) => {
       const amount = Number(
          (product.sale_price * quantity - product.sale_price * quantity * (0 + e.target.value / 100)) * (1 + product.product_vat / 100)
@@ -441,7 +310,6 @@ export default function InvoiceEdit(props) {
          amount: amount,
       });
    };
-
    function getPaymentsMethodF() {
       axios
          .get("/paymentsmethods")
@@ -460,8 +328,6 @@ export default function InvoiceEdit(props) {
          })
          .catch((err) => console.log(err));
    }
-
-
    function getBankAccountF() {
       axios
          .get("/bankaccounts")
@@ -479,7 +345,6 @@ export default function InvoiceEdit(props) {
          })
          .catch((err) => console.log(err));
    }
-
    const handleChangeProduct = (selectedOption) => {
       axios
          .get(`/products/${selectedOption.value}`)
@@ -501,7 +366,6 @@ export default function InvoiceEdit(props) {
          value: selectedOption.value,
       });
    };
-
    function getProductsF() {
       axios
          .get("/products")
@@ -519,7 +383,6 @@ export default function InvoiceEdit(props) {
          })
          .catch((err) => console.log(err));
    }
-
    const onClickAddItem = (e) => {
       e.preventDefault();
       items.push({
@@ -548,7 +411,6 @@ export default function InvoiceEdit(props) {
       );
       totalCebirItems();
    };
-
    const onChangeFdiscount = (e) => {
       totalCebirItems();
 
@@ -629,7 +491,6 @@ export default function InvoiceEdit(props) {
       }
       console.log(totalAll.subtotal);
    }
-
    function getCountryF() {
       axios
          .get("/country")
@@ -647,7 +508,6 @@ export default function InvoiceEdit(props) {
          })
          .catch((err) => console.log(err));
    }
-
    function getStatesF1(id) {
       axios
          .get(`/country/${id}`)
@@ -665,7 +525,6 @@ export default function InvoiceEdit(props) {
          })
          .catch((err) => console.log(err));
    }
-
    function getStatesF2(id) {
       axios
          .get(`/country/${id}`)
@@ -683,7 +542,6 @@ export default function InvoiceEdit(props) {
          })
          .catch((err) => console.log(err));
    }
-
    const onChangeFbillingAddressCountry = (selectedOption) => {
       const details = [];
       for (const i in selectedOption.value[1]) {
@@ -698,7 +556,6 @@ export default function InvoiceEdit(props) {
          selectedbillingAddressCountry: [{ label: selectedOption.label, value: selectedOption.label }],
       });
    };
-
    const onChangeFshippingAddressCountry = (selectedOption) => {
       const details = [];
       for (const i in selectedOption.value[1]) {
@@ -713,7 +570,6 @@ export default function InvoiceEdit(props) {
          selectedshippingAddressCountry: [{ label: selectedOption.label, value: selectedOption.label }],
       });
    };
-
    function getInvoices() {
       axios.get(`/invoices/${props.match.params.id}`).then((response) => {
          seTstate({
@@ -723,6 +579,7 @@ export default function InvoiceEdit(props) {
             due_date: response.data.due_date,
             due_note: response.data.due_note,
             default_payment_method: response.data.default_payment_method[0],
+            account_name: response.data.account_name,
             selectedbillingAddressCountry: [
                {
                   label: response.data.billingAddress_country_id,
@@ -756,6 +613,9 @@ export default function InvoiceEdit(props) {
          });
 
          seTselectedDefaultCustomer(response.data.customer_id);
+         seTpaid(response.data.paid)
+
+         console.log(response.data.account_name)
 
          seTtotalAll({
             subtotal: response.data.subtotal,
@@ -779,7 +639,6 @@ export default function InvoiceEdit(props) {
       getCountryF();
       getInvoices();
    }, []);
-
    const onSubmit = (e) => {
       e.preventDefault();
 
@@ -805,7 +664,7 @@ export default function InvoiceEdit(props) {
 
 
          axios
-            .post(`/paymentsaccounts/add`, paymentsPrime)
+            .post(`paymentsaccountsdetailadd`, paymentsPrime)
             .then((res) => {
                if (res.data.variant === "error") {
                   enqueueSnackbar(t("Not Added Payments") + res.data.messagge, {
@@ -827,6 +686,7 @@ export default function InvoiceEdit(props) {
       const Invoices = {
          draft: 0,
          no: state.no,
+         paid: paid,
          serie: state.serie,
          created: Moment(state.created)._d,
          due_date: Moment(state.due_date)._d,
@@ -840,6 +700,7 @@ export default function InvoiceEdit(props) {
          discountType: totalAll.discountType,
          discountValue: totalAll.discountValue,
          items: items,
+         account_name: state.account_name,
          default_payment_method: state.default_payment_method,
          quantity,
          quantity_name,
@@ -877,7 +738,6 @@ export default function InvoiceEdit(props) {
          .catch((err) => console.log(err));
 
    };
-
    return (
       <div className="containerP">
          <ValidatorForm autoComplete="off" onSubmit={onSubmit}>
@@ -903,7 +763,6 @@ export default function InvoiceEdit(props) {
                         }
                         label={t("paid")}
                      />
-
                      <Grid item container sm={12}>
                         <Grid container item sm={4} spacing={0}>
                            <FormGroup className="FormGroup">
@@ -1280,33 +1139,26 @@ export default function InvoiceEdit(props) {
                            </Grid>
                         </Grid>
                         <Grid container item sm={12} spacing={0}>
+
                            <MaterialTable
-                              title="Editable Preview"
+                              title="Cell Editable Preview"
                               columns={columns}
                               data={items}
                               icons={tableIcons}
-                              style={{
-                                 width: "100%",
-                                 boxShadow: "1px -2px 5px 0px #0000000f",
+
+                              cellEditable={{
+                                 onCellEditApproved: (newValue, oldValue, rowData, columnDef) => {
+                                    return new Promise((resolve, reject) => {
+                                       const data = [...items]
+                                       data[rowData.tableData.id][columnDef.field] = newValue
+                                       seTitems(data)
+                                       totalCebirItems()
+                                       setTimeout(resolve, 0);
+                                    });
+                                 }
                               }}
-                              components={{
-                                 Toolbar: (props) => <div />,
-                              }}
-                              options={{
-                                 actionsColumnIndex: -1,
-                                 paging: false,
-                              }}
+
                               editable={{
-                                 onRowUpdate: (newData, oldData) =>
-                                    new Promise((resolve, reject) => {
-                                       {
-                                          const index = items.indexOf(oldData);
-                                          items[index] = newData;
-                                          seTitems(items);
-                                          totalCebirItems();
-                                       }
-                                       resolve();
-                                    }),
                                  onRowDelete: (oldData) =>
                                     new Promise((resolve, reject) => {
                                        {
@@ -1318,7 +1170,21 @@ export default function InvoiceEdit(props) {
                                        resolve();
                                     }),
                               }}
+
+                              style={{
+                                 width: "100%",
+                                 boxShadow: "1px -2px 5px 0px #0000000f",
+                              }}
+                              components={{
+                                 Toolbar: (props) => <div />,
+                              }}
+                              options={{
+                                 paging: false,
+                              }}
                            />
+
+
+
                         </Grid>
                         <Grid container item sm={6} spacing={0} />
                         <Grid container item sm={6} spacing={0}>
@@ -1339,14 +1205,15 @@ export default function InvoiceEdit(props) {
                                     </TableCell>
                                  </TableRow>
                                  <TableRow>
-                                    <TableCell>Discount (After Tax) </TableCell>
+                                    <TableCell>Discount   (After Tax) </TableCell>
                                     <TableCell>
                                        <TextValidator
                                           margin="dense"
                                           type="number"
                                           style={{
                                              width: "100px",
-                                             marginLeft: "70px",
+                                             marginLeft: "10px",
+                                             float: 'left'
                                           }}
                                           value={totalAll.discount}
                                           onChange={onChangeFdiscount}
@@ -1360,6 +1227,7 @@ export default function InvoiceEdit(props) {
                                           onChange={handleChangeDiscountType}
                                           style={{
                                              marginTop: "5px",
+                                             float: "left"
                                           }}
                                        >
                                           <MenuItem value="%">%</MenuItem>

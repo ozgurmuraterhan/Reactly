@@ -317,6 +317,10 @@ body {
     text-align: center !important;
 }
 
+.MuiTableCell-alignRight div {
+    margin: 0 auto;
+}
+
 .MuiTableCell-body .MuiIconButton-root {
     padding: 5px !important;
 }

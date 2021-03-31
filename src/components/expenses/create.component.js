@@ -77,18 +77,14 @@ export default function ExpenseCreate(props) {
    const [dataCustomers, seTdataCustomers] = useState([]);
    const [dataProducts, seTdataProducts] = useState([]);
    const [dataBankAccount, seTdataBankAccount] = useState("");
-   const [focus, seTfocus] = useState({
-      focus1: true,
-      focus2: false,
-      focus3: false,
-      focus4: false,
-   });
+
    const [changeNewGroupNameJust, seTchangeNewGroupNameJust] = useState("");
    const [findCustomersGroup, seTfindCustomersGroup] = useState([]);
    const [gropBoxOpen, seTgropBoxOpen] = useState(false);
 
    const [selectedDefaultCustomer, seTselectedDefaultCustomer] = useState(0);
    const [dataPaymentsMethod, seTdataPaymentsMethod] = useState("");
+   const [selectedDefaultProduct, seTselectedDefaultProduct] = useState([]);
 
    const [product, seTproduct] = useState({
       product_description: "",
@@ -131,86 +127,25 @@ export default function ExpenseCreate(props) {
       {
          title: t("productName"),
          field: "product_name",
-         editComponent: (props) => (
-            <TextValidator
-               multiline
-               required
-               margin="dense"
-               type="text"
-               value={props.value}
-               onChange={(e) => {
-                  props.onChange(e.target.value);
-               }}
-            />
-         ),
+
       },
       {
-         title: t("productDescription"),
+         title: t("Description"),
          field: "product_description",
-         editComponent: (props) => (
-            <TextValidator multiline required margin="dense" type="text" value={props.value} onChange={(e) => props.onChange(e.target.value)} />
-         ),
+
       },
       {
          title: t("Quantity"),
          field: "quantity",
          type: "numeric",
          render: (rowData) => <div>{`${rowData.quantity} ${rowData.quantity_name} ${rowData.unit}`}</div>,
-         editComponent: (props) => (
-            <TextValidator
-               margin="dense"
-               type="number"
-               value={props.value}
-               autoFocus={focus.focus1}
-               onChange={(e) => {
-                  props.onChange(e.target.value);
-                  seTanyAmount(
-                     Number(
-                        props.rowData.price * e.target.value * (1 + props.rowData.tax / 100) -
-                        props.rowData.price * e.target.value * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
-                     ).toFixed(2)
-                  );
-                  seTfocus({
-                     focus1: true,
-                     focus2: false,
-                     focus3: false,
-                     focus4: false,
-                  });
-               }}
-               validators={["isNumber"]}
-               errorMessages={[t("thisIsNotNumber")]}
-            />
-         ),
+
       },
       {
          title: t("Price"),
          field: "price",
          type: "numeric",
-         editComponent: (props) => (
-            <TextValidator
-               margin="dense"
-               type="number"
-               value={props.value}
-               autoFocus={focus.focus2}
-               onChange={(e) => {
-                  props.onChange(e.target.value);
-                  seTanyAmount(
-                     Number(
-                        e.target.value * props.rowData.quantity * (1 + props.rowData.tax / 100) -
-                        e.target.value * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + props.rowData.tax / 100)
-                     ).tofixed
-                  );
-                  seTfocus({
-                     focus1: false,
-                     focus2: true,
-                     focus3: false,
-                     focus4: false,
-                  });
-               }}
-               validators={["isNumber"]}
-               errorMessages={[t("thisIsNotNumber")]}
-            />
-         ),
+
       },
 
       {
@@ -218,48 +153,13 @@ export default function ExpenseCreate(props) {
          field: "tax",
          type: "numeric",
          render: (rowData) => <div>{`${rowData.tax} %`}</div>,
-         editComponent: (props) => (
-            <TextValidator
-               margin="dense"
-               type="number"
-               value={props.value}
-               autoFocus={focus.focus4}
-               onChange={(e) => {
-                  props.onChange(e.target.value);
-                  seTanyAmount(
-                     Number(
-                        props.rowData.price * props.rowData.quantity * (1 + e.target.value / 100) -
-                        props.rowData.price * props.rowData.quantity * (0 + props.rowData.discount / 100) * (1 + e.target.value / 100)
-                     ).tofixed(2)
-                  );
 
-                  seTfocus({
-                     focus1: false,
-                     focus2: false,
-                     focus3: false,
-                     focus4: true,
-                  });
-               }}
-               validators={["isNumber"]}
-               errorMessages={[t("thisIsNotNumber")]}
-            />
-         ),
       },
       {
-         title: t("Amounth"),
+         title: t("Amount"),
          field: "amount",
          type: "numeric",
-         editComponent: (props) => (
-            <TextValidator
-               margin="dense"
-               type="text"
-               disabled
-               value={anyAmount ? anyAmount : props.value}
-               onChange={(e) => props.onChange(e.target.value)}
-               validators={["isNumber"]}
-               errorMessages={[t("thisIsNotNumber")]}
-            />
-         ),
+         editable: "never"
       },
    ];
 
@@ -282,6 +182,24 @@ export default function ExpenseCreate(props) {
       ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
       ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
    };
+
+   function getProductsF() {
+      axios
+         .get("/products")
+         .then((response) => {
+            if (response.data.length > 0) {
+               const details = [];
+               for (const i in response.data) {
+                  details.push({
+                     label: response.data[i].product_name,
+                     value: response.data[i]._id,
+                  });
+               }
+               seTdataProducts(details);
+            }
+         })
+         .catch((err) => console.log(err));
+   }
 
    function getCustomersF() {
       axios
@@ -344,12 +262,10 @@ export default function ExpenseCreate(props) {
                   });
                }
                seTdataBankAccount(details);
-               console.log(details);
             }
          })
          .catch((err) => console.log(err));
    }
-
    const onClickAddItem = (e) => {
       e.preventDefault();
       items.push({
@@ -460,7 +376,6 @@ export default function ExpenseCreate(props) {
    const saveHandleNewGroup = () => {
       const data = {
          created_user: { name: user.name, id: user.id },
-
          name: changeNewGroupNameJust,
       };
 
@@ -487,12 +402,12 @@ export default function ExpenseCreate(props) {
       getCustomersF();
       getBankAccountF();
       getExpensesCategories();
+      getProductsF();
+
    }, []);
 
    const onSubmit = (e) => {
       e.preventDefault();
-
-      console.log(state.bank_account)
       var paymentsArray = [
          {
             amount: totalAll.total.toFixed(2),
@@ -500,8 +415,6 @@ export default function ExpenseCreate(props) {
             account_name: state.bank_account,
          },
       ];
-
-
 
       const Expense = {
          created_user: { name: user.name, id: user.id },
@@ -521,6 +434,7 @@ export default function ExpenseCreate(props) {
          items: items,
          quantity,
          quantity_name,
+         bank_account: state.bank_account,
 
          payments: paymentsArray,
       };
@@ -549,7 +463,7 @@ export default function ExpenseCreate(props) {
 
 
                axios
-                  .post(`/paymentsaccounts/add`, paymentsPrime)
+                  .post(`/paymentsaccountsdetail/add`, paymentsPrime)
                   .then((res) => {
                      if (res.data.variant === "error") {
                         enqueueSnackbar(t("Not Added Payments") + res.data.messagge, {
@@ -566,7 +480,6 @@ export default function ExpenseCreate(props) {
                   })
                   .catch((err) => console.log(err));
 
-
                enqueueSnackbar(t("Expense Added") + res.data.messagge, {
                   variant: res.data.variant,
                });
@@ -575,6 +488,28 @@ export default function ExpenseCreate(props) {
             }
          })
          .catch((err) => console.log(err));
+   };
+
+   const handleChangeProduct = (selectedOption) => {
+      axios
+         .get(`/products/${selectedOption.value}`)
+         .then((response) => {
+            const productData = response.data;
+            const amount = productData.sale_price * quantity * (1 + productData.product_vat / 100);
+            seTproduct({
+               ...product,
+               product_description: productData.product_description,
+               product_name: productData.product_name,
+               sale_price: productData.sale_price,
+               product_vat: productData.product_vat,
+               amount: amount,
+            });
+         })
+         .catch((err) => console.log(err));
+      seTselectedDefaultProduct({
+         label: selectedOption.label,
+         value: selectedOption.value,
+      });
    };
 
    return (
@@ -759,7 +694,6 @@ export default function ExpenseCreate(props) {
                               </FormControl>
                            </FormGroup>
                         </Grid>
-
                         <Grid
                            item
                            container
@@ -770,13 +704,33 @@ export default function ExpenseCreate(props) {
                               margin: "15px 0",
                            }}
                         >
-                           <Grid item container sm={8} spacing={0}>
-                              <Typography component="h1" variant="h6" color="inherit" noWrap className="typography" style={{ paddingLeft: "20px" }}>
-                                 {t("Items")}
-                              </Typography>
+                           <Grid item container sm={3} spacing={0}>
+                              <FormGroup className="FormGroup">
+                                 <FormControl>
+                                    <Select
+                                       placeholder={t("addProduct")}
+                                       value={selectedDefaultProduct}
+                                       options={dataProducts}
+                                       onChange={handleChangeProduct}
+                                       styles={{
+                                          control: (base) => ({
+                                             ...base,
+                                             color: "white",
+                                             width: "100%",
+                                             border: 0,
+                                             borderBottom: "1px solid #949494",
+                                             borderRadius: 0,
+                                             marginTop: "10px",
+                                          }),
+                                       }}
+                                    />
+                                    <FormHelperText>{t("youNeedaProductName")}</FormHelperText>
+                                 </FormControl>
+                              </FormGroup>
                            </Grid>
+                           <Grid item container sm={3} spacing={0} />
 
-                           <Grid item container sm={4} spacing={0}>
+                           <Grid item container sm={6} spacing={0}>
                               <RadioGroup
                                  value={quantity_name}
                                  onChange={(event) => {
@@ -786,7 +740,7 @@ export default function ExpenseCreate(props) {
                               >
                                  <label
                                     style={{
-                                       marginTop: "20px",
+                                       marginTop: "31px",
                                        marginRight: "10px",
                                     }}
                                  >
@@ -901,32 +855,24 @@ export default function ExpenseCreate(props) {
                         </Grid>
                         <Grid container item sm={12} spacing={0}>
                            <MaterialTable
-                              title="Editable Preview"
+                              title="Cell Editable Preview"
                               columns={columns}
                               data={items}
                               icons={tableIcons}
-                              style={{
-                                 width: "100%",
-                                 boxShadow: "1px -2px 5px 0px #0000000f",
+
+                              cellEditable={{
+                                 onCellEditApproved: (newValue, oldValue, rowData, columnDef) => {
+                                    return new Promise((resolve, reject) => {
+                                       const data = [...items]
+                                       data[rowData.tableData.id][columnDef.field] = newValue
+                                       seTitems(data)
+                                       totalCebirItems()
+                                       setTimeout(resolve, 0);
+                                    });
+                                 }
                               }}
-                              components={{
-                                 Toolbar: (props) => <div />,
-                              }}
-                              options={{
-                                 actionsColumnIndex: -1,
-                                 paging: false,
-                              }}
+
                               editable={{
-                                 onRowUpdate: (newData, oldData) =>
-                                    new Promise((resolve, reject) => {
-                                       {
-                                          const index = items.indexOf(oldData);
-                                          items[index] = newData;
-                                          seTitems(items);
-                                          totalCebirItems();
-                                       }
-                                       resolve();
-                                    }),
                                  onRowDelete: (oldData) =>
                                     new Promise((resolve, reject) => {
                                        {
@@ -937,6 +883,17 @@ export default function ExpenseCreate(props) {
                                        }
                                        resolve();
                                     }),
+                              }}
+
+                              style={{
+                                 width: "100%",
+                                 boxShadow: "1px -2px 5px 0px #0000000f",
+                              }}
+                              components={{
+                                 Toolbar: (props) => <div />,
+                              }}
+                              options={{
+                                 paging: false,
                               }}
                            />
                         </Grid>

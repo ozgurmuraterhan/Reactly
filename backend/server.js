@@ -55,7 +55,7 @@ app.use("/products", productsRouter);
 app.use("/invoices", invoicesRouter);
 app.use("/bankaccounts", BankAccountsRouter);
 app.use("/paymentsmethods", PaymentsMethodsRouter);
-app.use("/paymentsaccounts", PaymentsAccounts);
+app.use("/paymentsaccountsdetail", PaymentsAccounts);
 app.use("/expensescategories", Expensescategories);
 app.use("/expenses", Expenses);
 

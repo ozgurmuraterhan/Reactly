@@ -39,11 +39,18 @@ const ExpensesSchema = new Schema(
       due_note: {
          type: String,
       },
+
+      bank_account: {
+         type: Object,
+         required: true
+      },
+
       payments: [
          {
             amount: { type: Number, required: true },
             paid_date: { type: Date, required: true },
             account_name: { type: Object, required: true },
+
          },
       ],
 
