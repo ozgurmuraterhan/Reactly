@@ -9,10 +9,7 @@ import './i18n';
 
 ReactDOM.render(
     <AuthProvider>
-        <SnackbarProvider
-            maxSnack={2}
-            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
+        <SnackbarProvider maxSnack={2} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
             <App />
         </SnackbarProvider>
     </AuthProvider>,

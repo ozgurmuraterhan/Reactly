@@ -125,9 +125,9 @@ export default function InvoicesList(props) {
          },
       },
       {
-         title: t("Add PaymentsMethod"),
+         title: t("Add Payments"),
          render: (rowData) => {
-            return <div onClick={() => getPaymentsMethodData(rowData._id)}>Add PaymentsMethod</div>;
+            return <div onClick={() => getPaymentsMethodData(rowData._id)}>{t("Add Payments")}</div>;
          },
       },
 
@@ -145,10 +145,10 @@ export default function InvoicesList(props) {
 
                if (rowData.total == payment_amount) {
                   return <span className="invoice_paid">{t("PAID")}</span>;
-               } else if (rowData.total > payment_amount && duadate < nowdate) {
-                  return <span className="invoice_unpaid">{t("UNPAID")}</span>;
                } else if (rowData.total > payment_amount > 0) {
                   return <span className="invoice_partical">{t("PARTICAL")}</span>;
+               } else if (rowData.total > payment_amount && duadate < nowdate) {
+                  return <span className="invoice_unpaid">{t("UNPAID")}</span>;
                }
             }
          },
