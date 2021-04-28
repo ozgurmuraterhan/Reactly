@@ -1,9 +1,7 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import {
     BrowserRouter as Router,
-    Route,
-    Link,
-    useHistory,
+    Route, 
 } from "react-router-dom";
 
 import PrivateRoute from "./Hocs/PrivateRoute";
@@ -13,9 +11,7 @@ import AuthService from "./Services/AuthService";
 import { AuthContext } from "./Context/AuthContext";
 
 import { useTranslation } from "react-i18next";
-import SideNav, {
-    Toggle,
-    Nav,
+import SideNav, { 
     NavItem,
     NavIcon,
     NavText,
@@ -31,8 +27,7 @@ import {
     InsertChart,
     ArrowDropDownCircle,
     PowerSettingsNew,
-    Dashboard,
-} from "@material-ui/icons";
+ } from "@material-ui/icons";
 import i18n from "./i18n";
 
 /* import UserEdit from './components/users/edit.component';

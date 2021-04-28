@@ -1,23 +1,17 @@
 {
-    "extends": [
-        "airbnb"
-    ],
-    "env": {
-        "es6": true
-    },
     "parserOptions": {
-        "ecmaVersion": 2018,
-        "sourceType": "module",
+        "ecmaVersion": 6,
         "ecmaFeatures": {
-            "jsx": true
-        }
+            "jsx": true,
+            "impliedStrict": true
+        },
+        "sourceType": "module"
     },
     "rules": {
-        "no-tabs": [
-            "error",
-            {
-                "allowIndentationTabs": true
-            }
-        ]
-    }
+        "indent": ["warn", 2],
+        "react/jsx-indent": "warn"
+    },
+    "plugins": [
+        "react"
+    ]
 }
